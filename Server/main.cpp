@@ -1,10 +1,4 @@
-#include <iostream>
-#include <vector>
-
-#include <winsock2.h>
-#include <windows.h>
-
-#pragma comment(lib, "ws2_32.lib")
+#include "pch.h"
 
 std::vector<SOCKET> clients;
 
