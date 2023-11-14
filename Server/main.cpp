@@ -1,5 +1,19 @@
 #include "Server.h"
 
+int WINAPI WinMain(
+	_In_ HINSTANCE hInstance,
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ LPSTR     lpCmdLine,
+	_In_ int       nCmdShow
+)
+{
+	Server server(hInstance, "6666");
+
+	if (server.init())
+		return 1;
+	server.run();
+}
+
 /*
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -35,14 +49,12 @@ int initWinsock()
 	WSADATA wsaData;
 	int iResult;
 
-	//	The WSAStartup function is called to initiate use of WS2_32.dll.
-	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (iResult != 0) {
-		printf("WSAStartup failed: %d\n", iResult);
-		return 1;
-	}
-	return 0;
-}
+        SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+        if (serverSocket == INVALID_SOCKET) {
+            std::cerr << "Error creating socket: " << WSAGetLastError() << std::endl;
+            PostQuitMessage(1);
+            return -1;
+        }
 
 int createSocket(SOCKET* listenSocket)
 {
@@ -137,20 +149,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	return 0;
 }*/
-
-int WINAPI WinMain(
-	_In_ HINSTANCE hInstance,
-	_In_opt_ HINSTANCE hPrevInstance,
-	_In_ LPSTR     lpCmdLine,
-	_In_ int       nCmdShow
-)
-{
-	Server server(hInstance, "6666");
-
-	if (server.init())
-		return 1;
-	server.run();
-}
 	/*WNDCLASSEX wcex;
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
@@ -244,35 +242,32 @@ int WINAPI WinMain(
 		}
 		//closesocket(ListenSocket);
 
-		//	###		RECEIVING AND SENDING DATA ON A SERVER		###
-		char recvbuf[DEFAULT_BUFLEN];
-		int recvbuflen = DEFAULT_BUFLEN;
-		const char* mess = "Hello World\n";
-		do {
-			iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
-			if (iResult > 0) {
-				printf("Message recived: ");
-				printMessage(recvbuf, iResult);
-				// Echo the buffer back to the sender
-				iSendResult = send(ClientSocket, mess, strlen(mess), 0);
-				if (iSendResult == SOCKET_ERROR) {
-					printf("send failed: %d\n", WSAGetLastError());
-					closesocket(ClientSocket);
-					WSACleanup();
-					return 1;
-				}
-				printf("Bytes sent: %d\nMessage Sent: ", iSendResult);
-				printMessage((char *)mess, iSendResult);
-			}
-			else if (iResult == 0)
-				printf("Connection closing...\n");
-			else {
-				printf("recv failed: %d\n", WSAGetLastError());
+	//	###		RECEIVING AND SENDING DATA ON A SERVER		###
+	char recvbuf[DEFAULT_BUFLEN];
+	int recvbuflen = DEFAULT_BUFLEN;
+	do {
+		iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
+		if (iResult > 0) {
+			printf("Bytes received: %d\n", iResult);
+			// Echo the buffer back to the sender
+			iSendResult = send(ClientSocket, recvbuf, iResult, 0);
+			if (iSendResult == SOCKET_ERROR) {
+				printf("send failed: %d\n", WSAGetLastError());
 				closesocket(ClientSocket);
 				WSACleanup();
 				return 1;
 			}
-		} while (iResult > 0);
+			printf("Bytes sent: %d\n", iSendResult);
+		}
+		else if (iResult == 0)
+			printf("Connection closing...\n");
+		else {
+			printf("recv failed: %d\n", WSAGetLastError());
+			closesocket(ClientSocket);
+			WSACleanup();
+			return 1;
+		}
+	} while (iResult > 0);
 
 		//	###		DISCONNECT THE SERVER		###
 		// shutdown the send half of the connection since no more data will be sent
