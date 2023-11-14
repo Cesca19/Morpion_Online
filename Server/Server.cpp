@@ -17,8 +17,6 @@ Server* Server::getServer()
 LRESULT CALLBACK
 MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	// Forward hwnd on because we can get messages (e.g., WM_CREATE)
-	// before CreateWindow returns, and thus before mhMainWnd is valid.
 	return (Server::getServer()->wndProc(hwnd, msg, wParam, lParam));
 }
 
@@ -68,7 +66,6 @@ LRESULT Server::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return DefWindowProc(hWnd, message, wParam, lParam);
 		break;
 	}
-
 	return 0;
 }
 
