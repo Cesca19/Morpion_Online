@@ -10,6 +10,11 @@ LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
         x = mousePos.x;
         y = mousePos.y;
     }
+    //Check the mouse left button is pressed or not
+    if (GetAsyncKeyState(VK_LBUTTON))
+    {
+        MessageBox(hWnd, L"left click pressed", L"UwU", 0);
+    }
 
 
     switch (message) {
