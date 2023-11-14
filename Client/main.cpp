@@ -1,133 +1,96 @@
+#include <iostream>
+
 #include <winsock2.h>
+#include <windows.h>
 #include <ws2tcpip.h>
-#include <stdio.h>
+#pragma comment(lib, "ws2_32.lib")
 
-#pragma comment(lib, "Ws2_32.lib")
+// Client Window Procedure
+LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+    switch (message) {
+    case WM_CREATE:
+    {
+        // Set up client (create socket, connect to the server, etc.)
+        WSADATA wsaData;
+        if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+            std::cerr << "WSAStartup failed." << std::endl;
+            PostQuitMessage(1);
+            return -1;
+        }
 
-#define DEFAULT_PORT "6666"
-#define DEFAULT_BUFLEN 512
+        SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+        if (clientSocket == INVALID_SOCKET) {
+            std::cerr << "Error creating socket: " << WSAGetLastError() << std::endl;
+            PostQuitMessage(1);
+            return -1;
+        }
 
+        PCWSTR ipAddressText = L"127.0.0.1";  // Replace with your desired IP address
 
-int initWinsock()
-{
-	//	###		INITIALIZE WINSOCK		###
-	// initialize the use of the Windows Sockets DLL
-	//  before making other Winsock functions calls
-	WSADATA wsaData;
-	int iResult;
+        sockaddr_in serverAddress;
+        if (InetPton(AF_INET, ipAddressText, &(serverAddress.sin_addr)) == 1) {
+            // Conversion successful
+            std::cout << "Binary representation: " << serverAddress.sin_addr.S_un.S_addr << std::endl;
+        }
+        else {
+            // Conversion failed
+            std::cerr << "InetPton failed. Error code: " << WSAGetLastError() << std::endl;
+        }
 
-	//	The WSAStartup function is called to initiate use of WS2_32.dll.
-	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (iResult != 0) {
-		printf("WSAStartup failed: %d\n", iResult);
-		return 1;
-	}
-	return 0;
+        if (connect(clientSocket, reinterpret_cast<SOCKADDR*>(&serverAddress), sizeof(serverAddress)) == SOCKET_ERROR) {
+            std::cerr << "Error connecting to server: " << WSAGetLastError() << std::endl;
+            closesocket(clientSocket);
+            PostQuitMessage(1);
+            return -1;
+        }
+
+        // Start receiving messages in a separate thread or use asynchronous I/O
+            // Clean up resources
+        closesocket(clientSocket);
+        WSACleanup();
+        PostQuitMessage(0);
+
+        return 0;
+
+    }
+    break;
+
+    // Add other message handling cases as needed
+
+    case WM_DESTROY:
+        // Clean up resources
+        WSACleanup();
+        PostQuitMessage(0);
+        break;
+
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+    return 0;
 }
 
-int main(int argc, char **argv) 
-{
-	if (initWinsock())
-		return 1;
+int  WinMain(
+    HINSTANCE hInstance,
+    HINSTANCE hPrevInstance,
+    LPSTR lpCmdLine,
+    int nShowCmd
+) {
+    // Register client window class
+    WNDCLASS clientClass = {};
+    clientClass.lpfnWndProc = ClientWndProc;
+    clientClass.hInstance = GetModuleHandle(nullptr);
+    clientClass.lpszClassName = L"ClientClass";
+    RegisterClass(&clientClass);
 
-	struct addrinfo* result = NULL,
-		* ptr = NULL,
-		hints;
-	int iResult;
-	// Socket creation
-	ZeroMemory(&hints, sizeof(hints));
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
+    // Create client window
+    HWND clientWindow = CreateWindow(L"ClientClass", L"Client Window", 0, 0, 0, 0, 0, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
 
-	// Resolve the server address and port
-	iResult = getaddrinfo(argv[1], DEFAULT_PORT, &hints, &result);
-	if (iResult != 0) {
-		printf("getaddrinfo failed: %d\n", iResult);
-		WSACleanup();
-		return 1;
-	}
+    // Message loop
+    MSG msg;
+    while (GetMessage(&msg, nullptr, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
 
-	// create a socket
-	SOCKET ConnectSocket = INVALID_SOCKET;
-	// Attempt to connect to the first address returned by
-	// the call to getaddrinfo
-	ptr = result;
-
-	// Create a SOCKET for connecting to server
-	ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype,
-		ptr->ai_protocol);
-
-	if (ConnectSocket == INVALID_SOCKET) {
-		printf("Error at socket(): %ld\n", WSAGetLastError());
-		freeaddrinfo(result);
-		WSACleanup();
-		return 1;
-	}
-
-	// connect to server
-	iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
-	if (iResult == SOCKET_ERROR) {
-		closesocket(ConnectSocket);
-		ConnectSocket = INVALID_SOCKET;
-	}
-
-	freeaddrinfo(result);
-
-	if (ConnectSocket == INVALID_SOCKET) {
-		printf("Unable to connect to server!\n");
-		WSACleanup();
-		return 1;
-	}
-
-	//	Sending and Receiving Data on the Client
-	int recvbuflen = DEFAULT_BUFLEN;
-	const char* sendbuf = "this is a test";
-	char recvbuf[DEFAULT_BUFLEN];
-
-	// Send an initial buffer
-	iResult = send(ConnectSocket, sendbuf, (int)strlen(sendbuf), 0);
-	if (iResult == SOCKET_ERROR) {
-		printf("send failed: %d\n", WSAGetLastError());
-		closesocket(ConnectSocket);
-		WSACleanup();
-		return 1;
-	}
-	printf("Bytes Sent: %ld\n", iResult);
-
-	// shutdown the connection for sending since no more data will be sent
-	// the client can still use the ConnectSocket for receiving data
-	iResult = shutdown(ConnectSocket, SD_SEND);
-	if (iResult == SOCKET_ERROR) {
-		printf("shutdown failed: %d\n", WSAGetLastError());
-		closesocket(ConnectSocket);
-		WSACleanup();
-		return 1;
-	}
-
-	// Receive data until the server closes the connection
-	do {
-		iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
-		if (iResult > 0)
-			printf("Bytes received: %d\n", iResult);
-		else if (iResult == 0)
-			printf("Connection closed\n");
-		else
-			printf("recv failed: %d\n", WSAGetLastError());
-	} while (iResult > 0);
-
-	// shutdown the send half of the connection since no more data will be sent
-	iResult = shutdown(ConnectSocket, SD_SEND);
-	if (iResult == SOCKET_ERROR) {
-		printf("shutdown failed: %d\n", WSAGetLastError());
-		closesocket(ConnectSocket);
-		WSACleanup();
-		return 1;
-	}
-
-	// cleanup
-	closesocket(ConnectSocket);
-	WSACleanup();
-
-	return 0;
+    return 0;
 }
