@@ -124,9 +124,10 @@ int WINAPI WinMain(
 
 	// Receive message date until the server closes the connection
 	do {
+		ZeroMemory(recvbuf, DEFAULT_BUFLEN);
 		iResult = recv(mySocket, recvbuf, recvbuflen, 0);
 		if (iResult > 0) {
-			print("Message received: ");
+			print("Message received in client: ");
 			print(std::string(recvbuf) + " \n");
 		}
 		else if (iResult == 0)
@@ -135,4 +136,7 @@ int WINAPI WinMain(
 			print("recv failed: " + std::to_string(WSAGetLastError()) + "\n");
 	} while (iResult > 0);
 
+	closesocket(mySocket);
+	WSACleanup();
+	return 0;
 }

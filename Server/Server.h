@@ -30,6 +30,7 @@ private:
 	int acceptClient();
 	int initServer();
 	int sendData(std::string data, SOCKET clientSocket);
+	int readData(WPARAM wParam, LPARAM lParam);
 
 	HINSTANCE _hInstance = nullptr;
 	HWND _hwnd = nullptr;
