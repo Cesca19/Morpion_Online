@@ -1,4 +1,5 @@
 #include "pch.h"
+
 // Client Window Procedure
 LRESULT CALLBACK ClientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
