@@ -6,6 +6,9 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <unordered_map>
+
+#include "Player.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -37,7 +40,8 @@ private:
 
 	SOCKET _listenSocket;
 	std::string _port;
-	std::vector<SOCKET> _clientSockets;
+	std::vector<std::shared_ptr<Player>> _playersVect;
+	std::unordered_map<SOCKET, std::shared_ptr<Player>> _playersMap;
 
 	static Server* _server;
 

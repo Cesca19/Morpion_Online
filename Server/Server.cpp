@@ -224,8 +224,12 @@ int Server::acceptClient()
 		return 1;
 	}
 	WSAAsyncSelect(ClientSocket, _hwnd, WM_USER + 2, FD_READ | FD_CLOSE);
-	_clientSockets.push_back(ClientSocket);
-	sendData("Hello world", ClientSocket);
+
+	PlayerType type = (_playersVect.size() == 0) ? PLAYER1 : (_playersVect.size() == 1) ? PLAYER2 : SPECTATOR;
+	std::shared_ptr<Player> player(new Player(ClientSocket, type));
+	_playersVect.push_back(player);
+	_playersMap[ClientSocket] = player;
+	sendData("Your are player type" + std::to_string(type), ClientSocket);
 	return 0;
 }
 
