@@ -1,4 +1,21 @@
-#include <winsock2.h>
+#include "Client.h"
+
+int WINAPI WinMain(
+	_In_ HINSTANCE hInstance,
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ LPSTR     lpCmdLine,
+	_In_ int       nCmdShow
+)
+{
+	Client client(hInstance, "127.0.0.1", "6666");
+
+	if (client.init())
+		return 1;
+	client.run();
+}
+
+
+/*#include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdio.h>
 #include <string>
@@ -139,4 +156,4 @@ int WINAPI WinMain(
 	closesocket(mySocket);
 	WSACleanup();
 	return 0;
-}
+}*/
