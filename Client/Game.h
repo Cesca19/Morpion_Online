@@ -3,6 +3,7 @@
 #include <memory>
 #include <SFML/Graphics.hpp>
 #include "Client.h"
+#include "../Core/Core.h"
 
 class Game
 {
@@ -20,7 +21,9 @@ public:
 	int launchGame(std::string player1, std::string player2, sf::Event* event);
 	
 private:
-	Client* client;
+	Core* m_core;
+	Client* m_client;
+	
 	std::shared_ptr<sf::RenderWindow> _window;
 	std::vector<std::shared_ptr<sf::RectangleShape>> _gameBoard;
 	std::vector<std::shared_ptr<sf::CircleShape>> _shapes;

@@ -13,12 +13,9 @@ Game::Game() : _window(NULL), _width(100), _height(100),
     win->setPosition({ (float)(_width / 2.5) , (float)(_height / 8) });
     win->setFillColor({ 222, 184, 135 });
     _winMessage = win;
-    _gameMap = new int* [3];
-    for (int j = 0; j < 3; j++) {
-        _gameMap[j] = new int[3];
-        _gameMap[j][0] = _gameMap[j][1] = _gameMap[j][2] = 0;
-    }
-    client = new Client();
+
+    m_core = new Core();
+    m_client = new Client();
 }
 
 Game::~Game()
@@ -28,7 +25,6 @@ Game::~Game()
 void Game::createGameWindow(std::string name, int width, int height)
 {
 	std::shared_ptr<sf::RenderWindow> window(new sf::RenderWindow(sf::VideoMode(width, height), name));
-	
     _window = window;
 }
 
@@ -56,6 +52,8 @@ void Game::run()
             player1 = getPlayerName("Player 1", &event);
             player2 = getPlayerName("Player 2", &event);
             i++;
+
+            m_core->InitPlayer(player1, player2);
         }
         if (!winner)
             winner = launchGame(player1, player2, &event);
@@ -157,7 +155,6 @@ int Game::launchGame(std::string player1, std::string player2, sf::Event *event)
     std::shared_ptr<sf::Text> text(new sf::Text(mess, *(_font)));
     int winner = 0;
 
-
     text->setCharacterSize(80);
     text->setStyle(sf::Text::Bold);
     text->setPosition({ (float)(_width / 15) , (float)(_height / 15) });
@@ -214,7 +211,7 @@ int Game::printGameboard(int sides)
                 int row = i / 3;
                 int col = i % 3;
                 _gameMap[row][col] = (sides == 3) ? 1 : 2;
-                client->SendMove(row, col);
+                m_client->SendMove(row, col);
                 
                 float radius = (rect.width / 3);
                 std::shared_ptr<sf::CircleShape> 
