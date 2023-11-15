@@ -4,15 +4,15 @@
 #include <unordered_map>
 #include "../nlohmann/json.hpp"
 
-static class GameProtocol
+class GameProtocol
 {
 private:
 public:
 	GameProtocol();
 	~GameProtocol();
 
-	//void handleMessages(const std::string& message, std::unordered_map<SOCKET>& clients);
-
-
-
+	void handleMessages(const std::string& message, SOCKET client);
+	nlohmann::json receiveJsonMessage(SOCKET socket);
+	void sendJsonMessage(SOCKET socket, const nlohmann::json& message);
+		 
 };
