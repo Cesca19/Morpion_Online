@@ -4,10 +4,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "Client\Client.vcxproj", "{4EA1FFBA-5F4E-443E-B542-F10502AAA359}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DFE8CAFD-1BFC-4CCD-BB8D-FCEA8FA9CF6E} = {DFE8CAFD-1BFC-4CCD-BB8D-FCEA8FA9CF6E}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "Server\Server.vcxproj", "{0E3E2FD7-71E9-4572-8154-E898DE9C08C5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DFE8CAFD-1BFC-4CCD-BB8D-FCEA8FA9CF6E} = {DFE8CAFD-1BFC-4CCD-BB8D-FCEA8FA9CF6E}
+	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameProtocolLib", "GameProtocolLib\GameProtocolLib.vcxproj", "{DFE8CAFD-1BFC-4CCD-BB8D-FCEA8FA9CF6E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "Core\Core.vcxproj", "{DFE8CAFD-1BFC-4CCD-BB8D-FCEA8FA9CF6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

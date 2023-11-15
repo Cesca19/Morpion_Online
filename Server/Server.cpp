@@ -139,6 +139,7 @@ int Server::createSocket()
 		return 1;
 	}
 	_listenSocket = INVALID_SOCKET;
+	
 	// Create a SOCKET for the server to listen for client connections
 	_listenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 	if (_listenSocket == INVALID_SOCKET) {
@@ -148,6 +149,7 @@ int Server::createSocket()
 		WSACleanup();
 		return 1;
 	}
+	
 	//	###		BINDING THE SOCKET		####
 	// For a server to accept client connections, it must be bound to a 
 	// network address within the system.
