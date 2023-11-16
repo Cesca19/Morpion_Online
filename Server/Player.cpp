@@ -24,8 +24,3 @@ int Player::sendMessage(std::string mess)
 	}
 	return 0;
 }
-
-SOCKET Player::getSocket()
-{
-	return _clientSocket;
-}

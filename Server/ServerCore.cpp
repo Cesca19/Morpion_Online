@@ -1,7 +1,8 @@
 #include "ServerCore.h"
 
 ServerCore::ServerCore(HINSTANCE hInstance, std::string port) :
-	Server(hInstance, port), _gameLogic(new Game())
+	Server(hInstance, port), _gameLogic(new Game()),
+	_lastPlayerMessage("")
 {
 }
 
@@ -39,11 +40,10 @@ void ServerCore::sendMessageToPlayers(std::string message)
 {
 	for (int i = 0; i < _playersVect.size(); i++)
 		_playersVect[i]->sendMessage(message);
+	OutputDebugStringA("SENDING TO PLAYERS----------------\n");
 }
 
 std::string ServerCore::getPlayerLastMessage()
 {
-	std::string tmp = _lastPlayerMessage;
-	_lastPlayerMessage = "";
-	return tmp;
+	return "";
 }

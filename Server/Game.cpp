@@ -74,93 +74,55 @@ void Game::sendMessageToPlayers(std::string message)
 
 std::string convertBoard(int** board)
 {
-    std::string mess;
-    for (int i = 0; i < 3; i++) {
-        mess += board[i][0] + '0';
-        mess += board[i][1] + '0';
-        mess += board[i][2] + '0';
-    }
-    return mess;
-}
-
-std::vector<std::string> split(std::string message, std::string delimiter)
-{
-    std::vector<std::string> mess;
-    std::string str = message;
-    size_t pos = 0;
-    std::string token;
-
-    while ((pos = str.find(delimiter)) != std::string::npos) {
-        token = str.substr(0, pos);
-        mess.push_back(token);
-        str.erase(0, pos + delimiter.length());
-    }
-    mess.push_back(str);
-    std::cout << str << std::endl;
-    return mess;
+    for (int i = 0; ; );
 }
 
 void Game::run()
 {
-    static std::string prevPlayer = "";
-    std::string mov;
-    std::vector<std::string> mess;
-    if (_isRunning && checkWinner() == 0 )  {
+    //OutputDebugStringA("hereeeeeeeeeeeeeeeeeeeeee\n");
+    if (_isRunning) {
+        OutputDebugStringA("hereeeeeeeeeeeeeeeeeeeeee             tooooooooooooo\n");
         // dire que c 'est au tour de _current de jouer
-       // sendMessageToPlayers("Board:" + convertBoard(_gameMap));
-        if (prevPlayer != _currentPlayer) {
-            OutputDebugStringA("################################################\n");
-            sendMessageToPlayers("Turn:" + _currentPlayer);
-            OutputDebugStringA(std::string("---------------------- PLAYER " + _currentPlayer + " TURN ------------------------\n").c_str());
-            
-            prevPlayer = _currentPlayer;
-        }
+        sendMessageToPlayers("Board:" + convertBoard(_gameMap));
+        sendMessageToPlayers("Turn:" + _currentPlayer);
         // attendre son movement
-        mov = ((ServerCore*)_core)->getPlayerLastMessage();
-        //OutputDebugStringA("here may be\n");
-        if (mov != "" && mov.substr(0, 5) == "move:") {
-            OutputDebugStringA("---------------------------------\n");
-            mess = split(mov, ":");
-            move(stoi(mess[1]), stoi(mess[2]));
-            // voir si qqun a gagné
-            // 
-            if (checkWinner() != 0)
-                sendMessageToPlayers("Winner or tie");
-            changePlayer();
-        }
-        OutputDebugStringA(("++++++++++++++++" + _currentPlayer + "+++++++++++++++++++++\n").c_str());
+        while (((ServerCore*)_core)->getPlayerLastMessage() != "move")
+        { }
+        // move(x, y)
+        // voir si qqun a gagné
+        //if (checkWinner)
+        //sendMessage("Winner or tie")
+        
+        // changer le current player
     }
 }
 
 void Game::move(int x, int y)
 {
-   if (_currentPlayer == _firstPlayer)
-        _gameMap[x][y] = 1;
+   /* if (m_currentPlayer == m_firstPlayer)
+        m_gameMap[pos.x][pos.y] = 1;
     else
-        _gameMap[x][y] = 2;
+        m_gameMap[pos.x][pos.y] = 2;
+
+    if (CheckWinner() == nullptr)
+        ChangePlayer();*/
+    // send game state
 }
 
 int Game::checkWinner()
 {
-    int zero = 0;
-    if (_gameMap[0][0] == _gameMap[1][1] && _gameMap[1][1] == _gameMap[2][2] && _gameMap[1][1] != 0)
-        return _gameMap[0][0];
-    if (_gameMap[0][2] == _gameMap[1][1] && _gameMap[1][1] == _gameMap[2][0] && _gameMap[1][1] != 0)
-        return _gameMap[1][1];
-    for (int j = 0; j < 3; j++)
-        if (_gameMap[0][j] == _gameMap[1][j] && _gameMap[1][j] == _gameMap[2][j] && _gameMap[0][j] != 0)
-            return _gameMap[0][j];
-    for (int i = 0; i < 3; i++)
-        if (_gameMap[i][0] == _gameMap[i][1] && _gameMap[i][1] == _gameMap[i][2] && _gameMap[i][0] != 0)
-            return _gameMap[i][0];
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            if (_gameMap[i][j] == 0)
-                zero++;
-        }
-    }
-    if (zero == 0)
-        return 3;
+    /*if (CheckMap(0, 0, 0, 1)) return m_currentPlayer;
+    if (CheckMap(1, 0, 0, 1)) return m_currentPlayer;
+    if (CheckMap(2, 0, 0, 1)) return m_currentPlayer;
+
+    if (CheckMap(0, 0, 1, 0)) return m_currentPlayer;
+    if (CheckMap(0, 1, 1, 0)) return m_currentPlayer;
+    if (CheckMap(0, 2, 1, 0)) return m_currentPlayer;
+
+    if (CheckMap(0, 0, 1, 1)) return m_currentPlayer;
+    if (CheckMap(2, 0, -1, 1)) return m_currentPlayer;
+
+    return nullptr;*/
     return 0;
 }
 

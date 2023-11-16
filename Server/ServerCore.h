@@ -14,6 +14,7 @@ public:
 	void sendMessageToPlayers(std::string Message);
 	std::string getPlayerLastMessage();
 private:
+	std::string _lastPlayerMessage;
 	std::shared_ptr<Game> _gameLogic;
 	//std::shared_ptr<Server> _gameServer;
 

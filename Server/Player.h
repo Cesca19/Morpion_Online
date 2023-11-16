@@ -17,7 +17,6 @@ public:
 	~Player();
 	void setName(std::string name);
 	int sendMessage(std::string mess);
-	SOCKET getSocket();
 private:
 	SOCKET _clientSocket;
 	PlayerType _type;
