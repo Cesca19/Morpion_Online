@@ -1,5 +1,5 @@
-﻿#pragma once
-
+#pragma once
+#define NOMINMAX 
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdio.h>
@@ -16,28 +16,29 @@
 class Client
 {
 public:
-    Client(HINSTANCE hInstance, std::string address, std::string port);
-    ~Client();
-    int init();
-    int run();
-    static Client* getClient();
-    LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	Client(HINSTANCE hInstance, std::string address, std::string port);
+	~Client();
+	int init();
+	int run();
+	static Client* getClient();
+	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-    int initWindow();
+	int initWindow();
 
-    int initWinsock();
-    int initClient();
-    int createSocket();
-    int sendData(std::string data);
-    std::string readData(WPARAM wParam, LPARAM lParam);
+	int initWinsock();
+	int initClient();
+	int createSocket();
+	int sendData(std::string data);
+	std::string readData(WPARAM wParam, LPARAM lParam);
 
-    HINSTANCE _hInstance = nullptr;
-    HWND _hwnd = nullptr;
+	HINSTANCE _hInstance = nullptr;
+	HWND _hwnd = nullptr;
 
-    SOCKET _connectSocket;
-    std::string _ipAddress;
-    std::string _port;
+	SOCKET _connectSocket;
+	std::string _ipAddress;
+	std::string _port;
 
-    static Client* _client;
+	static Client* _client;
 };
+
