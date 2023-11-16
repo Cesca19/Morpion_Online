@@ -5,12 +5,13 @@
 
 Server* Server::_server = nullptr;
 
+/*0
 void print(std::string mess)
 {
 	std::wstring res(mess.begin(), mess.end());
 	OutputDebugStringW(res.c_str());
 }
-
+*/
 Server* Server::getServer()
 {
 	return _server;
@@ -23,7 +24,7 @@ MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 Server::Server(HINSTANCE hInstance, std::string port) : _hInstance(hInstance),
-_port(port)
+_port(port), _lastPlayerMessage("")
 {
 	_server = this;
 }
@@ -94,7 +95,6 @@ int Server::initWindow()
 			L"Windows Desktop Guided Tour", NULL);
 		return 1;
 	}
-	ShowWindow(_hwnd, SW_SHOW);
 	UpdateWindow(_hwnd);
 	return 0;
 }
@@ -185,7 +185,7 @@ int Server::sendData(std::string data, SOCKET clientSocket)
 {
 	int iSendResult = send(clientSocket, data.c_str(), data.size(), 0);
 	if (iSendResult == SOCKET_ERROR) {
-		printf("send failed: %d\n", WSAGetLastError());
+		OutputDebugStringA( std::string ("send failed: " + std::to_string( WSAGetLastError())).c_str() );
 		closesocket(clientSocket);
 		WSACleanup();
 		return 1;
@@ -201,14 +201,16 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 	
 	ZeroMemory(recvbuf, DEFAULT_BUFLEN);
 	iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
-	std::string mess("Mess received in Server: " + std::string(recvbuf));	
-	print(mess + "\n");
+	
+	OutputDebugStringA( std::string("Mess received in Server: " + std::string(recvbuf) + "\n" ).c_str());
 	std::string receiveMess(recvbuf);
 	// mess handling
+	
 	if (std::string("name:") == receiveMess.substr(0, 5)) {
 		_playersMap[clientSocket]->setName(receiveMess.substr(5, receiveMess.size()));
 		addPlayer(receiveMess.substr(5, receiveMess.size()));
 	}
+	_lastPlayerMessage = receiveMess;
 
 	if (iResult < 0) {
 		std::string mess("recv failed: " + std::to_string(WSAGetLastError()));
@@ -226,7 +228,7 @@ int Server::acceptClient()
 
 	ClientSocket = accept(_listenSocket, NULL, NULL);
 	if (ClientSocket == INVALID_SOCKET) {
-		print("accept failed: " + std::to_string(WSAGetLastError()) + "\n");
+		OutputDebugStringA(("accept failed: " + std::to_string(WSAGetLastError()) + "\n").c_str());
 		closesocket(_listenSocket);
 		WSACleanup();
 		return 1;

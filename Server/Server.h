@@ -36,6 +36,7 @@ private:
 	int createSocket();
 	int acceptClient();
 	int initServer();
+protected:
 	int sendData(std::string data, SOCKET clientSocket);
 	int readData(WPARAM wParam, LPARAM lParam);
 
@@ -49,6 +50,8 @@ private:
 	static Server* _server;
 	///void* _core;
 protected:
+	std::string _lastPlayerMessage;
+
 	std::vector<std::shared_ptr<Player>> _playersVect;
 	std::unordered_map<SOCKET, std::shared_ptr<Player>> _playersMap;
 };

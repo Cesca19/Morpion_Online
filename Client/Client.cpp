@@ -114,7 +114,7 @@ int Client::createSocket()
 	hints.ai_protocol = IPPROTO_TCP;
 	iResult = getaddrinfo(_ipAddress.c_str(), _port.c_str(), &hints, &result);
 	if (iResult != 0) {
-		print("getaddrinfo failed: %d\n" + std::to_string(iResult) + " \n");
+		OutputDebugStringA(("getaddrinfo failed: %d\n" + std::to_string(iResult) + " \n").c_str());
 		WSACleanup();
 		return 1;
 	}
@@ -122,7 +122,7 @@ int Client::createSocket()
 	_connectSocket = socket(result->ai_family, result->ai_socktype,
 		result->ai_protocol);
 	if (_connectSocket == INVALID_SOCKET) {
-		print("Error at socket(): %ld\n" + std::to_string(WSAGetLastError()) + " \n");
+		OutputDebugStringA(("Error at socket(): %ld\n" + std::to_string(WSAGetLastError()) + " \n").c_str());
 		freeaddrinfo(result);
 		WSACleanup();
 		return 1;
@@ -134,7 +134,7 @@ int Client::createSocket()
 	}
 	freeaddrinfo(result);
 	if (_connectSocket == INVALID_SOCKET) {
-		print("Unable to connect to server!\n");
+		OutputDebugStringA("Unable to connect to server!\n");
 		WSACleanup();
 		return 1;
 	}
@@ -158,7 +158,8 @@ int Client::init()
 		return 1;
 	if (initClient())
 		return 1;
-	sendData("name:" + std::to_string(rand() % 100));
+	_name = std::to_string(rand() % 100);
+	sendData("name:" + _name);
 	return 0;
 }
 
@@ -168,7 +169,7 @@ int Client::sendData(std::string data)
 
 	iResult = send(_connectSocket, data.c_str(), data.size(), 0);
 	if (iResult == SOCKET_ERROR) {
-		printf("send failed: %d\n", WSAGetLastError());
+		OutputDebugStringA(std::string("send failed: " + std::to_string(WSAGetLastError())).c_str());
 		closesocket(_connectSocket);
 		WSACleanup();
 		return 1;
@@ -187,9 +188,13 @@ std::string Client::readData(WPARAM wParam, LPARAM lParam)
 	iResult = recv(_connectSocket, readMessage, DEFAULT_BUFLEN, 0);
 	if (iResult > 0) {
 		receivedMessage += std::string(readMessage);
-		OutputDebugStringA(std::string("Message received in client: " + receivedMessage + "\n").c_str());
+		OutputDebugStringA(std::string("Message received in client " + _name + ":" + receivedMessage + "\n").c_str());
 	} else if (iResult < 0)
 		OutputDebugStringA(std::string("client recv failed: " + std::to_string(WSAGetLastError()) + "\n").c_str());
+	
+	if (receivedMessage.substr(0, 5) == std::string("Turn:") && receivedMessage.substr(5, receivedMessage.size()) == _name) {
+		sendData("move:" + std::to_string(rand() % 3) + ":" + std::to_string(rand() % 3));
+	}
 	return receivedMessage;
 }
 

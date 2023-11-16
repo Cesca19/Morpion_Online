@@ -39,6 +39,8 @@ private:
 	std::string _ipAddress;
 	std::string _port;
 
+	std::string _name;
+
 	static Client* _client;
 };
 
