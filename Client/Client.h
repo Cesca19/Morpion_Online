@@ -1,43 +1,37 @@
 ﻿#pragma once
 
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <stdio.h>
-#include <string>
-#include <memory>
-#include <vector>
+#include "pch.h"
 
-#pragma comment(lib, "Ws2_32.lib")
-
-#define DEFAULT_PORT "6666"
 #define DEFAULT_BUFLEN 512
-
 
 class Client
 {
 public:
-    Client(HINSTANCE hInstance, std::string address, std::string port);
+    Client();
     ~Client();
-    int init();
-    int run();
-    static Client* getClient();
-    LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-private:
-    int initWindow();
+    void InitClientSocket();
+    void SendMove(int x, int y);
+    void ReceiveState();
+    void CloseAndCleanUp();
 
-    int initWinsock();
-    int initClient();
-    int createSocket();
-    int sendData(std::string data);
-    std::string readData(WPARAM wParam, LPARAM lParam);
+    SOCKET GetServerSocket() { return serverSocket; }
 
-    HINSTANCE _hInstance = nullptr;
-    HWND _hwnd = nullptr;
+protected:
+    struct Position
+    {
+        int x, y;
+        Position(int x, int y) : x(x), y(y) {}
+    };
+    
+    WSADATA wsaData;
+    int iResult;
 
-    SOCKET _connectSocket;
-    std::string _ipAddress;
-    std::string _port;
+    struct sockaddr_in server;
+    PCSTR serverIpAddress = "127.0.0.1"; 
+    PCSTR serverPort = "6666";
+    SOCKET serverSocket;
+    int recvbuflen = DEFAULT_BUFLEN;
+    char recvbuf[DEFAULT_BUFLEN];
 
-    static Client* _client;
 };
