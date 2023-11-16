@@ -174,14 +174,17 @@ int Game::printGameboard(int sides)
 		sf::FloatRect rect = _gameBoard[i]->getGlobalBounds();
 		sf::Vector2i position = sf::Mouse::getPosition(*(_window.get()));
 
+		int row = i / 3;
+		int col = i % 3;
+
+		if (row > 2) break;
+		if (col > 2) break;
+
 		if (rect.contains({ (float)position.x, (float)position.y })
 			&& gameMap[i / 3][i % 3] == 0 && sides != 0) {
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Right) ||
 				sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 				_gameBoard[i]->setOutlineColor(sf::Color::Magenta);
-
-				int row = i / 3;
-				int col = i % 3;
 
 				m_core->Move({ row, col });
 
