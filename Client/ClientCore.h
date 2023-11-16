@@ -11,6 +11,6 @@ public :
 	~ClientCore();
 	int init(std::string windowName, int width, int height,Client &client);
 	int run();
-	Game _game;
+	Game* _game;
 };
 

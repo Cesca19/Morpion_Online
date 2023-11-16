@@ -11,13 +11,15 @@ public:
 	Game();
 	~Game();
 	void init(std::string windowName, int width, int height);
-	void run();
+	void run(sf::Event event);
+	void initPlayers(sf::Event event);
 	void createGameWindow(std::string name, int width, int height);
 	std::string getPlayerName(std::string displayText, sf::Event *event);
 	void createGameBoard();
 	int printGameboard(int shape);
 	int turn(std::shared_ptr<sf::Text> mess, int number, sf::Event* event);
 	void launchGame(sf::Event* event);
+	std::shared_ptr<sf::RenderWindow> GetWindow() { return _window; }
 	
 private:
 	Core* m_core;
@@ -32,5 +34,8 @@ private:
 	std::string _windowName;
 	int _width;
 	int _height;
+
+	Player* _firstPlayer;
+	Player* _secondPlayer;
 };
 
