@@ -41,10 +41,7 @@ void Game::run(sf::Event event)
 	std::string firstPlayerName, secondPlayerName;
 
 	createGameBoard();
-
 	_window->clear(sf::Color::White);
-
-
 
 	launchGame(&event);
 	_window->clear(sf::Color::White);
@@ -170,15 +167,12 @@ int Game::printGameboard(int sides)
 	sf::Color color2 = { 255, 215, 0 };
 	int** gameMap = m_core->GetGameMap();
 
-	for (int i = 0; i < _gameBoard.size(); i++) {
+	for (int i = 0; i < 9; i++) {
 		sf::FloatRect rect = _gameBoard[i]->getGlobalBounds();
 		sf::Vector2i position = sf::Mouse::getPosition(*(_window.get()));
 
 		int row = i / 3;
 		int col = i % 3;
-
-		if (row > 2) break;
-		if (col > 2) break;
 
 		if (rect.contains({ (float)position.x, (float)position.y })
 			&& gameMap[i / 3][i % 3] == 0 && sides != 0) {

@@ -25,19 +25,21 @@ int ClientCore::run() {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+		else {
+			if (!_game->GetWindow()->pollEvent(event)) {
+				if (event.type == sf::Event::Closed)
+					_game->GetWindow()->close();
+			}
 
-		if (!_game->GetWindow()->pollEvent(event)) {
-			if (event.type == sf::Event::Closed)
-				_game->GetWindow()->close();
+			if (i == 0)
+			{
+				_game->initPlayers(event);
+				i++;
+			}
+
+			_game->run(event);
 		}
 
-		if (i == 0)
-		{
-			_game->initPlayers(event);
-			i++;
-		}
-
-		_game->run(event);
 	}
 
 	return (int)msg.wParam;
