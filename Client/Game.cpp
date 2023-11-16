@@ -15,7 +15,7 @@ Game::Game() : _window(NULL), _width(100), _height(100),
     _winMessage = win;
 
     m_core = new Core();
-    m_client = new Client();
+    // m_client = new Client();
 }
 
 Game::~Game()
@@ -202,7 +202,7 @@ int Game::printGameboard(int sides)
                     std::cout << std::endl;
                 }
                 
-                m_client->SendMove(row, col);
+                // m_client->SendMove(row, col);
                 
                 float radius = (rect.width / 3);
                 std::shared_ptr<sf::CircleShape> 
