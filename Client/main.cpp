@@ -1,4 +1,4 @@
-#include "Client.h"
+#include "ClientCore.h"
 
 int WINAPI WinMain(
 	_In_ HINSTANCE hInstance,
@@ -6,10 +6,9 @@ int WINAPI WinMain(
 	_In_ LPSTR     lpCmdLine,
 	_In_ int       nCmdShow
 )
-{
+{	
+	ClientCore clientCore;	
 	Client client(hInstance, "127.0.0.1", "6666");
-
-	if (client.init())
-		return 1;
-	client.run();
+	clientCore.init("TikTakToe", 1000, 1000, client);
+	clientCore.run();
 }
