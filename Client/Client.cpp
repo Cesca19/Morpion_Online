@@ -1,95 +1,207 @@
-﻿#include "Client.h"
 
-Client::Client()
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#include "Client.h"
+#include <time.h>
+
+Client* Client::_client = nullptr;
+
+void print(std::string mess)
 {
-    InitClientSocket();
+	std::wstring res(mess.begin(), mess.end());
+	OutputDebugStringW(res.c_str());
+}
+
+Client* Client::getClient()
+{
+	return _client;
+}
+
+LRESULT CALLBACK
+MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	return (Client::getClient()->wndProc(hwnd, msg, wParam, lParam));
+}
+
+Client::Client(HINSTANCE hInstance, std::string address, std::string port) :
+	_hInstance(hInstance), _ipAddress(address), _port(port)
+{
+	_client = this;
 }
 
 Client::~Client()
 {
-    
+	closesocket(_connectSocket);
+	WSACleanup();
 }
 
-void Client::InitClientSocket()
+LRESULT Client::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    // Initialize Winsock
-    iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-
-    if (iResult != 0) {
-        std::cerr << "WSAStartup failed: " << iResult << std::endl;
-    }
-
-    // Create a socket
-    addrinfo* result = NULL, hints = {};
-    
-    ZeroMemory(&hints, sizeof(hints));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = IPPROTO_TCP;
-
-    iResult = getaddrinfo(serverIpAddress, serverPort, &hints, &result);
-    if (iResult != 0) {
-        std::cerr << "getaddrinfo failed: " << iResult << std::endl;
-        WSACleanup();
-    }
-
-    serverSocket = INVALID_SOCKET;
-    serverSocket = socket(result->ai_family, result->ai_socktype,
-            result->ai_protocol);
-
-    if (serverSocket == INVALID_SOCKET) {
-        std::cerr << "Error at socket(): " << WSAGetLastError() << std::endl;
-        freeaddrinfo(result);
-        WSACleanup();
-    }
-
-    iResult = connect(serverSocket, result->ai_addr, (int) result->ai_addrlen);
-    if (iResult == SOCKET_ERROR) {
-        closesocket(serverSocket);
-        serverSocket = INVALID_SOCKET;
-    }
-
-    freeaddrinfo(result);
-    if (serverSocket == INVALID_SOCKET) {
-        std::cout << "Unable to connect to server!" << std::endl;
-        WSACleanup();
-    } else
-    {
-        std::cout << "Connected to the server!" << std::endl;
-    }
+	switch (message) {
+	case WM_USER + 2:
+		if (LOWORD(lParam) == FD_READ)
+			readData(wParam, lParam);
+		else if (LOWORD(lParam) == FD_CLOSE)
+		{ }
+		break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
+		break;
+	}
+	return 0;
 }
 
-void Client::SendMove(int x, int y)
+int Client::initWindow()
 {
-    Position pos(x, y);
-    char buffer[sizeof(Position)];
-    memcpy(buffer, &pos, sizeof(Position));
-    int bytesSent = send(serverSocket, buffer, sizeof(Position), 0);
-    if(bytesSent == SOCKET_ERROR) {
-        std::cerr << "Send failed with error: " << WSAGetLastError() << std::endl;
-    }
+	WNDCLASSEX wcex;
+
+	wcex.cbSize = sizeof(WNDCLASSEX);
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = MainWndProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = _hInstance;
+	wcex.hIcon = LoadIcon(wcex.hInstance, IDI_APPLICATION);
+	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = NULL;
+	wcex.lpszClassName = L"Client";
+	wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
+
+	if (!RegisterClassEx(&wcex)) {
+		MessageBox(NULL, L"Call to RegisterClassEx failed!",
+			L"Windows Desktop Guided Tour", NULL);
+		return 1;
+	}
+	_hwnd = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, L"Client",
+		L"Client app", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT,
+		CW_USEDEFAULT, 100, 100, NULL, NULL, _hInstance, NULL);
+	if (!_hwnd) {
+		MessageBox(NULL, L"Call to CreateWindow failed!",
+			L"Windows Desktop Guided Tour", NULL);
+		return 1;
+	}
+	ShowWindow(_hwnd, SW_SHOW);
+	UpdateWindow(_hwnd);
+	return 0;
 }
 
-void Client::ReceiveState()
+int  Client::initWinsock()
 {
-    do {
-        ZeroMemory(recvbuf, DEFAULT_BUFLEN);
-        iResult = recv(serverSocket, recvbuf, recvbuflen, 0);
-        if (iResult > 0) {
-            std::cout << "Message received in client: " << recvbuf << std::endl;
-        }
-        else if (iResult == 0)
-            std::cout << "Connection closed" << std::endl;
-        else
-            std::cerr << "recv failed: " << WSAGetLastError() << std::endl;
-    } while (iResult > 0);
+	WSADATA wsaData;
+	int iResult;
+
+	//	The WSAStartup function is called to initiate use of WS2_32.dll.
+	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (iResult != 0) {
+		std::string mess("WSAStartup failed: " + std::to_string(iResult));
+		OutputDebugStringA(mess.c_str());
+		return 1;
+	}
+	return 0;
 }
 
-void Client::CloseAndCleanUp()
+int Client::createSocket()
 {
-    closesocket(serverSocket);
-    WSACleanup();
-    PostQuitMessage(0);
+	addrinfo* result = NULL, hints = {};
+	int iResult;
+
+	ZeroMemory(&hints, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+	iResult = getaddrinfo(_ipAddress.c_str(), _port.c_str(), &hints, &result);
+	if (iResult != 0) {
+		print("getaddrinfo failed: %d\n" + std::to_string(iResult) + " \n");
+		WSACleanup();
+		return 1;
+	}
+	_connectSocket = INVALID_SOCKET;
+	_connectSocket = socket(result->ai_family, result->ai_socktype,
+		result->ai_protocol);
+	if (_connectSocket == INVALID_SOCKET) {
+		print("Error at socket(): %ld\n" + std::to_string(WSAGetLastError()) + " \n");
+		freeaddrinfo(result);
+		WSACleanup();
+		return 1;
+	}
+	iResult = connect(_connectSocket, result->ai_addr, (int)result->ai_addrlen);
+	if (iResult == SOCKET_ERROR) {
+		closesocket(_connectSocket);
+		_connectSocket = INVALID_SOCKET;
+	}
+	freeaddrinfo(result);
+	if (_connectSocket == INVALID_SOCKET) {
+		print("Unable to connect to server!\n");
+		WSACleanup();
+		return 1;
+	}
+	return 0;
 }
 
+int Client::initClient()
+{
+	if (initWinsock())
+		return 1;
+	if (createSocket())
+		return 1;
+	WSAAsyncSelect(_connectSocket, _hwnd, WM_USER + 2, FD_READ | FD_CLOSE);
+	return 0;
+}
 
+int Client::init()
+{
+	srand(time(0));
+	if (initWindow())
+		return 1;
+	if (initClient())
+		return 1;
+	sendData("name:" + std::to_string(rand() % 100));
+	return 0;
+}
+
+int Client::sendData(std::string data)
+{
+	int iResult;
+
+	iResult = send(_connectSocket, data.c_str(), data.size(), 0);
+	if (iResult == SOCKET_ERROR) {
+		printf("send failed: %d\n", WSAGetLastError());
+		closesocket(_connectSocket);
+		WSACleanup();
+		return 1;
+	}
+	return 0;
+}
+
+std::string Client::readData(WPARAM wParam, LPARAM lParam)
+{
+	int iResult;
+	std::string receivedMessage;
+	char readMessage[DEFAULT_BUFLEN];
+
+
+	ZeroMemory(readMessage, DEFAULT_BUFLEN);
+	iResult = recv(_connectSocket, readMessage, DEFAULT_BUFLEN, 0);
+	if (iResult > 0) {
+		receivedMessage += std::string(readMessage);
+		OutputDebugStringA(std::string("Message received in client: " + receivedMessage + "\n").c_str());
+	} else if (iResult < 0)
+		OutputDebugStringA(std::string("client recv failed: " + std::to_string(WSAGetLastError()) + "\n").c_str());
+	return receivedMessage;
+}
+
+int Client::run()
+{
+	MSG msg = { 0 };
+
+	while (msg.message != WM_QUIT) {
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+	return (int)msg.wParam;
+}

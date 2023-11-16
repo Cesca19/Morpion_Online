@@ -127,11 +127,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Server.cpp" />
+    <ClCompile Include="ServerCore.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Server.h" />
+    <ClInclude Include="ServerCore.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

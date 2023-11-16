@@ -1,5 +1,7 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "Server.h"
+#include "ServerCore.h"
+
 
 Server* Server::_server = nullptr;
 
@@ -28,17 +30,7 @@ _port(port)
 
 Server::~Server()
 {
-	//	###		DISCONNECT THE SERVER		###
-		// shutdown each client socket since no more data will be sent
-	/*iResult = shutdown(ClientSocket, SD_SEND);
-	if (iResult == SOCKET_ERROR) {
-		printf("shutdown failed: %d\n", WSAGetLastError());
-		closesocket(ClientSocket);
-		WSACleanup();
-		return 1;
-	
-	// cleanup
-	closesocket(clientSocket);*/
+	// shutdown each client socket since no more data will be sent
 	closesocket(_listenSocket);
 	WSACleanup();
 
@@ -48,11 +40,14 @@ LRESULT Server::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) {
 	case WM_USER + 1:
+	{
 		if (LOWORD(lParam) == FD_ACCEPT)
 			acceptClient();
 		else if (LOWORD(lParam) == FD_CLOSE)
-		{ }
+		{
+		}
 		break;
+	}
 	case WM_USER + 2:
 		if (LOWORD(lParam) == FD_READ)
 			readData(wParam, lParam);
@@ -113,7 +108,7 @@ int  Server::initWinsock()
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
 		std::string mess("WSAStartup failed: " + std::to_string(iResult));
-		MessageBoxA(nullptr, mess.c_str(), "Error", 0);
+		OutputDebugStringA(mess.c_str());
 		return 1;
 	}
 	return 0;
@@ -122,42 +117,33 @@ int  Server::initWinsock()
 int Server::createSocket()
 {
 	int iResult;
-
-	//	###		CREATING A SOCKET FOR THE SERVER	###
 	struct addrinfo* result = NULL, * ptr = NULL, hints;
+	
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_INET; // IPv4 address
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_flags = AI_PASSIVE;
-	// Resolve the local address and port to be used by the server
 	iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
 	if (iResult != 0) {
 		std::string mess("getaddrinfo failed: " + std::to_string(iResult));
-		MessageBoxA(nullptr, mess.c_str(), "Error", 0);
+		OutputDebugStringA(mess.c_str());
 		WSACleanup();
 		return 1;
 	}
 	_listenSocket = INVALID_SOCKET;
-	
-	// Create a SOCKET for the server to listen for client connections
 	_listenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 	if (_listenSocket == INVALID_SOCKET) {
 		std::string mess("Error at socket(): " + std::to_string(WSAGetLastError()));
-		MessageBoxA(nullptr, mess.c_str(), "Error", 0);
+		OutputDebugStringA(mess.c_str());
 		freeaddrinfo(result);
 		WSACleanup();
 		return 1;
 	}
-	
-	//	###		BINDING THE SOCKET		####
-	// For a server to accept client connections, it must be bound to a 
-	// network address within the system.
-	// Setup the TCP listening socket
 	iResult = bind(_listenSocket, result->ai_addr, (int)result->ai_addrlen);
 	if (iResult == SOCKET_ERROR) {
 		std::string mess("bind failed with error: " + std::to_string(WSAGetLastError()));
-		MessageBoxA(nullptr, mess.c_str(), "Error", 0);
+		OutputDebugStringA(mess.c_str());
 		freeaddrinfo(result);
 		closesocket(_listenSocket);
 		WSACleanup();
@@ -173,12 +159,10 @@ int Server::initServer()
 		return 1;
 	if (createSocket())
 		return 1;
-	//MessageBox(0, L"done binding", L"Hi", 0);
-	WSAAsyncSelect(_listenSocket, _hwnd, WM_USER + 1, FD_ACCEPT | FD_CLOSE);
-	//	###		LISTEN ON A SOCKET		###
+	WSAAsyncSelect(_listenSocket, _hwnd, WM_USER + 1, FD_ACCEPT | FD_CLOSE | FD_READ);
 	if (listen(_listenSocket, SOMAXCONN) == SOCKET_ERROR) {
 		std::string mess("Listen failed with error: " + std::to_string(WSAGetLastError()));
-		MessageBoxA(nullptr, mess.c_str(), "Error", 0);
+		OutputDebugStringA(mess.c_str());
 		closesocket(_listenSocket);
 		WSACleanup();
 		return 1;
@@ -215,20 +199,24 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 	char recvbuf[DEFAULT_BUFLEN];
 	SOCKET clientSocket = (SOCKET)wParam;
 	
-	do {
-		ZeroMemory(recvbuf, DEFAULT_BUFLEN);
-		iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
-		std::string mess("Mess received in Server: " + std::string(recvbuf));
-		print(mess + "\n");
-		MessageBoxA(nullptr, mess.c_str(), "read Data", 0);
-		if (iResult < 0) {
-			std::string mess("recv failed: " + std::to_string(WSAGetLastError()));
-			MessageBoxA(nullptr, mess.c_str(), "Error", 0);
-			closesocket(clientSocket);
-			WSACleanup();
-			return 1;
-		}
-	} while (iResult > 0);
+	ZeroMemory(recvbuf, DEFAULT_BUFLEN);
+	iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
+	std::string mess("Mess received in Server: " + std::string(recvbuf));	
+	print(mess + "\n");
+	std::string receiveMess(recvbuf);
+	// mess handling
+	if (std::string("name:") == receiveMess.substr(0, 5)) {
+		_playersMap[clientSocket]->setName(receiveMess.substr(5, receiveMess.size()));
+		addPlayer(receiveMess.substr(5, receiveMess.size()));
+	}
+
+	if (iResult < 0) {
+		std::string mess("recv failed: " + std::to_string(WSAGetLastError()));
+		OutputDebugStringA(mess.c_str());
+		closesocket(clientSocket);
+		WSACleanup();
+		return 1;
+	}
 	return 0;
 }
 
@@ -244,9 +232,12 @@ int Server::acceptClient()
 		return 1;
 	}
 	WSAAsyncSelect(ClientSocket, _hwnd, WM_USER + 2, FD_READ | FD_CLOSE);
-	_clientSockets.push_back(ClientSocket);
-	sendData("Hello world", ClientSocket);
-	//MessageBox(0, L"Hi", L"You are now connected.", 0);
+
+	PlayerType type = (_playersVect.size() == 0) ? PLAYER1 : (_playersVect.size() == 1) ? PLAYER2 : SPECTATOR;
+	std::shared_ptr<Player> player(new Player(ClientSocket, type));
+	_playersVect.push_back(player);
+	_playersMap[ClientSocket] = player;
+	sendData("Your are player type" + std::to_string(type), ClientSocket);
 	return 0;
 }
 
@@ -255,15 +246,11 @@ int Server::run()
 	MSG msg = { 0 };
 
 	while (msg.message != WM_QUIT) {
-		// If there are Window messages then process them.
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		if (msg.message == WM_USER + 1)
-		{
-			// acceptConnection
-		}
+		update();
 	}
 	return (int)msg.wParam;
 }
