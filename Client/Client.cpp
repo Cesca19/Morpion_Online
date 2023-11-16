@@ -1,6 +1,7 @@
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "Client.h"
+#include <time.h>
 
 Client* Client::_client = nullptr;
 
@@ -96,7 +97,7 @@ int  Client::initWinsock()
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
 		std::string mess("WSAStartup failed: " + std::to_string(iResult));
-		MessageBoxA(nullptr, mess.c_str(), "Error", 0);
+		OutputDebugStringA(mess.c_str());
 		return 1;
 	}
 	return 0;
@@ -152,10 +153,12 @@ int Client::initClient()
 
 int Client::init()
 {
+	srand(time(0));
 	if (initWindow())
 		return 1;
 	if (initClient())
 		return 1;
+	sendData("name:" + std::to_string(rand() % 100));
 	return 0;
 }
 
@@ -184,9 +187,9 @@ std::string Client::readData(WPARAM wParam, LPARAM lParam)
 	iResult = recv(_connectSocket, readMessage, DEFAULT_BUFLEN, 0);
 	if (iResult > 0) {
 		receivedMessage += std::string(readMessage);
-		MessageBoxA(NULL, std::string("Message received in client: " + receivedMessage + "\n").c_str(), "Message", 0);
+		OutputDebugStringA(std::string("Message received in client: " + receivedMessage + "\n").c_str());
 	} else if (iResult < 0)
-		MessageBoxA(NULL, std::string("client recv failed: " + std::to_string(WSAGetLastError()) + "\n").c_str(), "ERROR", 0);
+		OutputDebugStringA(std::string("client recv failed: " + std::to_string(WSAGetLastError()) + "\n").c_str());
 	return receivedMessage;
 }
 

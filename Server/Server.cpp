@@ -1,5 +1,7 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "Server.h"
+#include "ServerCore.h"
+
 
 Server* Server::_server = nullptr;
 
@@ -106,7 +108,7 @@ int  Server::initWinsock()
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
 		std::string mess("WSAStartup failed: " + std::to_string(iResult));
-		MessageBoxA(nullptr, mess.c_str(), "Error", 0);
+		OutputDebugStringA(mess.c_str());
 		return 1;
 	}
 	return 0;
@@ -125,7 +127,7 @@ int Server::createSocket()
 	iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
 	if (iResult != 0) {
 		std::string mess("getaddrinfo failed: " + std::to_string(iResult));
-		MessageBoxA(nullptr, mess.c_str(), "Error", 0);
+		OutputDebugStringA(mess.c_str());
 		WSACleanup();
 		return 1;
 	}
@@ -133,7 +135,7 @@ int Server::createSocket()
 	_listenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 	if (_listenSocket == INVALID_SOCKET) {
 		std::string mess("Error at socket(): " + std::to_string(WSAGetLastError()));
-		MessageBoxA(nullptr, mess.c_str(), "Error", 0);
+		OutputDebugStringA(mess.c_str());
 		freeaddrinfo(result);
 		WSACleanup();
 		return 1;
@@ -141,7 +143,7 @@ int Server::createSocket()
 	iResult = bind(_listenSocket, result->ai_addr, (int)result->ai_addrlen);
 	if (iResult == SOCKET_ERROR) {
 		std::string mess("bind failed with error: " + std::to_string(WSAGetLastError()));
-		MessageBoxA(nullptr, mess.c_str(), "Error", 0);
+		OutputDebugStringA(mess.c_str());
 		freeaddrinfo(result);
 		closesocket(_listenSocket);
 		WSACleanup();
@@ -160,7 +162,7 @@ int Server::initServer()
 	WSAAsyncSelect(_listenSocket, _hwnd, WM_USER + 1, FD_ACCEPT | FD_CLOSE | FD_READ);
 	if (listen(_listenSocket, SOMAXCONN) == SOCKET_ERROR) {
 		std::string mess("Listen failed with error: " + std::to_string(WSAGetLastError()));
-		MessageBoxA(nullptr, mess.c_str(), "Error", 0);
+		OutputDebugStringA(mess.c_str());
 		closesocket(_listenSocket);
 		WSACleanup();
 		return 1;
@@ -199,12 +201,18 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 	
 	ZeroMemory(recvbuf, DEFAULT_BUFLEN);
 	iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
-	std::string mess("Mess received in Server: " + std::string(recvbuf));
+	std::string mess("Mess received in Server: " + std::string(recvbuf));	
 	print(mess + "\n");
-	MessageBoxA(nullptr, mess.c_str(), "read Data", 0);
+	std::string receiveMess(recvbuf);
+	// mess handling
+	if (std::string("name:") == receiveMess.substr(0, 5)) {
+		_playersMap[clientSocket]->setName(receiveMess.substr(5, receiveMess.size()));
+		addPlayer(receiveMess.substr(5, receiveMess.size()));
+	}
+
 	if (iResult < 0) {
 		std::string mess("recv failed: " + std::to_string(WSAGetLastError()));
-		MessageBoxA(nullptr, mess.c_str(), "Error", 0);
+		OutputDebugStringA(mess.c_str());
 		closesocket(clientSocket);
 		WSACleanup();
 		return 1;
@@ -242,6 +250,7 @@ int Server::run()
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+		update();
 	}
 	return (int)msg.wParam;
 }

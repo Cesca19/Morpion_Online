@@ -1,4 +1,4 @@
-#include "Server.h"
+#include "ServerCore.h"
 
 int WINAPI WinMain(
 	_In_ HINSTANCE hInstance,
@@ -7,9 +7,10 @@ int WINAPI WinMain(
 	_In_ int       nCmdShow
 )
 {
-	Server server(hInstance, "6666");
+	ServerCore server(hInstance, "6666");
 
 	if (server.init())
 		return 1;
 	server.run();
+	return 0;
 }
