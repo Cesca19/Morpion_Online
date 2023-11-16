@@ -12,11 +12,6 @@ Core::~Core()
     delete [] m_gameMap;
 }
 
-Player* Core::GetCurrentPlayer()
-{
-    return m_currentPlayer;
-}
-
 void Core::InitGameMap()
 {
     m_gameMap = new int*[3];
@@ -27,10 +22,10 @@ void Core::InitGameMap()
     }
 }
 
-void Core::InitPlayer(std::string firstPlayer, std::string secondPlayer)
+void Core::InitPlayer(Player* firstPlayer, Player* secondPlayer)
 {
-    m_firstPlayer = new Player(firstPlayer);
-    m_secondPlayer = new Player(secondPlayer);
+    m_firstPlayer = firstPlayer;
+    m_secondPlayer = secondPlayer;
     m_currentPlayer = m_firstPlayer;
 }
 
@@ -38,7 +33,8 @@ void Core::ChangePlayer()
 {
     if (m_currentPlayer == m_firstPlayer)
         m_currentPlayer = m_secondPlayer;
-    m_currentPlayer = m_secondPlayer;
+    else if (m_currentPlayer == m_secondPlayer)
+        m_currentPlayer = m_firstPlayer;
 }
 
 void Core::Move(Position pos)
@@ -48,12 +44,12 @@ void Core::Move(Position pos)
     else
         m_gameMap[pos.x][pos.y] = 2;
     
-    if (CheckWinner() == nullptr)
+    if (IsOver() == 0)
         ChangePlayer();
     // send game state
 }
 
-Player* Core::CheckWinner()
+Player* Core::GetWinner()
 {
     if (CheckMap(0, 0, 0, 1)) return m_currentPlayer;
     if (CheckMap(1, 0, 0, 1)) return m_currentPlayer;
@@ -71,9 +67,9 @@ Player* Core::CheckWinner()
 
 int Core::IsOver()
 {
-    if (CheckWinner() == nullptr && IsFull()) return 3; // tie 
-    if (CheckWinner() == m_firstPlayer) return 1; // player 1 wins
-    if (CheckWinner() == m_secondPlayer) return 2; // player 2 wins
+    if (GetWinner() == nullptr && IsFull()) return 3; // tie 
+    if (GetWinner() == m_firstPlayer) return 1; // player 1 wins
+    if (GetWinner() == m_secondPlayer) return 2; // player 2 wins
     return 0;
 }
 

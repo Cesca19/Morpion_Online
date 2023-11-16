@@ -2,8 +2,8 @@
 
 int main()
 {
-	Game game;
-	game.init("Morpion", 800, 600);
-	game.run();
+	Game* game = new Game();
+	game->init("Morpion", 800, 600);
+	game->run();
 	return 0;
 }

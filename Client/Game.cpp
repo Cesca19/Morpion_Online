@@ -3,7 +3,7 @@
 #include <iostream>
 
 Game::Game() : _window(NULL), _width(100), _height(100), 
-               _font(new sf::Font()), _gameMap(NULL)
+               _font(new sf::Font())
 {
     std::shared_ptr<sf::Text> win(new sf::Text("You win !!!", *(_font)));
 
@@ -38,9 +38,11 @@ void Game::init(std::string windowName, int width, int height)
 
 void Game::run()
 {
-    int i = 0, winner = 0;
-    std::string player1, player2;
-
+    int i = 0;
+    std::string firstPlayerName, secondPlayerName;
+    Player* firstPlayer;
+    Player* secondPlayer;
+    
     createGameBoard();
     while (_window->isOpen()) {
         sf::Event event;
@@ -48,27 +50,29 @@ void Game::run()
             if (event.type == sf::Event::Closed)
                 _window->close();
         _window->clear(sf::Color::White);
-        if (i == 0) {
-            player1 = getPlayerName("Player 1", &event);
-            player2 = getPlayerName("Player 2", &event);
-            i++;
 
-            m_core->InitPlayer(player1, player2);
+        if (i == 0)
+        {
+            firstPlayer = new Player(getPlayerName("Player 1", &event));
+            secondPlayer = new Player(getPlayerName("Player 2", &event));
+            m_core->InitPlayer(firstPlayer, secondPlayer);
+            i++;
         }
-        if (!winner)
-            winner = launchGame(player1, player2, &event);
+        
+        launchGame(&event);
         _window->clear(sf::Color::White);
-        if (winner != 3)
-            _winMessage->setString("Congrats " + ((winner == 1) ? player1 : player2) + " You win !!!");
-        else
+        
+        if (m_core->IsOver() == 1 || m_core->IsOver() == 2)
+            _winMessage->setString("Congrats " + m_core->GetWinner()->GetName() + " You win !!!");
+        else if (m_core->IsOver() == 3)
             _winMessage->setString("It's a tie, try harder next time ;(");
+        
         printGameboard(0);
+        
         _window->draw(*_winMessage);
         _window->display();
     }
-    for (int i = 0; i < 3; i++)
-        delete _gameMap[i];
-    delete [] _gameMap;
+    
 }
 
 std::string  Game::getPlayerName(std::string displayText, sf::Event *event)
@@ -110,30 +114,6 @@ std::string  Game::getPlayerName(std::string displayText, sf::Event *event)
     return name;
 }
 
-int Game::checkWinner()
-{
-    int zero = 0;
-    if (_gameMap[0][0] == _gameMap[1][1] && _gameMap[1][1] == _gameMap[2][2] && _gameMap[1][1] != 0)
-        return _gameMap[0][0];
-    if (_gameMap[0][2] == _gameMap[1][1] && _gameMap[1][1] == _gameMap[2][0] && _gameMap[1][1] != 0)
-        return _gameMap[1][1];
-    for (int j = 0; j < 3; j++)
-        if (_gameMap[0][j] == _gameMap[1][j] && _gameMap[1][j] == _gameMap[2][j] && _gameMap[0][j] != 0)
-            return _gameMap[0][j];
-    for (int i = 0; i < 3; i++)
-        if (_gameMap[i][0] == _gameMap[i][1] && _gameMap[i][1] == _gameMap[i][2] && _gameMap[i][0] != 0)
-            return _gameMap[i][0];
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            if (_gameMap[i][j] == 0)
-                zero++;
-        }
-    }
-    if (zero == 0)
-        return 3;
-    return 0;
-}
-
 int Game::turn(std::shared_ptr<sf::Text> mess, int number, sf::Event* event)
 {
     int ret = 0;
@@ -149,29 +129,27 @@ int Game::turn(std::shared_ptr<sf::Text> mess, int number, sf::Event* event)
     return 0;
 }
 
-int Game::launchGame(std::string player1, std::string player2, sf::Event *event)
+void Game::launchGame(sf::Event* event)
 {
-    std::string mess(player1 + ", it's your turn !!");
+    std::string mess(m_core->GetCurrentPlayer()->GetName() + ", it's your turn !!");
     std::shared_ptr<sf::Text> text(new sf::Text(mess, *(_font)));
-    int winner = 0;
 
     text->setCharacterSize(80);
     text->setStyle(sf::Text::Bold);
     text->setPosition({ (float)(_width / 15) , (float)(_height / 15) });
     text->setFillColor({ 153, 50, 204 });
-    while (1) {
-        text->setString(player1 + "  it's your turn !!");
-        turn(text, 1, event);
-        winner = checkWinner();
-        if (winner)
-            return winner;
-        text->setString(player2 + "  it's your turn !!");
-        turn(text, 2, event);
-        winner = checkWinner();
-        if (winner)
-            return winner;
+    while (m_core->IsOver() == 0) {
+        if (m_core->GetCurrentPlayer() == m_core->GetFirstPlayer())
+        {
+            text->setString(m_core->GetCurrentPlayer()->GetName() + "  it's your turn !!");
+            turn(text, 1, event);
+        } else if (m_core->GetCurrentPlayer() == m_core->GetSecondPlayer())
+        {
+            text->setString(m_core->GetCurrentPlayer()->GetName() + "  it's your turn !!");
+            turn(text, 2, event);
+        }
     }
-    return winner;
+
 }
 
 void Game::createGameBoard()
@@ -198,19 +176,32 @@ int Game::printGameboard(int sides)
 {
     sf::Color color1 = { 255, 105, 180 };
     sf::Color color2 = { 255, 215, 0 };
+    int ** gameMap = m_core->GetGameMap();
 
     for (int i = 0; i < _gameBoard.size(); i++) {
         sf::FloatRect rect = _gameBoard[i]->getGlobalBounds();
         sf::Vector2i position = sf::Mouse::getPosition(*(_window.get()));
+        
         if ( rect.contains({(float)position.x, (float)position.y}) 
-            && _gameMap[i / 3][i % 3] == 0 && sides != 0) {
+            && gameMap[i / 3][i % 3] == 0 && sides != 0) {
             if (sf::Mouse::isButtonPressed(sf::Mouse::Right) ||
                 sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
                 _gameBoard[i]->setOutlineColor(sf::Color::Magenta);
                 
                 int row = i / 3;
                 int col = i % 3;
-                _gameMap[row][col] = (sides == 3) ? 1 : 2;
+                
+                m_core->Move({row, col});
+                
+                for (int x = 0; x < 3; x++)
+                {
+                    for (int y = 0; y < 3; y++)
+                    {
+                        std::cout << gameMap[x][y];
+                    }
+                    std::cout << std::endl;
+                }
+                
                 m_client->SendMove(row, col);
                 
                 float radius = (rect.width / 3);
