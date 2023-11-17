@@ -6,6 +6,8 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <unordered_map>
+#include "Player.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -17,10 +19,15 @@ class Server
 public:
 	Server(HINSTANCE hInstance, std::string port);
 	~Server();
-	int init();
-	int run();
+	virtual int init();
+	virtual int run();
+	//void setCore(void* core);
 	static Server* getServer();
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+protected:
+	virtual void update() = 0;
+	virtual void addPlayer(std::string name) = 0;
 
 private:
 	int initWindow();
@@ -29,6 +36,7 @@ private:
 	int createSocket();
 	int acceptClient();
 	int initServer();
+protected:
 	int sendData(std::string data, SOCKET clientSocket);
 	int readData(WPARAM wParam, LPARAM lParam);
 
@@ -37,9 +45,13 @@ private:
 
 	SOCKET _listenSocket;
 	std::string _port;
-	std::vector<SOCKET> _clientSockets;
+
 
 	static Server* _server;
-
+	///void* _core;
+protected:
+	std::string _lastPlayerMessage;
+	int _id;
+	std::vector<std::shared_ptr<Player>> _playersVect;
+	std::unordered_map<SOCKET, std::shared_ptr<Player>> _playersMap;
 };
-
