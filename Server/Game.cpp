@@ -115,11 +115,9 @@ void Game::run()
         }
         // attendre son movement
         mov = ((ServerCore*)_core)->getPlayerLastMessage();
-        //OutputDebugStringA("here may be\n");
         if (mov != "" && mov[0] == 'M') {
             mess = split(mov.substr(2, mov.size()), ":");
             if (mess[0] == _currentPlayer) {
-                OutputDebugStringA(("--------" + mov.substr(2, mov.size()) + "---------\n").c_str());
                 move(stoi(mess[1]), stoi(mess[2]));
                 //if (checkWinner() != 0)
                   //  sendMessageToPlayers("Winner or tie");

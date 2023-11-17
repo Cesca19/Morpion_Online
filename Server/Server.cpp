@@ -191,7 +191,6 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 	ZeroMemory(recvbuf, DEFAULT_BUFLEN);
 	iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
 	
-	OutputDebugStringA( std::string("Mess received in Server: " + std::string(recvbuf) + "\n" ).c_str());
 	std::string receiveMess(recvbuf);
 	// mess handling
 	

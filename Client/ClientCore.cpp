@@ -73,7 +73,7 @@ void ClientCore::analyseMessage(std::string data)
  * I;id:playerid
  */
 	for (int i = 0; i < messages.size(); i++) {
-		OutputDebugStringA(("messaga at " + _name + ": " + messages[i] + "\n").c_str());
+		//OutputDebugStringA(("messaga at " + _name + ": " + messages[i] + "\n").c_str());
 		switch (messages[i][0]) {
 		case 'I': {
 			infos = split(messages[i], ";");
