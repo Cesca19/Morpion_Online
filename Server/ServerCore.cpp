@@ -40,14 +40,6 @@ void ServerCore::addPlayer(std::string name)
 		_gameLogic->addPlayer(name, players[name]->getType());
 	else
 		_gameLogic->addWatcher(name);
-	/*	_numPlayers++;
-	if (_numPlayers == 2) {
-		_gameLogic->initPlayer(playersVect[0]->getName(), playersVect[1]->getName());
-		_hasStart = true;
-		_numPlayers++;
-	}
-	if (_hasStart)
-		_server->sendMessageToPlayer(name, "S#");*/
 }
 
 void ServerCore::sendMessageToPlayers(std::string message)

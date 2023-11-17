@@ -72,7 +72,11 @@ void Game::addWatcher(std::string name)
     if (_players[0] != "" && _players[1] != "" && _isRunning) { 
         sendMessageToPlayer(name, "S#");
         sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
-        sendMessageToPlayers("T;" + _currentPlayer + "#");
+        int win = checkWinner();
+        if (win == 0)
+            sendMessageToPlayers("T;" + _currentPlayer + "#");
+        else
+            sendMessageToPlayers("E;" + ((win == 3) ? "T" : "W:" + _players[win - 1]) + "#");
     }
 }
 
@@ -125,7 +129,7 @@ void Game::run()
     static std::string prevPlayer = "";
     std::string mov;
     std::vector<std::string> mess;
-    if (_isRunning /* && checkWinner() == 0*/) {
+    if (_isRunning && checkWinner() == 0) {
         if (prevPlayer != _currentPlayer) {
             sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
             sendMessageToPlayers("T;" + _currentPlayer + "#");
@@ -137,8 +141,11 @@ void Game::run()
             mess = split(mov.substr(2, mov.size()), ":");
             if (mess[0] == _currentPlayer) {
                 move(stoi(mess[1]), stoi(mess[2]));
-                //if (checkWinner() != 0)
-                  //  sendMessageToPlayers("Winner or tie");
+                int win = checkWinner();
+                if (win != 0) {
+                    sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
+                    sendMessageToPlayers("E;" + ((win == 3) ? "T" : "W:" + _players[win - 1]) + "#");
+                }
                 changePlayer();
             }
         }

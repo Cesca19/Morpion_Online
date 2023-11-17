@@ -1,8 +1,9 @@
 #include "Morpion.h"
 #include "ClientCore.h"
 
-Morpion::Morpion() : _window(NULL), _width(0), _height(0), _currentPlayer(""),
-_font(new sf::Font()), _name(""), _hasStart(false)
+Morpion::Morpion() : _id(-1), _window(NULL), _width(0), _height(0), _currentPlayer(""),
+_font(new sf::Font()), _name(""), _hasStart(false), _winner(""), _isTie(false), 
+_isEnd(false),  _clientCore(NULL)
 {
 }
 
@@ -22,7 +23,7 @@ void Morpion::createGameWindow(std::string name, int width, int height)
 	_font->loadFromFile("wall\\Wall.ttf");
 	win->setCharacterSize(70);
 	win->setStyle(sf::Text::Bold);
-	win->setPosition({ (float)(_width / 2.5) , (float)(_height / 8) });
+	win->setPosition({ (float)(_width / 3) , (float)(_height / 10) });
 	win->setFillColor({ 222, 184, 135 });
 	_winMessage = win;
 	_font->loadFromFile("wall\\Wall.ttf");
@@ -60,15 +61,36 @@ void Morpion::run(sf::Event event)
 	if (_hasStart) {
 		printCurrentPlayer();
 		printGameboard();
+		if (_isEnd)
+			printEndGame();
 	} else {
 		_window->draw(*_waitMessage);
 	}
 	_window->display();
 }
 
+void Morpion::printEndGame()
+{
+	if (_isTie) {
+		_winMessage->setString("It's a tie ;(");
+		_window->draw(*_winMessage);
+		return;
+	} else
+		(_name == _winner) ? _winMessage->setString("You win, not bad ...") : (_name != _winner && _id < 3)
+		? _winMessage->setString("You loose, try harder next time ...") : _winMessage->setString(_winner + " win !!");
+	_window->draw(*_winMessage);
+}
+
+void Morpion::setWinner(std::string name, bool isTie)
+{
+	_isEnd = true;
+	_isTie = isTie;
+	_winner = name;
+}
+
 void Morpion::printCurrentPlayer()
 {
-	if (_currentPlayer != "") {
+	if (_currentPlayer != "" && !_isEnd) {
 		_currentPlayerText->setString(_currentPlayer + "  it's your turn !!");
 		_window->draw(*_currentPlayerText);
 	}
@@ -212,7 +234,7 @@ int Morpion::printGameboard()
 			}
 
 			if (rect.contains({ (float)position.x, (float)position.y })
-				&& gameMap[i / 3][i % 3] == 0 && _currentPlayer == _name) {
+				&& gameMap[i / 3][i % 3] == 0 && _currentPlayer == _name && !_isEnd) {
 				if (sf::Mouse::isButtonPressed(sf::Mouse::Right) ||
 					sf::Mouse::isButtonPressed(sf::Mouse::Left)  ) {
 					_gameBoard[i]->setOutlineColor(sf::Color::Magenta);
