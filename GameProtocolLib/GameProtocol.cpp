@@ -2,33 +2,36 @@
 
 namespace Protocol
 {
-
-
 	GameProtocol::GameProtocol(){}
 	GameProtocol::~GameProtocol(){}
 
 
-	GameProtocol::GameStateMessage GameProtocol::handleGameStateMessage(const nlohmann::json& message)
+	GameProtocol::GameStateMessage GameProtocol::handleGameStateMessage(std::string mess)
 	{
 		GameProtocol::GameStateMessage msg{};
+		nlohmann::json message = nlohmann::json::parse(mess);
 		msg = message["type"].get<std::string>() == "GAME" ? GameProtocol::processGameStateMessage(message) : msg;
 		return msg;
 	}	
-	GameProtocol::MoveMessage GameProtocol::handleMoveMessage(const nlohmann::json& message)
+	GameProtocol::MoveMessage GameProtocol::handleMoveMessage(std::string mess)
 	{
-		GameProtocol::MoveMessage msg{};
+		GameProtocol::MoveMessage msg;
+		nlohmann::json message = nlohmann::json::parse(mess);
 		msg = message["type"].get<std::string>() == "MOVE" ? GameProtocol::processMoveMessage(message) : msg;
 		return msg;
 	}
-	GameProtocol::NewClientMessage GameProtocol::handleNewClientMessage(const nlohmann::json& message)
+	GameProtocol::NewClientMessage GameProtocol::handleNewClientMessage(std::string mess)
 	{
 		GameProtocol::NewClientMessage msg{};
+		nlohmann::json message = nlohmann::json::parse(mess);
+
 		msg = message["type"].get<std::string>() == "NEW_CLIENT" ? GameProtocol::processNewClientMessage(message) : msg;
 		return msg;
 	}
-	GameProtocol::ClientIDMessage GameProtocol::handleClientIdMessage(const nlohmann::json& message)
+	GameProtocol::ClientIDMessage GameProtocol::handleClientIdMessage(std::string mess)
 	{
 		GameProtocol::ClientIDMessage msg{};
+		nlohmann::json message = nlohmann::json::parse(mess);
 		msg = message["type"].get<std::string>() == "CLIENT_ID" ? GameProtocol::processClientIdMessage(message) : msg;
 		return msg;
 	}
@@ -63,6 +66,7 @@ namespace Protocol
 
 		return msg;
 	}
+
 	GameProtocol::NewClientMessage GameProtocol::processNewClientMessage(const nlohmann::json& message)
 	{
 		GameProtocol::NewClientMessage msg;
@@ -105,7 +109,7 @@ namespace Protocol
 		 {"game", {
 			 {"board", boardVector},
 			 {"currentPlayer", currentPlayer},
-			 {"turn", turnNumber},
+			 {"turnNumber", turnNumber},
 			 {"winner", winner}
 		 }}
 		};
@@ -119,14 +123,14 @@ namespace Protocol
 		message = {
 		 {"type", "MOVE"},
 		 {"data", {
-			 {"id", id},
+			 {"playerID", id},
 			 {"posX", posX},
 			 {"posY", poxY}
 		 }}
 		};
 
 		return message.dump();
-;	}
+	}
 	std::string GameProtocol::createNewClientMessage(int id, std::string name)
 	{
 		nlohmann::json message;

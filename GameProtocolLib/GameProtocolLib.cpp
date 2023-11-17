@@ -2,8 +2,9 @@
 //
 
 #include <iostream>
+#include "GameProtocolLib.h"
 
 int main()
 {
-    std::cout << "Hello World!\n";
+
 }
