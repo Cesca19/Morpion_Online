@@ -60,7 +60,7 @@ namespace Protocol
 	{
 		GameProtocol::MoveMessage msg;
 
-		msg.id = message["data"]["playerID"].get<int>();
+		msg.playerId = message["data"]["playerID"].get<int>();
 		msg.posX = message["data"]["posX"].get<int>();
 		msg.posY = message["data"]["posY"].get<int>();
 
