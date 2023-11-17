@@ -19,39 +19,36 @@ class Server
 public:
 	Server(HINSTANCE hInstance, std::string port);
 	~Server();
-	virtual int init();
-	virtual int run();
-	//void setCore(void* core);
+	int init();
+	int run();
 	static Server* getServer();
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
-protected:
-	virtual void update() = 0;
-	virtual void addPlayer(std::string name) = 0;
+	std::vector<std::shared_ptr<Player>> getPlayersList();
+	void sendMessageToPlayers(std::string message);
+	void sendMessageToPlayer(std::string name, std::string message);
+	void setCore(void* core);
 
 private:
 	int initWindow();
-
 	int initWinsock();
 	int createSocket();
 	int acceptClient();
 	int initServer();
-protected:
 	int sendData(std::string data, SOCKET clientSocket);
 	int readData(WPARAM wParam, LPARAM lParam);
 
+private:
 	HINSTANCE _hInstance = nullptr;
 	HWND _hwnd = nullptr;
 
 	SOCKET _listenSocket;
 	std::string _port;
-
-
 	static Server* _server;
-	///void* _core;
-protected:
+	void* _core;
+
 	std::string _lastPlayerMessage;
 	int _id;
 	std::vector<std::shared_ptr<Player>> _playersVect;
 	std::unordered_map<SOCKET, std::shared_ptr<Player>> _playersMap;
+	std::unordered_map<std::string, std::shared_ptr<Player>> _playersNameMap;
 };
