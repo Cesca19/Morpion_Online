@@ -2,16 +2,8 @@
 #include "Server.h"
 #include "ServerCore.h"
 
-
 Server* Server::_server = nullptr;
 
-/*0
-void print(std::string mess)
-{
-	std::wstring res(mess.begin(), mess.end());
-	OutputDebugStringW(res.c_str());
-}
-*/
 Server* Server::getServer()
 {
 	return _server;
@@ -31,10 +23,8 @@ _port(port), _lastPlayerMessage(""), _id(1)
 
 Server::~Server()
 {
-	// shutdown each client socket since no more data will be sent
 	closesocket(_listenSocket);
 	WSACleanup();
-
 }
 
 LRESULT Server::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -172,10 +162,8 @@ int Server::initServer()
 
 int Server::init()
 {
-	// create the window
 	if (initWindow())
 		return 1;
-	// create the server
 	if(initServer())
 		return 1;
 	return 0;
@@ -195,6 +183,7 @@ int Server::sendData(std::string data, SOCKET clientSocket)
 
 int Server::readData(WPARAM wParam, LPARAM lParam)
 {
+	ServerCore* core = (ServerCore*)_core;
 	int iResult;
 	char recvbuf[DEFAULT_BUFLEN];
 	SOCKET clientSocket = (SOCKET)wParam;
@@ -208,10 +197,11 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 	
 	if (std::string("name:") == receiveMess.substr(0, 5)) {
 		_playersMap[clientSocket]->setName(receiveMess.substr(5, receiveMess.size()));
-		addPlayer(receiveMess.substr(5, receiveMess.size()));
+		_playersNameMap[receiveMess.substr(5, receiveMess.size())] = _playersMap[clientSocket];
+		core->addPlayer(receiveMess.substr(5, receiveMess.size()));
 	}
 	_lastPlayerMessage = receiveMess;
-
+	core->setLastPlayerMessage(_lastPlayerMessage);
 	if (iResult < 0) {
 		std::string mess("recv failed: " + std::to_string(WSAGetLastError()));
 		OutputDebugStringA(mess.c_str());
@@ -253,7 +243,27 @@ int Server::run()
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		update();
 	}
 	return (int)msg.wParam;
+}
+
+std::vector<std::shared_ptr<Player>> Server::getPlayersList() 
+{
+	return _playersVect;
+}
+
+void Server::sendMessageToPlayers(std::string message)
+{
+	for (int i = 0; i < _playersVect.size(); i++)
+		_playersVect[i]->sendMessage(message);
+}
+
+void Server::sendMessageToPlayer(std::string name, std::string message)
+{
+	_playersNameMap[name]->sendMessage(message);
+}
+
+void Server::setCore(void* core)
+{
+	_core = core;
 }

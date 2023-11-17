@@ -7,10 +7,10 @@ int WINAPI WinMain(
 	_In_ int       nCmdShow
 )
 {
-	ServerCore server(hInstance, "6666");
+	ServerCore serverApp(hInstance, "6666");
 
-	if (server.init())
+	if (serverApp.init())
 		return 1;
-	server.run();
+	serverApp.update();
 	return 0;
 }
