@@ -19,6 +19,7 @@ public:
 	int sendMessage(std::string mess);
 	SOCKET getSocket();
 	std::string getName();
+	int getType();
 private:
 	SOCKET _clientSocket;
 	PlayerType _type;
