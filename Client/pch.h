@@ -6,5 +6,7 @@
 #include <vector>
 #include <Windows.h>
 #include <string>
+#pragma comment(lib, "Core.lib")
+#include "../Core/GameProtocol.h"
 
 #pragma comment(lib, "Ws2_32.lib")
