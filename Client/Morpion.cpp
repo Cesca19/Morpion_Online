@@ -176,6 +176,8 @@ std::string convertBoard(int** board)
 int Morpion::printGameboard()
 {
 	float radius = 100.0f / 3.0f;
+	int player1 = (_id < 3) ? _id : 1;
+	int player2 = (_id == 2) ? 1 : 2;
 	ClientCore* core = ((ClientCore*)(_clientCore));
 	sf::Color color1 = {255, 105, 180};
 	sf::Color color2 = { 255, 215, 0 };
@@ -187,7 +189,7 @@ int Morpion::printGameboard()
 		sf::Vector2i position = sf::Mouse::getPosition(*(_window.get()));
 
 		if (gameMap) {
-			if (gameMap[i / 3][i % 3] != 0 && gameMap[i / 3][i % 3] == _id) {
+			if (gameMap[i / 3][i % 3] != 0 && gameMap[i / 3][i % 3] == player1) {
 				std::shared_ptr<sf::CircleShape>
 					shape(new sf::CircleShape(radius, 8));
 				shape->setPosition({ rect.left + rect.height / 5,
@@ -198,7 +200,7 @@ int Morpion::printGameboard()
 				_shapes.push_back(shape);
 
 			}
-			else if (gameMap[i / 3][i % 3] != 0 && gameMap[i / 3][i % 3] != _id) {
+			else if (gameMap[i / 3][i % 3] != 0 && gameMap[i / 3][i % 3] == player2) {
 				std::shared_ptr<sf::CircleShape>
 					shape(new sf::CircleShape(radius, 3));
 				shape->setPosition({ rect.left + rect.height / 5,
