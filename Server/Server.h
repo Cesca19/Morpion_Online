@@ -51,7 +51,7 @@ protected:
 	///void* _core;
 protected:
 	std::string _lastPlayerMessage;
-
+	int _id;
 	std::vector<std::shared_ptr<Player>> _playersVect;
 	std::unordered_map<SOCKET, std::shared_ptr<Player>> _playersMap;
 };

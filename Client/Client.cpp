@@ -1,6 +1,6 @@
-
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "Client.h"
+#include "ClientCore.h"
 #include <time.h>
 
 Client* Client::_client = nullptr;
@@ -83,7 +83,7 @@ int Client::initWindow()
 			L"Windows Desktop Guided Tour", NULL);
 		return 1;
 	}
-	ShowWindow(_hwnd, SW_SHOW);
+	//ShowWindow(_hwnd, SW_SHOW);
 	UpdateWindow(_hwnd);
 	return 0;
 }
@@ -158,8 +158,8 @@ int Client::init()
 		return 1;
 	if (initClient())
 		return 1;
-	_name = std::to_string(rand() % 100);
-	sendData("name:" + _name);
+	//_name = std::to_string(rand() % 100);
+	// sendData("name:" + _name);
 	return 0;
 }
 
@@ -177,6 +177,11 @@ int Client::sendData(std::string data)
 	return 0;
 }
 
+void Client::setCore(void* core)
+{
+	_clientCore = core;
+}
+
 std::string Client::readData(WPARAM wParam, LPARAM lParam)
 {
 	int iResult;
@@ -188,13 +193,14 @@ std::string Client::readData(WPARAM wParam, LPARAM lParam)
 	iResult = recv(_connectSocket, readMessage, DEFAULT_BUFLEN, 0);
 	if (iResult > 0) {
 		receivedMessage += std::string(readMessage);
-		OutputDebugStringA(std::string("Message received in client " + _name + ":" + receivedMessage + "\n").c_str());
+		//OutputDebugStringA(std::string("Message received in client " + _name + ":" + receivedMessage + "***\n").c_str());
 	} else if (iResult < 0)
 		OutputDebugStringA(std::string("client recv failed: " + std::to_string(WSAGetLastError()) + "\n").c_str());
-	
+	((ClientCore*)(_clientCore))->analyseMessage(receivedMessage);
+	/*
 	if (receivedMessage.substr(0, 5) == std::string("Turn:") && receivedMessage.substr(5, receivedMessage.size()) == _name) {
 		sendData("move:" + std::to_string(rand() % 3) + ":" + std::to_string(rand() % 3));
-	}
+	}*/
 	return receivedMessage;
 }
 

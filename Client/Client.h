@@ -20,6 +20,11 @@ public:
 	~Client();
 	int init();
 	int run();
+
+	int sendData(std::string data);
+	std::string readData(WPARAM wParam, LPARAM lParam);
+
+	void setCore(void* core);
 	static Client* getClient();
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -29,8 +34,7 @@ private:
 	int initWinsock();
 	int initClient();
 	int createSocket();
-	int sendData(std::string data);
-	std::string readData(WPARAM wParam, LPARAM lParam);
+
 
 	HINSTANCE _hInstance = nullptr;
 	HWND _hwnd = nullptr;
@@ -42,5 +46,7 @@ private:
 	std::string _name;
 
 	static Client* _client;
+
+	void* _clientCore;
 };
 

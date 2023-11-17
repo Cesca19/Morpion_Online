@@ -24,7 +24,7 @@ MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 Server::Server(HINSTANCE hInstance, std::string port) : _hInstance(hInstance),
-_port(port), _lastPlayerMessage("")
+_port(port), _lastPlayerMessage(""), _id(1)
 {
 	_server = this;
 }
@@ -239,7 +239,8 @@ int Server::acceptClient()
 	std::shared_ptr<Player> player(new Player(ClientSocket, type));
 	_playersVect.push_back(player);
 	_playersMap[ClientSocket] = player;
-	sendData("Your are player type" + std::to_string(type), ClientSocket);
+	sendData("I;id:" + std::to_string(_id) + "#", ClientSocket);
+	_id++;
 	return 0;
 }
 

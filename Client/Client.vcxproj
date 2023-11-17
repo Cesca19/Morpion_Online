@@ -135,13 +135,13 @@
   <ItemGroup>
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="ClientCore.cpp" />
-    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Morpion.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h" />
     <ClInclude Include="ClientCore.h" />
-    <ClInclude Include="Game.h" />
+    <ClInclude Include="Morpion.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

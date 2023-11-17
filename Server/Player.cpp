@@ -25,6 +25,11 @@ int Player::sendMessage(std::string mess)
 	return 0;
 }
 
+std::string Player::getName()
+{
+	return _name;
+}
+
 SOCKET Player::getSocket()
 {
 	return _clientSocket;

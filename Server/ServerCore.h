@@ -15,8 +15,6 @@ public:
 	std::string getPlayerLastMessage();
 private:
 	std::shared_ptr<Game> _gameLogic;
-	//std::shared_ptr<Server> _gameServer;
-
-	std::vector<std::string> _players;
+	int _numPlayers;
 };
 

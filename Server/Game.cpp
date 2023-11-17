@@ -51,13 +51,14 @@ void Game::initPlayer(std::string firstPlayer, std::string secondPlayer)
     _secondPlayer = secondPlayer;
     _currentPlayer = _firstPlayer;
     _isRunning = true;
+    sendMessageToPlayers("S#");
 }
 
 void Game::changePlayer()
 {
     if (_currentPlayer == _firstPlayer)
         _currentPlayer = _secondPlayer;
-    else
+    else if (_currentPlayer == _secondPlayer)
         _currentPlayer = _firstPlayer;
 }
 
@@ -68,7 +69,7 @@ void Game::setCore(void* core)
 
 void Game::sendMessageToPlayers(std::string message)
 {
-    ServerCore* core = (ServerCore *)_core;
+    ServerCore* core = (ServerCore*)_core;
     core->sendMessageToPlayers(message);
 }
 
@@ -105,30 +106,26 @@ void Game::run()
     static std::string prevPlayer = "";
     std::string mov;
     std::vector<std::string> mess;
-    if (_isRunning && checkWinner() == 0 )  {
-        // dire que c 'est au tour de _current de jouer
-       // sendMessageToPlayers("Board:" + convertBoard(_gameMap));
+    if (_isRunning /* && checkWinner() == 0*/) {
         if (prevPlayer != _currentPlayer) {
-            OutputDebugStringA("################################################\n");
-            sendMessageToPlayers("Turn:" + _currentPlayer);
-            OutputDebugStringA(std::string("---------------------- PLAYER " + _currentPlayer + " TURN ------------------------\n").c_str());
-            
+            OutputDebugStringA(std::string("---------------------- PLAYER " + _currentPlayer + " TURN -----" + convertBoard(_gameMap) + "-------------------\n").c_str());
+            sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
+            sendMessageToPlayers("T;" + _currentPlayer + "#");
             prevPlayer = _currentPlayer;
         }
         // attendre son movement
         mov = ((ServerCore*)_core)->getPlayerLastMessage();
         //OutputDebugStringA("here may be\n");
-        if (mov != "" && mov.substr(0, 5) == "move:") {
-            OutputDebugStringA("---------------------------------\n");
-            mess = split(mov, ":");
-            move(stoi(mess[1]), stoi(mess[2]));
-            // voir si qqun a gagné
-            // 
-            if (checkWinner() != 0)
-                sendMessageToPlayers("Winner or tie");
-            changePlayer();
+        if (mov != "" && mov[0] == 'M') {
+            mess = split(mov.substr(2, mov.size()), ":");
+            if (mess[0] == _currentPlayer) {
+                OutputDebugStringA(("--------" + mov.substr(2, mov.size()) + "---------\n").c_str());
+                move(stoi(mess[1]), stoi(mess[2]));
+                //if (checkWinner() != 0)
+                  //  sendMessageToPlayers("Winner or tie");
+                changePlayer();
+            }
         }
-        OutputDebugStringA(("++++++++++++++++" + _currentPlayer + "+++++++++++++++++++++\n").c_str());
     }
 }
 

@@ -1,16 +1,25 @@
 #pragma once
 #include "Client.h"
-#include "Game.h"
+#include "Morpion.h"
 #include "SFML/Graphics.hpp"
 #include <iostream>
 
 class ClientCore
 {
 public :
-	ClientCore();
+	ClientCore(HINSTANCE hInstance);
 	~ClientCore();
-	int init(std::string windowName, int width, int height,Client &client);
+	int init(std::string windowName, int width, int height);
 	int run();
-	Game* _game;
+	void analyseMessage(std::string message);
+	void sendMessage(std::string message);
+	int** getGameMap();
+	void setGameMap(int **);
+	void setCurrentPlayer(std::string name);
+private:
+	std::shared_ptr<Client> _client;
+	std::string _name;
+	Morpion* _game;
+	int** _map;
 };
 

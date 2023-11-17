@@ -1,7 +1,7 @@
 #include "ServerCore.h"
 
 ServerCore::ServerCore(HINSTANCE hInstance, std::string port) :
-	Server(hInstance, port), _gameLogic(new Game())
+	Server(hInstance, port), _gameLogic(new Game()), _numPlayers(0)
 {
 }
 
@@ -29,10 +29,9 @@ void ServerCore::update()
 
 void ServerCore::addPlayer(std::string name)
 {
-	if (_players.size() < 2)
-		_players.push_back(name);
-	if (_players.size() == 2)
-		_gameLogic->initPlayer(_players[0], _players[1]); 
+	_numPlayers++;
+	if (_numPlayers == 2)
+		_gameLogic->initPlayer(_playersVect[0]->getName(), _playersVect[1]->getName());
 }
 
 void ServerCore::sendMessageToPlayers(std::string message)
