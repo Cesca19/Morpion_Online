@@ -251,6 +251,11 @@ std::vector<std::shared_ptr<Player>> Server::getPlayersList()
 	return _playersVect;
 }
 
+std::unordered_map<std::string, std::shared_ptr<Player>> Server::getPlayers()
+{
+	return _playersNameMap;
+}
+
 void Server::sendMessageToPlayers(std::string message)
 {
 	for (int i = 0; i < _playersVect.size(); i++)

@@ -16,7 +16,7 @@ void Player::setName(std::string name)
 
 int Player::sendMessage(std::string mess)
 {
-	int iSendResult = send(_clientSocket, mess.c_str(), mess.size(), 0);
+	int iSendResult = send(_clientSocket, mess.c_str(), (int)mess.size(), 0);
 	if (iSendResult == SOCKET_ERROR) {
 		closesocket(_clientSocket);
 		WSACleanup();
@@ -28,6 +28,11 @@ int Player::sendMessage(std::string mess)
 std::string Player::getName()
 {
 	return _name;
+}
+
+int Player::getType()
+{
+	return (_type);
 }
 
 SOCKET Player::getSocket()

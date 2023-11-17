@@ -12,6 +12,7 @@ public:
 	void addPlayer(std::string name);
 
 	void sendMessageToPlayers(std::string Message);
+	void sendMessageToPlayer(std::string name, std::string Message);
 	std::string getPlayerLastMessage();
 	void setLastPlayerMessage(std::string mess);
 private:
