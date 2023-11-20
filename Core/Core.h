@@ -25,7 +25,7 @@ public:
     Player* GetSecondPlayer() { return m_secondPlayer; }
     int** GetGameMap() { return m_gameMap; } 
 
-private:
+ private:
     Player* m_currentPlayer;
     Player* m_firstPlayer;
     Player* m_secondPlayer;

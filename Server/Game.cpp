@@ -118,15 +118,30 @@ void Game::run()
         //OutputDebugStringA("here may be\n");
         if (mov != "" && mov[0] == 'M') {
             mess = split(mov.substr(2, mov.size()), ":");
+            std::string setmovemsg = "";
+            for (int i = 0; i < mess.size(); i++) {
+                setmovemsg += mess[i] + " ";
+            }
+            ((ServerCore*)_core)->SetHistoricMsg(setmovemsg);
             if (mess[0] == _currentPlayer) {
                 OutputDebugStringA(("--------" + mov.substr(2, mov.size()) + "---------\n").c_str());
                 move(stoi(mess[1]), stoi(mess[2]));
+<<<<<<< Updated upstream
                 //if (checkWinner() != 0)
                   //  sendMessageToPlayers("Winner or tie");
+=======
+                int win = checkWinner();
+                if (win != 0) {
+                    sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
+                    sendMessageToPlayers("E;" + ((win == 3) ? "T" : "W:" + _players[win - 1]) + "#");
+                    ((ServerCore*)_core)->SetHistoricMsg(((win == 3) ? "T" : _players[win - 1] + " won \n -------------- \n"));
+                }
+>>>>>>> Stashed changes
                 changePlayer();
             }
         }
     }
+  
 }
 
 void Game::move(int x, int y)

@@ -167,7 +167,12 @@ int Client::sendData(std::string data)
 {
 	int iResult;
 
+<<<<<<< Updated upstream
 	iResult = send(_connectSocket, data.c_str(), data.size(), 0);
+=======
+	iResult = send(_connectSocket, data.c_str(), (int)data.size(), 0);
+	//OutputDebugStringA(("\n" + data + "ici \n").c_str());
+>>>>>>> Stashed changes
 	if (iResult == SOCKET_ERROR) {
 		OutputDebugStringA(std::string("send failed: " + std::to_string(WSAGetLastError())).c_str());
 		closesocket(_connectSocket);

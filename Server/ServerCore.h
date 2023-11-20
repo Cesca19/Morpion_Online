@@ -1,6 +1,7 @@
 #pragma once
 #include "Server.h"
 #include "Game.h"
+#include <iostream>
 
 class ServerCore : public Server 
 {
@@ -13,6 +14,13 @@ public:
 
 	void sendMessageToPlayers(std::string Message);
 	std::string getPlayerLastMessage();
+<<<<<<< Updated upstream
+=======
+	void setLastPlayerMessage(std::string mess);
+	int** getGameMap();
+
+	void SetHistoricMsg(std::string mess);
+>>>>>>> Stashed changes
 private:
 	std::shared_ptr<Game> _gameLogic;
 	int _numPlayers;
