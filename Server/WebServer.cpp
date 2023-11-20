@@ -1,17 +1,15 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "WebServer.h"
-//#include "ServerCore.h"
+#include "ServerCore.h"
 
 WebServer* WebServer::_webServer = nullptr;
 
 DWORD WINAPI WebServer::MyThreadFunction(LPVOID lpParam)
 {
-	OutputDebugStringA("THIS start *****************************************************************************************\n");
 	WebServer* server = (WebServer*)lpParam;
 
 	server->init();
 	server->run();
-	OutputDebugStringA("THIS end *****************************************************************************************\n");
 	return 0;
 }
 
@@ -97,7 +95,7 @@ int WebServer::initWindow()
 			L"Windows Desktop Guided Tour", NULL);
 		return 1;
 	}
-	ShowWindow(_hwnd, SW_SHOW);
+	//ShowWindow(_hwnd, SW_SHOW);
 	UpdateWindow(_hwnd);
 	return 0;
 }
@@ -107,7 +105,6 @@ int  WebServer::initWinsock()
 	WSADATA wsaData;
 	int iResult;
 
-	//	The WSAStartup function is called to initiate use of WS2_32.dll.
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
 		std::string mess("WSAStartup failed: " + std::to_string(iResult));
@@ -123,7 +120,7 @@ int WebServer::createSocket()
 	struct addrinfo* result = NULL, * ptr = NULL, hints;
 
 	ZeroMemory(&hints, sizeof(hints));
-	hints.ai_family = AF_INET; // IPv4 address
+	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_flags = AI_PASSIVE;
@@ -184,7 +181,7 @@ int WebServer::init()
 
 int WebServer::sendData(std::string data, SOCKET clientSocket)
 {
-	int iSendResult = send(clientSocket, data.c_str(), data.size(), 0);
+	int iSendResult = send(clientSocket, data.c_str(), (int)data.size(), 0);
 	if (iSendResult == SOCKET_ERROR) {
 		OutputDebugStringA(std::string("send failed: " + std::to_string(WSAGetLastError())).c_str());
 		closesocket(clientSocket);
@@ -202,31 +199,60 @@ std::string WebServer::buildResponse(std::string mess)
 	return header + file;
 }
 
+std::string WebServer::convertGameMap(int **board)
+{
+	std::string mess;
+
+	mess += "&emsp;&emsp;&emsp;----------<br>";
+	for (int i = 0; i < 3; i++) {
+		mess += "&emsp;&emsp;&emsp;|";
+		for (int j = 0; j < 3; j++) {
+			switch (board[i][j]) {
+			case 0:
+				mess += "&ensp;&nbsp;";
+				break;
+			case 1:
+				mess += "X";
+				break;
+			case 2:
+				mess += "O";
+				break;
+			}
+			mess += '|';
+		}
+		mess += "<br>&emsp;&emsp;&emsp;----------<br>";
+	}
+	return mess;
+}
+
+int WebServer::sendGameMap(SOCKET clientSocket)
+{
+	ServerCore* core = (ServerCore*)_core;
+	int** map = core->getGameMap();
+	sendData(buildResponse("Mirror, Mirror on the Wall, Who's the Fairest of Them All?<br>" + convertGameMap(map)), clientSocket);
+	return 0;
+}
+
 int WebServer::readData(WPARAM wParam, LPARAM lParam)
 {
-	//ServerCore* core = (ServerCore*)_core;
 	int iResult;
 	char recvbuf[DEFAULT_BUFLEN];
 	SOCKET clientSocket = (SOCKET)wParam;
-
 	std::string receivedMess;
 
-	//do {
-		ZeroMemory(recvbuf, DEFAULT_BUFLEN);
-		iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
-		receivedMess += recvbuf;
-		if (iResult < 0) {
-			std::string mess("recv failed: " + std::to_string(WSAGetLastError()));
-			OutputDebugStringA(mess.c_str());
-			closesocket(clientSocket);
-			WSACleanup();
-			return 1;
-		}
-	//} while (iResult > 0);
+	ZeroMemory(recvbuf, DEFAULT_BUFLEN);
+	iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
+	receivedMess += recvbuf;
+	if (iResult < 0) {
+		std::string mess("recv failed: " + std::to_string(WSAGetLastError()));
+		OutputDebugStringA(mess.c_str());
+		closesocket(clientSocket);
+		WSACleanup();
+		return 1;
+	}
 
-	OutputDebugStringA(std::string("-------------------------------------------------------------------Mess received in Server: " + receivedMess + "\n").c_str());
 	// mess handling
-	sendData(buildResponse("Mirror, Mirror on the Wall, Who's the Fairest of Them All?"), clientSocket);
+	sendGameMap(clientSocket);
 	return 0;
 }
 
@@ -258,8 +284,7 @@ int WebServer::run()
 	return (int)msg.wParam;
 }
 
-/*
 void WebServer::setCore(void* core)
 {
 	_core = core;
-}*/
+}

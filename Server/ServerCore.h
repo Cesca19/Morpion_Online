@@ -15,6 +15,7 @@ public:
 	void sendMessageToPlayers(std::string Message);
 	std::string getPlayerLastMessage();
 	void setLastPlayerMessage(std::string mess);
+	int** getGameMap();
 private:
 	HANDLE  _hThread;
 

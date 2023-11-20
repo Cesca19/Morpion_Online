@@ -1,9 +1,6 @@
 
 #include "pch.h"
-#include <iostream>
-#include <string>
 #include "ServerCore.h"
-#include "WebServer.h"
 
 int WINAPI WinMain(
     _In_ HINSTANCE hInstance,

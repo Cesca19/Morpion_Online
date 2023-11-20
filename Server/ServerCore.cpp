@@ -11,17 +11,20 @@ ServerCore::~ServerCore()
 
 int ServerCore::init()
 {
-	DWORD   threadId;	
+	DWORD   threadId;
+
 	_server->init();
-		_hThread = CreateThread(
-		NULL, 0, WebServer::MyThreadFunction, _webServer.get(), 0, &threadId);
-		if (_hThread == NULL) {
-			OutputDebugStringA(("Error at thread: " + std::to_string(WSAGetLastError())).c_str());
-			ExitProcess(3);
-		}
 	_server->setCore(this);
+
 	_gameLogic->initGameMap();
 	_gameLogic->setCore(this);
+
+	_webServer->setCore(this);
+	_hThread = CreateThread(NULL, 0, WebServer::MyThreadFunction, _webServer.get(), 0, &threadId);
+	if (_hThread == NULL) {
+		OutputDebugStringA(("Error at thread: " + std::to_string(WSAGetLastError())).c_str());
+		ExitProcess(3);
+	}
 	return 0;
 }
 
@@ -66,4 +69,9 @@ std::string ServerCore::getPlayerLastMessage()
 void ServerCore::setLastPlayerMessage(std::string mess)
 {
 	_lastPlayerMessage = mess;
+}
+
+int** ServerCore::getGameMap()
+{
+	return _gameLogic->getGameMap();
 }

@@ -20,8 +20,7 @@ public:
 	static DWORD WINAPI MyThreadFunction(LPVOID lpParam);
 	static WebServer* getServer();
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
-	//void setCore(void* core);
+	void setCore(void* core);
 
 
 private:
@@ -31,11 +30,11 @@ private:
 	int acceptClient();
 	int initServer();
 	
+	std::string buildResponse(std::string mess);
+	std::string convertGameMap(int** map);
+	int sendGameMap(SOCKET clientSocket);
 	int sendData(std::string data, SOCKET clientSocket);
 	int readData(WPARAM wParam, LPARAM lParam);
-
-    std::string buildResponse(std::string mess);
-
 private:
 	HINSTANCE _hInstance = nullptr;
 	HWND _hwnd = nullptr;

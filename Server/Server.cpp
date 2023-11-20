@@ -171,7 +171,7 @@ int Server::init()
 
 int Server::sendData(std::string data, SOCKET clientSocket)
 {
-	int iSendResult = send(clientSocket, data.c_str(), data.size(), 0);
+	int iSendResult = send(clientSocket, data.c_str(), (int)data.size(), 0);
 	if (iSendResult == SOCKET_ERROR) {
 		OutputDebugStringA( std::string ("send failed: " + std::to_string( WSAGetLastError())).c_str() );
 		closesocket(clientSocket);
