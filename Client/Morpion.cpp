@@ -46,12 +46,12 @@ void Morpion::setStart()
 	_hasStart = true;
 }
 
-void Morpion::init(std::string windowName, int width, int height)
+void Morpion::init()
 {
-	_windowName = windowName;
-	_width = width;
-	_height = height;
-	createGameWindow(windowName, width, height);
+	_windowName = "Tic-Tac-Toe";
+	_width = 800;
+	_height = 600;
+	createGameWindow(_windowName, _width, _height);
 }
 
 void Morpion::run(sf::Event event)
@@ -174,7 +174,7 @@ void Morpion::createGameBoard()
 	}
 }
 
-void Morpion::setCore(void* core)
+void Morpion::setClientCore(void* core)
 {
 	_clientCore = core;
 }

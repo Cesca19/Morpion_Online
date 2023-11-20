@@ -1,17 +1,6 @@
 #include "Game.h"
 #include "ServerCore.h"
-
-
-std::string convertBoard(int** board)
-{
-    std::string mess;
-    for (int i = 0; i < 3; i++) {
-        mess += board[i][0] + '0';
-        mess += board[i][1] + '0';
-        mess += board[i][2] + '0';
-    }
-    return mess;
-}
+#include "../Core/Utils.h"
 
 Game::Game() : _gameMap(NULL), _currentPlayer(""), _isRunning(false)
 {
@@ -105,23 +94,6 @@ void Game::sendMessageToPlayer(std::string name, std::string message)
 {
     ServerCore* core = (ServerCore*)_core;
     core->sendMessageToPlayer(name, message);
-}
-
-std::vector<std::string> split(std::string message, std::string delimiter)
-{
-    std::vector<std::string> mess;
-    std::string str = message;
-    size_t pos = 0;
-    std::string token;
-
-    while ((pos = str.find(delimiter)) != std::string::npos) {
-        token = str.substr(0, pos);
-        mess.push_back(token);
-        str.erase(0, pos + delimiter.length());
-    }
-    mess.push_back(str);
-    std::cout << str << std::endl;
-    return mess;
 }
 
 void Game::run()

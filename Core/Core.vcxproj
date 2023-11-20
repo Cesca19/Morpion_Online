@@ -21,10 +21,12 @@
   <ItemGroup>
     <ClInclude Include="Core.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

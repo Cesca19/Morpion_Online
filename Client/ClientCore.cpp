@@ -1,32 +1,43 @@
 #include "ClientCore.h"
+#include "../Core/Utils.h"
 
-std::vector<std::string> split(std::string message, std::string delimiter)
+DWORD WINAPI ClientThreadFunction(LPVOID lpParam)
 {
-	std::vector<std::string> mess;
-	std::string str = message;
-	size_t pos = 0;
-	std::string token;
-
-	while ((pos = str.find(delimiter)) != std::string::npos) {
-		token = str.substr(0, pos);
-		mess.push_back(token);
-		str.erase(0, pos + delimiter.length());
-	}
-	mess.push_back(str);
-	std::cout << str << std::endl;
-	return mess;
+	printf("Client Thread is running\n");
+	Client* client = (Client*) lpParam;
+	return 0;
 }
 
-int** convertStringBoard(std::string mess)
+DWORD WINAPI MorpionThreadFunction(LPVOID lpParam)
 {
-	int **map = new int* [3];
-	for (int i = 0, j = 0; i < 3 && j < mess.size(); i++) {
-		map[i] = new int[3];
-		map[i][0] = mess[j] - 48; j++;
-		map[i][1] = mess[j] - 48; j++;
-		map[i][2] = mess[j] - 48; j++;
+	printf("Morpion Thread is running\n");
+	GameParams* params = (GameParams*) lpParam;
+
+	MSG msg = { 0 };
+	sf::Event event;
+	int i = 0;
+	
+	while (msg.message != WM_QUIT && params->game->GetWindow()->isOpen()) {
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		else {
+			if (!params->game->GetWindow()->pollEvent(event)) {
+				if (event.type == sf::Event::Closed)
+					params->game->GetWindow()->close();
+			}
+
+			if (params->name == "") {
+				params->name = params->game->getPlayerName(&event);
+				params->client->sendData("name:" + params->name);
+			}
+
+			params->game->run(event);
+		}
 	}
-	return map;
+
+	return (int)msg.wParam;
 }
 
 ClientCore::ClientCore(HINSTANCE hInstance) : 
@@ -36,14 +47,63 @@ ClientCore::ClientCore(HINSTANCE hInstance) :
 	_game = new Morpion();
 }
 
-ClientCore::~ClientCore() {}
+ClientCore::~ClientCore()
+{
+	CloseHandle(_hClientThread);
+	CloseHandle(_hMorpionThread);
+}
 
-int ClientCore::init(std::string windowName, int width, int height) {
-	_game->setCore(this);
-	_game->init(windowName, width, height);
+int ClientCore::init() {
+	_game->setClientCore(this);
+	_game->init();
 	_client->setCore(this);
 	if (_client->init())
 		return 1;
+	return 0;
+}
+
+
+int ClientCore::initClientThread()
+{
+	DWORD threadId;
+	
+	_hClientThread = CreateThread(
+		NULL,
+		0,
+		ClientThreadFunction,
+		_client,
+		0,
+		&threadId);
+
+	if (_hClientThread == NULL) {
+		OutputDebugStringA(("Error at thread: " + std::to_string(WSAGetLastError())).c_str());
+		ExitProcess(3);
+	}
+	
+	WaitForSingleObject(_hClientThread, 0);
+	return 0;
+}
+
+int ClientCore::initMorpionThread()
+{
+	DWORD threadId;
+	_gameParams = new GameParams();
+	_gameParams->game = _game;
+	_gameParams->client = _client;
+
+	_hMorpionThread = CreateThread(
+		NULL,
+		0,
+		MorpionThreadFunction,
+		_gameParams,
+		0,
+		&threadId);
+
+	if (_hMorpionThread == NULL) {
+		OutputDebugStringA(("Error at thread: " + std::to_string(WSAGetLastError())).c_str());
+		ExitProcess(3);
+	}
+
 	return 0;
 }
 
@@ -115,38 +175,31 @@ void ClientCore::sendMessage(std::string mess)
 }
 
 
-int ClientCore::run() {
-	MSG msg = { 0 };
-	sf::Event event;
-	int i = 0;
+// int ClientCore::run() {
+// 	MSG msg = { 0 };
+// 	sf::Event event;
+// 	int i = 0;
+// 	
+// 	while (msg.message != WM_QUIT && _game->GetWindow()->isOpen()) {
+// 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
+// 			TranslateMessage(&msg);
+// 			DispatchMessage(&msg);
+// 		}
+// 		else {
+// 			if (!_game->GetWindow()->pollEvent(event)) {
+// 				if (event.type == sf::Event::Closed)
+// 					_game->GetWindow()->close();
+// 			}
+//
+// 			if (_name == "") {
+// 				_name = _game->getPlayerName(&event);
+// 				_client->sendData("name:" + _name);
+// 			}
+//
+// 			_game->run(event);
+// 		}
+// 	}
+//
+// 	return (int)msg.wParam;
+// }
 
-
-	while (msg.message != WM_QUIT && _game->GetWindow()->isOpen()) {
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-		else {
-			if (!_game->GetWindow()->pollEvent(event)) {
-				if (event.type == sf::Event::Closed)
-					_game->GetWindow()->close();
-			}
-
-			if (_name == "") {
-				_name = _game->getPlayerName(&event);
-				_client->sendData("name:" + _name);
-				//("her\n");
-			}
-			/*if (i == 0)
-			{
-				_game->initPlayers(event);
-				i++;
-			}*/
-
-			_game->run(event);
-		}
-
-	}
-
-	return (int)msg.wParam;
-}

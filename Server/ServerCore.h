@@ -26,5 +26,7 @@ private:
 	std::string _lastPlayerMessage;
 	int _numPlayers;
 	bool _hasStart;
+
+	void* _clientCore;
 };
 
