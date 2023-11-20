@@ -49,6 +49,17 @@ void ServerCore::addNewGameClient(WPARAM wParam, LPARAM lParam)
 	_playersMap[id] = player;
 }
 
+void ServerCore::dispatchWebMessage(WPARAM wParam, LPARAM lParam)
+{
+	Data_t* mess = (Data_t*)wParam;
+	std::string receiveMess(mess->content);
+	GameMap_t* map = new GameMap_t;
+
+	map->map = getGameMap();
+	PostMessage(_webServerHwnd, SEND_GAME_MAP, (WPARAM)map, lParam);
+	delete mess;
+}
+
 LRESULT ServerCore::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) {
@@ -60,6 +71,14 @@ LRESULT ServerCore::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		break;
 	} case (NEW_MESSAGE): {
 		dispatchGameMessage(wParam, lParam);
+		break;
+	} case WEB_SERVER_ID : {
+		setWebServer(wParam, lParam);
+		break;
+	} case NEW_WEB_CLIENT: {
+		break;
+	} case NEW_WEB_MESSAGE: {
+		dispatchWebMessage(wParam, lParam);
 		break;
 	} case WM_DESTROY:
 		PostQuitMessage(0);
@@ -110,21 +129,20 @@ int ServerCore::init()
 	DWORD   gamethreadId;
 
 	initWindow();
-	_gameServerHandleThread = CreateThread(NULL, 0, Server::MyThreadFunction, _hwnd, 0, &webthreadId);
-	if (_gameServerHandleThread == NULL) {
+	_serversThreadArray[0] = CreateThread(NULL, 0, Server::MyThreadFunction, _hwnd, 0, &gamethreadId);
+	if (_serversThreadArray[0] == NULL) {
 		OutputDebugStringA(("Error at thread: " + std::to_string(WSAGetLastError())).c_str());
-		ExitProcess(3);
+		ExitProcess(2);
 	}
 
 	_gameLogic->initGameMap();
 	_gameLogic->setCore(this);
 
-	//_webServer->setCore(this);
-	/*_webServerHandleThread = CreateThread(NULL, 0, WebServer::MyThreadFunction, _hwnd, 0, &webthreadId);
-	if (_webServerHandleThread == NULL) {
+	_serversThreadArray[1] = CreateThread(NULL, 0, WebServer::MyThreadFunction, _hwnd, 0, &webthreadId);
+	if (_serversThreadArray[1] == NULL) {
 		OutputDebugStringA(("Error at thread: " + std::to_string(WSAGetLastError())).c_str());
 		ExitProcess(3);
-	}*/
+	}
 	return 0;
 }
 
@@ -138,7 +156,7 @@ void ServerCore::update()
 		}
 		_gameLogic->run();
 	}
-	WaitForSingleObject(_gameServerHandleThread, INFINITE);
+	WaitForMultipleObjects(2, _serversThreadArray, true, INFINITE);
 }
 
 void ServerCore::addPlayer(std::string name)

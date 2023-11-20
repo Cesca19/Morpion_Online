@@ -40,32 +40,26 @@ Server::~Server()
 LRESULT Server::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) {
-	case SEND_MESSAGE_TO_PLAYERS:
-	{
-		sendMessageToPlayers(/*std::string((const char*)wParam)*/wParam, lParam);
+	case SEND_MESSAGE_TO_PLAYERS: {
+		sendMessageToPlayers(wParam, lParam);
 		break;
-	}
-	case SEND_MESSAGE_TO_PLAYER:
-	{
-		sendMessageToPlayer(/*std::string((const char*)wParam), std::string((const char*)lParam)*/wParam, lParam);
+	} case SEND_MESSAGE_TO_PLAYER: {
+		sendMessageToPlayer(wParam, lParam);
 		break;
-	}
-	case ACCEPT_CLIENT:
-	{
+	} case ACCEPT_CLIENT: {
 		if (LOWORD(lParam) == FD_ACCEPT)
 			acceptClient();
+		else if (LOWORD(lParam) == FD_CLOSE)
+		{}
+		break;
+	} case READ_MESSAGE: {
+		if (LOWORD(lParam) == FD_READ)
+			readData(wParam, lParam);
 		else if (LOWORD(lParam) == FD_CLOSE)
 		{
 		}
 		break;
-	}
-	case READ_MESSAGE:
-		if (LOWORD(lParam) == FD_READ)
-			readData(wParam, lParam);
-		else if (LOWORD(lParam) == FD_CLOSE)
-		{}
-		break;
-	case WM_DESTROY:
+	} case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
 	default:
@@ -114,7 +108,6 @@ int  Server::initWinsock()
 	WSADATA wsaData;
 	int iResult;
 
-	//	The WSAStartup function is called to initiate use of WS2_32.dll.
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
 		std::string mess("WSAStartup failed: " + std::to_string(iResult));
@@ -130,7 +123,7 @@ int Server::createSocket()
 	struct addrinfo* result = NULL, * ptr = NULL, hints;
 	
 	ZeroMemory(&hints, sizeof(hints));
-	hints.ai_family = AF_INET; // IPv4 address
+	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_flags = AI_PASSIVE;
@@ -207,22 +200,12 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 	int iResult;
 	char recvbuf[DEFAULT_BUFLEN];
 	SOCKET clientSocket = (SOCKET)wParam;
+	Data_t* data = new Data_t;
 	
 	ZeroMemory(recvbuf, DEFAULT_BUFLEN);
 	iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
-	
-	/*if (std::string("name:") == receiveMess.substr(0, 5)) {
-		_playersMap[clientSocket]->setName(receiveMess.substr(5, receiveMess.size()));
-		_playersNameMap[receiveMess.substr(5, receiveMess.size())] = _playersMap[clientSocket];
-		//core->addPlayer(receiveMess.substr(5, receiveMess.size()));
-		//PostMessage(_coreHwnd, NEW_PLAYER, (WPARAM)(receiveMess.substr(5, receiveMess.size()).c_str()), 0);
-	}
-	_lastPlayerMessage = receiveMess;
-	OutputDebugStringA(("in server ---------" + receiveMess + "-------------------------\n").c_str());*/
-	Data_t* data = new Data_t;
 	data->content = recvbuf;
 	PostMessage(_coreHwnd, NEW_MESSAGE, (WPARAM)data, _clientsMap[clientSocket]->getId());
-	//core->setLastPlayerMessage(_lastPlayerMessage);
 	if (iResult < 0) {
 		std::string mess("recv failed: " + std::to_string(WSAGetLastError()));
 		OutputDebugStringA(mess.c_str());
@@ -245,9 +228,7 @@ int Server::acceptClient()
 		return 1;
 	}
 	WSAAsyncSelect(ClientSocket, _hwnd, READ_MESSAGE, FD_READ | FD_CLOSE);
-
 	PostMessage(_coreHwnd, NEW_GAME_CLIENT, ClientSocket, _id);
-	//PlayerType type = (_playersVect.size() == 0) ? PLAYER1 : (_playersVect.size() == 1) ? PLAYER2 : SPECTATOR;*/
 	std::shared_ptr<GameClient> client(new GameClient(ClientSocket, _id));
 	_clientsVect.push_back(client);
 	_clientsMap[ClientSocket] = client;
@@ -268,18 +249,8 @@ int Server::run()
 	}
 	return (int)msg.wParam;
 }
-/*
-std::vector<std::shared_ptr<Player>> Server::getPlayersList() 
-{
-	return _playersVect;
-}
 
-std::unordered_map<std::string, std::shared_ptr<Player>> Server::getPlayers()
-{
-	return _playersNameMap;
-}*/
-
-void Server::sendMessageToPlayers(/*std::string message*/WPARAM wParam, LPARAM lParam)
+void Server::sendMessageToPlayers(WPARAM wParam, LPARAM lParam)
 {
 	Data_t* data = (Data_t*)wParam;
 	std::string message = data->content;
@@ -288,7 +259,7 @@ void Server::sendMessageToPlayers(/*std::string message*/WPARAM wParam, LPARAM l
 	delete data;
 }
 
-void Server::sendMessageToPlayer(/*std::string name, std::string message*/WPARAM wParam, LPARAM lParam)
+void Server::sendMessageToPlayer(WPARAM wParam, LPARAM lParam)
 {
 	Data_t* data = (Data_t*)wParam;
 	std::string message = data->content;
