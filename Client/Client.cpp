@@ -21,8 +21,8 @@ MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return (Client::getClient()->wndProc(hwnd, msg, wParam, lParam));
 }
 
-Client::Client(HINSTANCE hInstance, std::string address, std::string port) :
-	_hInstance(hInstance), _ipAddress(address), _port(port)
+Client::Client(HINSTANCE hInstance) :
+	_hInstance(hInstance)
 {
 	_client = this;
 }

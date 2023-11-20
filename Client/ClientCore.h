@@ -4,13 +4,6 @@
 #include "SFML/Graphics.hpp"
 #include <iostream>
 
-struct GameParams
-{
-	Client* client;
-	std::string name;
-	Morpion* game;
-};
-
 class ClientCore
 {
 public :
@@ -18,7 +11,7 @@ public :
 	~ClientCore();
 	int init();
 	int initMorpion();
-	int initClientThread();
+	int initClientCoreThread();
 	int initMorpionThread();
 	int run();
 	void analyseMessage(std::string message);
@@ -28,10 +21,7 @@ public :
 	void setCurrentPlayer(std::string name);
 	
 private:
-	HANDLE _hClientThread;
-	HANDLE _hMorpionThread;
-
-	GameParams* _gameParams;
+	HANDLE _hClientCoreThread;
 
 	Client* _client;
 	std::string _name;

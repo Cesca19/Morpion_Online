@@ -7,10 +7,10 @@ int WINAPI WinMain(
 	_In_ int       nCmdShow
 )
 {	
-	ClientCore clientCore(hInstance);	
-	//Client client(hInstance, "127.0.0.1", "6666");
-	clientCore.init();
-	// clientCore.initClientThread();
-	clientCore.initMorpionThread();
+	ClientCore clientCore(hInstance);
+	if (clientCore.init() != 0) {
+		return 1; 
+	}
+	
 }
 

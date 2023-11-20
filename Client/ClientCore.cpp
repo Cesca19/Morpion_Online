@@ -1,56 +1,26 @@
 #include "ClientCore.h"
 #include "../Core/Utils.h"
 
-DWORD WINAPI ClientThreadFunction(LPVOID lpParam)
+DWORD WINAPI ClientCoreThreadFunction(LPVOID lpParam)
 {
 	printf("Client Thread is running\n");
-	Client* client = (Client*) lpParam;
+	ClientCore* core = static_cast<ClientCore*>(lpParam);
+	core->run();
+	printf("Finished\n");
 	return 0;
 }
 
-DWORD WINAPI MorpionThreadFunction(LPVOID lpParam)
-{
-	printf("Morpion Thread is running\n");
-	GameParams* params = (GameParams*) lpParam;
-
-	MSG msg = { 0 };
-	sf::Event event;
-	int i = 0;
-	
-	while (msg.message != WM_QUIT && params->game->GetWindow()->isOpen()) {
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-		else {
-			if (!params->game->GetWindow()->pollEvent(event)) {
-				if (event.type == sf::Event::Closed)
-					params->game->GetWindow()->close();
-			}
-
-			if (params->name == "") {
-				params->name = params->game->getPlayerName(&event);
-				params->client->sendData("name:" + params->name);
-			}
-
-			params->game->run(event);
-		}
-	}
-
-	return (int)msg.wParam;
-}
-
 ClientCore::ClientCore(HINSTANCE hInstance) : 
-	_client(new  Client(hInstance, "127.0.0.1", "6666")), _name(""),
+	_name(""),
 	_map(NULL)
 {
+	_client = new Client(hInstance);
 	_game = new Morpion();
 }
 
 ClientCore::~ClientCore()
 {
-	CloseHandle(_hClientThread);
-	CloseHandle(_hMorpionThread);
+	CloseHandle(_hClientCoreThread);
 }
 
 int ClientCore::init() {
@@ -59,51 +29,28 @@ int ClientCore::init() {
 	_client->setCore(this);
 	if (_client->init())
 		return 1;
-	return 0;
+	return initClientCoreThread();
 }
 
 
-int ClientCore::initClientThread()
+int ClientCore::initClientCoreThread()
 {
 	DWORD threadId;
 	
-	_hClientThread = CreateThread(
+	_hClientCoreThread = CreateThread(
 		NULL,
 		0,
-		ClientThreadFunction,
-		_client,
+		ClientCoreThreadFunction,
+		this,
 		0,
 		&threadId);
 
-	if (_hClientThread == NULL) {
+	if (_hClientCoreThread == NULL) {
 		OutputDebugStringA(("Error at thread: " + std::to_string(WSAGetLastError())).c_str());
 		ExitProcess(3);
 	}
 	
-	WaitForSingleObject(_hClientThread, 0);
-	return 0;
-}
-
-int ClientCore::initMorpionThread()
-{
-	DWORD threadId;
-	_gameParams = new GameParams();
-	_gameParams->game = _game;
-	_gameParams->client = _client;
-
-	_hMorpionThread = CreateThread(
-		NULL,
-		0,
-		MorpionThreadFunction,
-		_gameParams,
-		0,
-		&threadId);
-
-	if (_hMorpionThread == NULL) {
-		OutputDebugStringA(("Error at thread: " + std::to_string(WSAGetLastError())).c_str());
-		ExitProcess(3);
-	}
-
+	WaitForSingleObject(_hClientCoreThread, 1000);
 	return 0;
 }
 
@@ -175,31 +122,30 @@ void ClientCore::sendMessage(std::string mess)
 }
 
 
-// int ClientCore::run() {
-// 	MSG msg = { 0 };
-// 	sf::Event event;
-// 	int i = 0;
-// 	
-// 	while (msg.message != WM_QUIT && _game->GetWindow()->isOpen()) {
-// 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
-// 			TranslateMessage(&msg);
-// 			DispatchMessage(&msg);
-// 		}
-// 		else {
-// 			if (!_game->GetWindow()->pollEvent(event)) {
-// 				if (event.type == sf::Event::Closed)
-// 					_game->GetWindow()->close();
-// 			}
-//
-// 			if (_name == "") {
-// 				_name = _game->getPlayerName(&event);
-// 				_client->sendData("name:" + _name);
-// 			}
-//
-// 			_game->run(event);
-// 		}
-// 	}
-//
-// 	return (int)msg.wParam;
-// }
+int ClientCore::run() {
+	MSG msg = { 0 };
+	sf::Event event;
+	
+	while (msg.message != WM_QUIT && _game->GetWindow()->isOpen()) {
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		else {
+			if (!_game->GetWindow()->pollEvent(event)) {
+				if (event.type == sf::Event::Closed)
+					_game->GetWindow()->close();
+			}
+
+			if (_name == "") {
+				_name = _game->getPlayerName(&event);
+				_client->sendData("name:" + _name);
+			}
+
+			_game->run(event);
+		}
+	}
+
+	return (int)msg.wParam;
+}
 

@@ -16,7 +16,7 @@
 class Client
 {
 public:
-	Client(HINSTANCE hInstance, std::string address, std::string port);
+	Client(HINSTANCE hInstance);
 	~Client();
 	int init();
 	int run();
@@ -36,12 +36,13 @@ private:
 	int createSocket();
 
 
+
 	HINSTANCE _hInstance = nullptr;
 	HWND _hwnd = nullptr;
 
 	SOCKET _connectSocket;
-	std::string _ipAddress;
-	std::string _port;
+	std::string _ipAddress = "127.0.0.1";
+	std::string _port = "6666";
 
 	std::string _name;
 
