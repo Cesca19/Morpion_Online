@@ -1,5 +1,6 @@
 #pragma once
 #include "Server.h"
+#include "WebServer.h"
 #include "Game.h"
 
 class ServerCore
@@ -15,8 +16,11 @@ public:
 	std::string getPlayerLastMessage();
 	void setLastPlayerMessage(std::string mess);
 private:
+	HANDLE  _hThread;
+
 	std::shared_ptr<Game> _gameLogic;
 	std::shared_ptr<Server> _server;
+	std::shared_ptr<WebServer> _webServer;
 	std::string _lastPlayerMessage;
 	int _numPlayers;
 	bool _hasStart;

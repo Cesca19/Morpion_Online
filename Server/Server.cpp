@@ -244,7 +244,6 @@ int Server::run()
 			DispatchMessage(&msg);
 		}
 	}
-	OutputDebugStringA("oufffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n");
 	return (int)msg.wParam;
 }
 

@@ -17,6 +17,7 @@ public:
 
 	int init();
 	int run();
+	static DWORD WINAPI MyThreadFunction(LPVOID lpParam);
 	static WebServer* getServer();
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -29,6 +30,7 @@ private:
 	int createSocket();
 	int acceptClient();
 	int initServer();
+	
 	int sendData(std::string data, SOCKET clientSocket);
 	int readData(WPARAM wParam, LPARAM lParam);
 

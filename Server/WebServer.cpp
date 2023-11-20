@@ -4,6 +4,17 @@
 
 WebServer* WebServer::_webServer = nullptr;
 
+DWORD WINAPI WebServer::MyThreadFunction(LPVOID lpParam)
+{
+	OutputDebugStringA("THIS start *****************************************************************************************\n");
+	WebServer* server = (WebServer*)lpParam;
+
+	server->init();
+	server->run();
+	OutputDebugStringA("THIS end *****************************************************************************************\n");
+	return 0;
+}
+
 WebServer* WebServer::getServer()
 {
 	return _webServer;
