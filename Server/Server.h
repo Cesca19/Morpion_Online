@@ -1,15 +1,8 @@
 #pragma once
 
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <stdio.h>
-#include <string>
-#include <memory>
-#include <vector>
+#include "pch.h"
+#include "GameClient.h"
 #include <unordered_map>
-#include "Player.h"
-
-#pragma comment(lib, "Ws2_32.lib")
 
 #define DEFAULT_PORT "6666"
 #define DEFAULT_BUFLEN 512
@@ -21,13 +14,11 @@ public:
 	~Server();
 	int init();
 	int run();
-	static Server* getServer();
+	void setCore(HWND coreHwnd);
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	std::vector<std::shared_ptr<Player>> getPlayersList();
-	std::unordered_map<std::string, std::shared_ptr<Player>> getPlayers();
-	void sendMessageToPlayers(std::string message);
-	void sendMessageToPlayer(std::string name, std::string message);
-	void setCore(void* core);
+	static Server* getServer();
+	static DWORD WINAPI MyThreadFunction(LPVOID lpParam);
+
 
 private:
 	int initWindow();
@@ -37,19 +28,20 @@ private:
 	int initServer();
 	int sendData(std::string data, SOCKET clientSocket);
 	int readData(WPARAM wParam, LPARAM lParam);
+	void sendMessageToPlayers(WPARAM wParam, LPARAM lParam);
+	void sendMessageToPlayer(WPARAM wParam, LPARAM lParam);
 
 private:
 	HINSTANCE _hInstance = nullptr;
 	HWND _hwnd = nullptr;
+	HWND _coreHwnd = nullptr;
 
 	SOCKET _listenSocket;
 	std::string _port;
 	static Server* _server;
-	void* _core;
 
 	std::string _lastPlayerMessage;
 	int _id;
-	std::vector<std::shared_ptr<Player>> _playersVect;
-	std::unordered_map<SOCKET, std::shared_ptr<Player>> _playersMap;
-	std::unordered_map<std::string, std::shared_ptr<Player>> _playersNameMap;
+	std::vector<std::shared_ptr<GameClient>> _clientsVect;
+	std::unordered_map<SOCKET, std::shared_ptr<GameClient>> _clientsMap;
 };

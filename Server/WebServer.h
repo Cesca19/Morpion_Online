@@ -20,7 +20,7 @@ public:
 	static DWORD WINAPI MyThreadFunction(LPVOID lpParam);
 	static WebServer* getServer();
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	void setCore(void* core);
+	void setCore(HWND coreHwnd);
 
 
 private:
@@ -39,8 +39,10 @@ private:
 	HINSTANCE _hInstance = nullptr;
 	HWND _hwnd = nullptr;
 
+	HWND _coreHwnd = nullptr;
+
 	SOCKET _listenSocket;
 	std::string _port;
 	static WebServer* _webServer;
-	void* _core;
+	//void* _core;
 };
