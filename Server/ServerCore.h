@@ -1,9 +1,10 @@
 #pragma once
-#include "Server.h"
-//#include "WebServer.h"
+
+#include "pch.h"
 #include "Game.h"
 #include "Player.h"
-#include "pch.h"
+#include "Server.h"
+#include "WebServer.h"
 
 class ServerCore
 {
@@ -24,6 +25,7 @@ public:
 	void setGameServer(WPARAM wParam, LPARAM lParam);
 	void setWebServer(WPARAM wParam, LPARAM lParam);
 
+	void dispatchWebMessage(WPARAM wParam, LPARAM lParam);
 
 	void sendMessageToPlayers(std::string Message);
 	void sendMessageToPlayer(std::string name, std::string Message);
@@ -37,13 +39,9 @@ private:
 
 	HWND _gameServerHwnd = nullptr;
 	HWND _webServerHwnd = nullptr;
-
-	HANDLE  _webServerHandleThread;
-	HANDLE  _gameServerHandleThread;
+	HANDLE  _serversThreadArray[2];
 
 	std::shared_ptr<Game> _gameLogic;
-	//std::shared_ptr<Server> _server;
-	//std::shared_ptr<WebServer> _webServer;
 	std::string _lastPlayerMessage;
 	int _numPlayers;
 	bool _hasStart;

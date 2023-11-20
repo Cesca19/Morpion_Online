@@ -2,7 +2,6 @@
 
 #include "pch.h"
 #include "GameClient.h"
-#include <unordered_map>
 
 #define DEFAULT_PORT "6666"
 #define DEFAULT_BUFLEN 512
@@ -18,7 +17,6 @@ public:
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	static Server* getServer();
 	static DWORD WINAPI MyThreadFunction(LPVOID lpParam);
-
 
 private:
 	int initWindow();
