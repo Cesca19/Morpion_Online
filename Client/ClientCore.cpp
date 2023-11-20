@@ -44,7 +44,7 @@ int ClientCore::init(std::string windowName, int width, int height) {
 	_client->setCore(this);
 	if (_client->init())
 		return 1;
-
+	return 0;
 }
 
 int **ClientCore::getGameMap()

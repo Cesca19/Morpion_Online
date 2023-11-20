@@ -1,33 +1,42 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-#include "Server.h"
+#include "WebServer.h"
 #include "ServerCore.h"
 
-Server* Server::_server = nullptr;
+WebServer* WebServer::_webServer = nullptr;
 
-Server* Server::getServer()
+DWORD WINAPI WebServer::MyThreadFunction(LPVOID lpParam)
 {
-	return _server;
+	WebServer* server = (WebServer*)lpParam;
+
+	server->init();
+	server->run();
+	return 0;
+}
+
+WebServer* WebServer::getServer()
+{
+	return _webServer;
 }
 
 LRESULT CALLBACK
-MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+WebWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	return (Server::getServer()->wndProc(hwnd, msg, wParam, lParam));
+	return (WebServer::getServer()->wndProc(hwnd, msg, wParam, lParam));
 }
 
-Server::Server(HINSTANCE hInstance, std::string port) : _hInstance(hInstance),
-_port(port), _lastPlayerMessage(""), _id(1)
+WebServer::WebServer(HINSTANCE hInstance, std::string port) : _hInstance(hInstance),
+_port(port)
 {
-	_server = this;
+	_webServer = this;
 }
 
-Server::~Server()
+WebServer::~WebServer()
 {
 	closesocket(_listenSocket);
 	WSACleanup();
 }
 
-LRESULT Server::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT WebServer::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) {
 	case WM_USER + 1:
@@ -43,7 +52,8 @@ LRESULT Server::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (LOWORD(lParam) == FD_READ)
 			readData(wParam, lParam);
 		else if (LOWORD(lParam) == FD_CLOSE)
-		{}
+		{
+		}
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -55,13 +65,13 @@ LRESULT Server::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-int Server::initWindow()
+int WebServer::initWindow()
 {
 	WNDCLASSEX wcex;
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = MainWndProc;
+	wcex.lpfnWndProc = WebWndProc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = _hInstance;
@@ -69,7 +79,7 @@ int Server::initWindow()
 	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = NULL;
-	wcex.lpszClassName = L"Server";
+	wcex.lpszClassName = L"WebServer";
 	wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
 
 	if (!RegisterClassEx(&wcex)) {
@@ -77,24 +87,24 @@ int Server::initWindow()
 			L"Windows Desktop Guided Tour", NULL);
 		return 1;
 	}
-	_hwnd = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, L"Server",
-		L"Server app", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 
+	_hwnd = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, L"WebServer",
+		L"WebServer app", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT,
 		CW_USEDEFAULT, 100, 100, NULL, NULL, _hInstance, NULL);
 	if (!_hwnd) {
 		MessageBox(NULL, L"Call to CreateWindow failed!",
 			L"Windows Desktop Guided Tour", NULL);
 		return 1;
 	}
+	//ShowWindow(_hwnd, SW_SHOW);
 	UpdateWindow(_hwnd);
 	return 0;
 }
 
-int  Server::initWinsock()
+int  WebServer::initWinsock()
 {
 	WSADATA wsaData;
 	int iResult;
 
-	//	The WSAStartup function is called to initiate use of WS2_32.dll.
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
 		std::string mess("WSAStartup failed: " + std::to_string(iResult));
@@ -104,17 +114,17 @@ int  Server::initWinsock()
 	return 0;
 }
 
-int Server::createSocket()
+int WebServer::createSocket()
 {
 	int iResult;
 	struct addrinfo* result = NULL, * ptr = NULL, hints;
-	
+
 	ZeroMemory(&hints, sizeof(hints));
-	hints.ai_family = AF_INET; // IPv4 address
+	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_flags = AI_PASSIVE;
-	iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
+	iResult = getaddrinfo(NULL, _port.c_str(), &hints, &result);
 	if (iResult != 0) {
 		std::string mess("getaddrinfo failed: " + std::to_string(iResult));
 		OutputDebugStringA(mess.c_str());
@@ -143,13 +153,13 @@ int Server::createSocket()
 	return 0;
 }
 
-int Server::initServer()
+int WebServer::initServer()
 {
 	if (initWinsock())
 		return 1;
 	if (createSocket())
 		return 1;
-	WSAAsyncSelect(_listenSocket, _hwnd, WM_USER + 1, FD_ACCEPT | FD_CLOSE | FD_READ);
+	WSAAsyncSelect(_listenSocket, _hwnd, WM_USER + 1, FD_ACCEPT | FD_CLOSE);
 	if (listen(_listenSocket, SOMAXCONN) == SOCKET_ERROR) {
 		std::string mess("Listen failed with error: " + std::to_string(WSAGetLastError()));
 		OutputDebugStringA(mess.c_str());
@@ -160,20 +170,20 @@ int Server::initServer()
 	return 0;
 }
 
-int Server::init()
+int WebServer::init()
 {
 	if (initWindow())
 		return 1;
-	if(initServer())
+	if (initServer())
 		return 1;
 	return 0;
 }
 
-int Server::sendData(std::string data, SOCKET clientSocket)
+int WebServer::sendData(std::string data, SOCKET clientSocket)
 {
 	int iSendResult = send(clientSocket, data.c_str(), (int)data.size(), 0);
 	if (iSendResult == SOCKET_ERROR) {
-		OutputDebugStringA( std::string ("send failed: " + std::to_string( WSAGetLastError())).c_str() );
+		OutputDebugStringA(std::string("send failed: " + std::to_string(WSAGetLastError())).c_str());
 		closesocket(clientSocket);
 		WSACleanup();
 		return 1;
@@ -181,26 +191,58 @@ int Server::sendData(std::string data, SOCKET clientSocket)
 	return 0;
 }
 
-int Server::readData(WPARAM wParam, LPARAM lParam)
+std::string WebServer::buildResponse(std::string mess)
+{
+	std::string file = "<!DOCTYPE html><html lang=\"en\"><body><h1> Morpion Game </h1> <p>" + mess + "</p></body></html>";
+	std::string header = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(file.size()) + "\n\n";
+
+	return header + file;
+}
+
+std::string WebServer::convertGameMap(int **board)
+{
+	std::string mess;
+
+	mess += "&emsp;&emsp;&emsp;----------<br>";
+	for (int i = 0; i < 3; i++) {
+		mess += "&emsp;&emsp;&emsp;|";
+		for (int j = 0; j < 3; j++) {
+			switch (board[i][j]) {
+			case 0:
+				mess += "&ensp;&nbsp;";
+				break;
+			case 1:
+				mess += "X";
+				break;
+			case 2:
+				mess += "O";
+				break;
+			}
+			mess += '|';
+		}
+		mess += "<br>&emsp;&emsp;&emsp;----------<br>";
+	}
+	return mess;
+}
+
+int WebServer::sendGameMap(SOCKET clientSocket)
 {
 	ServerCore* core = (ServerCore*)_core;
+	int** map = core->getGameMap();
+	sendData(buildResponse("Mirror, Mirror on the Wall, Who's the Fairest of Them All?<br>" + convertGameMap(map)), clientSocket);
+	return 0;
+}
+
+int WebServer::readData(WPARAM wParam, LPARAM lParam)
+{
 	int iResult;
 	char recvbuf[DEFAULT_BUFLEN];
 	SOCKET clientSocket = (SOCKET)wParam;
-	
+	std::string receivedMess;
+
 	ZeroMemory(recvbuf, DEFAULT_BUFLEN);
 	iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
-	
-	std::string receiveMess(recvbuf);
-	// mess handling
-	
-	if (std::string("name:") == receiveMess.substr(0, 5)) {
-		_playersMap[clientSocket]->setName(receiveMess.substr(5, receiveMess.size()));
-		_playersNameMap[receiveMess.substr(5, receiveMess.size())] = _playersMap[clientSocket];
-		core->addPlayer(receiveMess.substr(5, receiveMess.size()));
-	}
-	_lastPlayerMessage = receiveMess;
-	core->setLastPlayerMessage(_lastPlayerMessage);
+	receivedMess += recvbuf;
 	if (iResult < 0) {
 		std::string mess("recv failed: " + std::to_string(WSAGetLastError()));
 		OutputDebugStringA(mess.c_str());
@@ -208,10 +250,13 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 		WSACleanup();
 		return 1;
 	}
+
+	// mess handling
+	sendGameMap(clientSocket);
 	return 0;
 }
 
-int Server::acceptClient()
+int WebServer::acceptClient()
 {
 	SOCKET ClientSocket;
 
@@ -223,17 +268,10 @@ int Server::acceptClient()
 		return 1;
 	}
 	WSAAsyncSelect(ClientSocket, _hwnd, WM_USER + 2, FD_READ | FD_CLOSE);
-
-	PlayerType type = (_playersVect.size() == 0) ? PLAYER1 : (_playersVect.size() == 1) ? PLAYER2 : SPECTATOR;
-	std::shared_ptr<Player> player(new Player(ClientSocket, type));
-	_playersVect.push_back(player);
-	_playersMap[ClientSocket] = player;
-	sendData("I;id:" + std::to_string(_id) + "#", ClientSocket);
-	_id++;
 	return 0;
 }
 
-int Server::run()
+int WebServer::run()
 {
 	MSG msg = { 0 };
 
@@ -246,28 +284,7 @@ int Server::run()
 	return (int)msg.wParam;
 }
 
-std::vector<std::shared_ptr<Player>> Server::getPlayersList() 
-{
-	return _playersVect;
-}
-
-std::unordered_map<std::string, std::shared_ptr<Player>> Server::getPlayers()
-{
-	return _playersNameMap;
-}
-
-void Server::sendMessageToPlayers(std::string message)
-{
-	for (int i = 0; i < _playersVect.size(); i++)
-		_playersVect[i]->sendMessage(message);
-}
-
-void Server::sendMessageToPlayer(std::string name, std::string message)
-{
-	_playersNameMap[name]->sendMessage(message);
-}
-
-void Server::setCore(void* core)
+void WebServer::setCore(void* core)
 {
 	_core = core;
 }

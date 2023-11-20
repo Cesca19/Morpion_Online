@@ -148,12 +148,14 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="ServerCore.cpp" />
+    <ClCompile Include="WebServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="ServerCore.h" />
+    <ClInclude Include="WebServer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
