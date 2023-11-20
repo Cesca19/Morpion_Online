@@ -8,5 +8,6 @@
 #include <string>
 #pragma comment(lib, "Core.lib")
 #include "../Core/GameProtocol.h"
+#include "../nlohmann/json.hpp"
 
 #pragma comment(lib, "Ws2_32.lib")

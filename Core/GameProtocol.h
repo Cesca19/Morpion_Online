@@ -15,46 +15,46 @@ namespace Protocol
 		enum class MessageType {
 			GAME_STATE,
 			MOVE,
-			NEW_CLIENT,
+			NEW_CLIENT
 		};
-		
+
 		struct GameStateMessage
 		{
-			int** board = NULL;
-			int currentPlayer = NULL;
-			int turnNumber = NULL;
-			int winner = NULL;
-			GameStateMessage() : board(NULL), currentPlayer(NULL), turnNumber(NULL), winner(NULL) {}
+			int** board;;
+			std::string currentPlayer;
+			int turnNumber ;
+			std::string winner;
+			GameStateMessage() : board(NULL), currentPlayer(""), turnNumber(NULL), winner("") {}
 
 		};
 
 		struct MoveMessage
 		{
-			int playerId;
+			std::string name;
 			int posX;
 			int posY;
 
-			 MoveMessage() : playerId(NULL), posX(NULL), posY(NULL) {}
+			MoveMessage() : name(""), posX(NULL), posY(NULL) {}
 		};
 
 		struct NewClientMessage
 		{
-			int id = NULL;
-			std::string name = NULL;
-			NewClientMessage() : id(NULL), name(NULL) {}
+			int id;
+			std::string name;
+			NewClientMessage() : id(NULL), name("") {}
 
 		};
 
 		struct ClientIDMessage
 		{
-			int id = NULL;
-			int playerState = NULL;
+			int id;
+			int playerState;
 			ClientIDMessage() : id(NULL), playerState(NULL) {}
 
 		};
 
 	public:
-		
+
 
 		GameProtocol();
 		~GameProtocol();
@@ -72,8 +72,8 @@ namespace Protocol
 		static GameProtocol::NewClientMessage processNewClientMessage(const nlohmann::json& message); // client receives the new clien that logged in and add it to the vector 
 		static GameProtocol::ClientIDMessage processClientIdMessage(const nlohmann::json& message);  //client receives his own id from the server
 
-		static std::string createGameStateMessage(int** gameBoard, int turnNumber, int winner, int currentPlayer); //server creates a GameState message using his own value 
-		static std::string createMoveMessage(int id, int posX, int poxY); //player sends the move to the server
+		static std::string createGameStateMessage(int** gameBoard, int turnNumber, std::string winner, std::string currentPlayer); //server creates a GameState message using his own value 
+		static std::string createMoveMessage(std::string name, int posX, int poxY); //player sends the move to the server
 		static std::string createNewClientMessage(int id, std::string name);// server create a message for clients to introduce new client
 		static std::string createClientIdMessage(int playerId, int playerState); //server creates a message to send a clien'ts ID to this client
 

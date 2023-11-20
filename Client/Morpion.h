@@ -38,8 +38,6 @@ private:
 private:
 	int _id;
 	bool _hasStart;
-	//Core* m_core;
-	//Client* m_client;
 	void* _clientCore;
 
 	std::string _winner;

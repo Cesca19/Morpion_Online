@@ -22,7 +22,6 @@ public:
 
     void addWatcher(std::string);
     void addPlayer(std::string name, int rank);
-   // void initPlayer(std::string firstPlayer, std::string secondPlayer);
     void changePlayer();
     void move(int x, int y);
     int checkWinner();
@@ -32,14 +31,10 @@ public:
 private:
     std::string _currentPlayer;
     std::vector<std::string> _players;
-    /*std::string _firstPlayer;
-    std::string _secondPlayer;*/
 
     bool _isRunning;
     void* _core;
-
     int** _gameMap;
-   // bool CheckMap(int row, int col, int drow, int dcol);
-    //bool IsFull();
+    int _turn;
 };
 
