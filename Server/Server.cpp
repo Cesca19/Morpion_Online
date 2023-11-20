@@ -4,6 +4,16 @@
 
 Server* Server::_server = nullptr;
 
+DWORD WINAPI Server::MyThreadFunction(LPVOID lpParam)
+{
+	Server* server = new Server(GetModuleHandle(NULL), "6666");
+
+	server->setCore((HWND)(lpParam));
+	server->init();
+	server->run();
+	return 0;
+}
+
 Server* Server::getServer()
 {
 	return _server;
@@ -30,7 +40,17 @@ Server::~Server()
 LRESULT Server::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) {
-	case WM_USER + 1:
+	case SEND_MESSAGE_TO_PLAYERS:
+	{
+		sendMessageToPlayers(/*std::string((const char*)wParam)*/wParam, lParam);
+		break;
+	}
+	case SEND_MESSAGE_TO_PLAYER:
+	{
+		sendMessageToPlayer(/*std::string((const char*)wParam), std::string((const char*)lParam)*/wParam, lParam);
+		break;
+	}
+	case ACCEPT_CLIENT:
 	{
 		if (LOWORD(lParam) == FD_ACCEPT)
 			acceptClient();
@@ -39,7 +59,7 @@ LRESULT Server::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	}
-	case WM_USER + 2:
+	case READ_MESSAGE:
 		if (LOWORD(lParam) == FD_READ)
 			readData(wParam, lParam);
 		else if (LOWORD(lParam) == FD_CLOSE)
@@ -149,7 +169,7 @@ int Server::initServer()
 		return 1;
 	if (createSocket())
 		return 1;
-	WSAAsyncSelect(_listenSocket, _hwnd, WM_USER + 1, FD_ACCEPT | FD_CLOSE | FD_READ);
+	WSAAsyncSelect(_listenSocket, _hwnd, ACCEPT_CLIENT, FD_ACCEPT | FD_CLOSE | FD_READ);
 	if (listen(_listenSocket, SOMAXCONN) == SOCKET_ERROR) {
 		std::string mess("Listen failed with error: " + std::to_string(WSAGetLastError()));
 		OutputDebugStringA(mess.c_str());
@@ -164,6 +184,7 @@ int Server::init()
 {
 	if (initWindow())
 		return 1;
+	PostMessage(_coreHwnd, GAME_SERVER_ID, (WPARAM)_hwnd, 0);
 	if(initServer())
 		return 1;
 	return 0;
@@ -183,7 +204,6 @@ int Server::sendData(std::string data, SOCKET clientSocket)
 
 int Server::readData(WPARAM wParam, LPARAM lParam)
 {
-	ServerCore* core = (ServerCore*)_core;
 	int iResult;
 	char recvbuf[DEFAULT_BUFLEN];
 	SOCKET clientSocket = (SOCKET)wParam;
@@ -191,15 +211,18 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 	ZeroMemory(recvbuf, DEFAULT_BUFLEN);
 	iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
 	
-	std::string receiveMess(recvbuf);
-	
-	if (std::string("name:") == receiveMess.substr(0, 5)) {
+	/*if (std::string("name:") == receiveMess.substr(0, 5)) {
 		_playersMap[clientSocket]->setName(receiveMess.substr(5, receiveMess.size()));
 		_playersNameMap[receiveMess.substr(5, receiveMess.size())] = _playersMap[clientSocket];
-		core->addPlayer(receiveMess.substr(5, receiveMess.size()));
+		//core->addPlayer(receiveMess.substr(5, receiveMess.size()));
+		//PostMessage(_coreHwnd, NEW_PLAYER, (WPARAM)(receiveMess.substr(5, receiveMess.size()).c_str()), 0);
 	}
 	_lastPlayerMessage = receiveMess;
-	core->setLastPlayerMessage(_lastPlayerMessage);
+	OutputDebugStringA(("in server ---------" + receiveMess + "-------------------------\n").c_str());*/
+	Data_t* data = new Data_t;
+	data->content = recvbuf;
+	PostMessage(_coreHwnd, NEW_MESSAGE, (WPARAM)data, _clientsMap[clientSocket]->getId());
+	//core->setLastPlayerMessage(_lastPlayerMessage);
 	if (iResult < 0) {
 		std::string mess("recv failed: " + std::to_string(WSAGetLastError()));
 		OutputDebugStringA(mess.c_str());
@@ -221,12 +244,13 @@ int Server::acceptClient()
 		WSACleanup();
 		return 1;
 	}
-	WSAAsyncSelect(ClientSocket, _hwnd, WM_USER + 2, FD_READ | FD_CLOSE);
+	WSAAsyncSelect(ClientSocket, _hwnd, READ_MESSAGE, FD_READ | FD_CLOSE);
 
-	PlayerType type = (_playersVect.size() == 0) ? PLAYER1 : (_playersVect.size() == 1) ? PLAYER2 : SPECTATOR;
-	std::shared_ptr<Player> player(new Player(ClientSocket, type));
-	_playersVect.push_back(player);
-	_playersMap[ClientSocket] = player;
+	PostMessage(_coreHwnd, NEW_GAME_CLIENT, ClientSocket, _id);
+	//PlayerType type = (_playersVect.size() == 0) ? PLAYER1 : (_playersVect.size() == 1) ? PLAYER2 : SPECTATOR;*/
+	std::shared_ptr<GameClient> client(new GameClient(ClientSocket, _id));
+	_clientsVect.push_back(client);
+	_clientsMap[ClientSocket] = client;
 	sendData("I;id:" + std::to_string(_id) + "#", ClientSocket);
 	_id++;
 	return 0;
@@ -244,7 +268,7 @@ int Server::run()
 	}
 	return (int)msg.wParam;
 }
-
+/*
 std::vector<std::shared_ptr<Player>> Server::getPlayersList() 
 {
 	return _playersVect;
@@ -253,20 +277,28 @@ std::vector<std::shared_ptr<Player>> Server::getPlayersList()
 std::unordered_map<std::string, std::shared_ptr<Player>> Server::getPlayers()
 {
 	return _playersNameMap;
+}*/
+
+void Server::sendMessageToPlayers(/*std::string message*/WPARAM wParam, LPARAM lParam)
+{
+	Data_t* data = (Data_t*)wParam;
+	std::string message = data->content;
+	for (int i = 0; i < _clientsVect.size(); i++)
+		_clientsVect[i]->sendMessage(message);
+	delete data;
 }
 
-void Server::sendMessageToPlayers(std::string message)
+void Server::sendMessageToPlayer(/*std::string name, std::string message*/WPARAM wParam, LPARAM lParam)
 {
-	for (int i = 0; i < _playersVect.size(); i++)
-		_playersVect[i]->sendMessage(message);
+	Data_t* data = (Data_t*)wParam;
+	std::string message = data->content;
+	int id = (int)lParam;
+
+	_clientsMap[id]->sendMessage(message);
+	delete data;
 }
 
-void Server::sendMessageToPlayer(std::string name, std::string message)
+void Server::setCore(HWND coreHwnd)
 {
-	_playersNameMap[name]->sendMessage(message);
-}
-
-void Server::setCore(void* core)
-{
-	_core = core;
+	_coreHwnd = coreHwnd;
 }

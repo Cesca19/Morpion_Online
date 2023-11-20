@@ -120,7 +120,7 @@ std::vector<std::string> split(std::string message, std::string delimiter)
         str.erase(0, pos + delimiter.length());
     }
     mess.push_back(str);
-    std::cout << str << std::endl;
+   // std::cout << str << std::endl;
     return mess;
 }
 

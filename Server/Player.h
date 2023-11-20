@@ -1,7 +1,5 @@
 #pragma once
 
-#include <winsock2.h>
-#include <ws2tcpip.h>
 #include <string>
 
 enum PlayerType {
@@ -13,15 +11,14 @@ enum PlayerType {
 class Player
 {
 public:
-	Player(SOCKET clientSocket, PlayerType type);
+	Player(int id, PlayerType type);
 	~Player();
 	void setName(std::string name);
-	int sendMessage(std::string mess);
-	SOCKET getSocket();
 	std::string getName();
 	int getType();
+	int getId();
 private:
-	SOCKET _clientSocket;
+	int _id;
 	PlayerType _type;
 	std::string _name;
 };

@@ -6,8 +6,9 @@ WebServer* WebServer::_webServer = nullptr;
 
 DWORD WINAPI WebServer::MyThreadFunction(LPVOID lpParam)
 {
-	WebServer* server = (WebServer*)lpParam;
+	WebServer* server = new WebServer(GetModuleHandle(NULL), "8888");  //(WebServer*)lpParam;
 
+	server->setCore((HWND)(lpParam));
 	server->init();
 	server->run();
 	return 0;
@@ -226,9 +227,9 @@ std::string WebServer::convertGameMap(int **board)
 
 int WebServer::sendGameMap(SOCKET clientSocket)
 {
-	ServerCore* core = (ServerCore*)_core;
-	int** map = core->getGameMap();
-	sendData(buildResponse("Mirror, Mirror on the Wall, Who's the Fairest of Them All?<br>" + convertGameMap(map)), clientSocket);
+	/*ServerCore* core = (ServerCore*)_core;
+	int** map = core->getGameMap();*/
+	sendData(buildResponse("Mirror, Mirror on the Wall, Who's the Fairest of Them All?<br>" /* + convertGameMap(map)*/), clientSocket);
 	return 0;
 }
 
@@ -281,7 +282,7 @@ int WebServer::run()
 	return (int)msg.wParam;
 }
 
-void WebServer::setCore(void* core)
+void WebServer::setCore(HWND coreHwnd)
 {
-	_core = core;
+	_coreHwnd = coreHwnd;
 }
