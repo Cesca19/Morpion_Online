@@ -44,19 +44,22 @@ void ServerCore::update()
 void ServerCore::addPlayer(std::string name)
 {
 	std::vector<std::shared_ptr<Player>> playersVect =  _server->getPlayersList();
-
-	_numPlayers++;
-	if (_numPlayers == 2) {
-		_gameLogic->initPlayer(playersVect[0]->getName(), playersVect[1]->getName());
-		_hasStart = true;
-	}
-	if (_hasStart)
-		_server->sendMessageToPlayer(name, "S#");
+	std::unordered_map<std::string, std::shared_ptr<Player>> players = _server->getPlayers();
+	
+	if (players[name]->getType())
+		_gameLogic->addPlayer(name, players[name]->getType());
+	else
+		_gameLogic->addWatcher(name);
 }
 
 void ServerCore::sendMessageToPlayers(std::string message)
 {
 	_server->sendMessageToPlayers(message);
+}
+
+void ServerCore::sendMessageToPlayer(std::string name, std::string Message)
+{
+	_server->sendMessageToPlayer(name, Message);
 }
 
 std::string ServerCore::getPlayerLastMessage()

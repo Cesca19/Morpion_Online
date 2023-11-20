@@ -71,9 +71,11 @@ void ClientCore::analyseMessage(std::string data)
  * B;000111222
  * A;
  * I;id:playerid
+ * E;T // tie
+ * E;W:name // winner name
  */
 	for (int i = 0; i < messages.size(); i++) {
-		OutputDebugStringA(("messaga at " + _name + ": " + messages[i] + "\n").c_str());
+		//OutputDebugStringA(("messaga at " + _name + ": " + messages[i] + "\n").c_str());
 		switch (messages[i][0]) {
 		case 'I': {
 			infos = split(messages[i], ";");
@@ -90,6 +92,15 @@ void ClientCore::analyseMessage(std::string data)
 		} case 'T': {
 			infos = split(messages[i], ";");
 			setCurrentPlayer(infos[1]);
+			break;
+		} case 'E': {
+			infos = split(messages[i], ";");
+			if (infos[1][0] == 'T')
+				_game->setWinner("", true);
+			else {
+				std::vector<std::string> win = split(infos[1], ":");
+				_game->setWinner(win[1], false);
+			}
 			break;
 		}
 		default:

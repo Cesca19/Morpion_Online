@@ -30,6 +30,11 @@ std::string Player::getName()
 	return _name;
 }
 
+int Player::getType()
+{
+	return (_type);
+}
+
 SOCKET Player::getSocket()
 {
 	return _clientSocket;

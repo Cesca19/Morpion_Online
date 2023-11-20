@@ -191,7 +191,6 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 	ZeroMemory(recvbuf, DEFAULT_BUFLEN);
 	iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
 	
-	OutputDebugStringA( std::string("Mess received in Server: " + std::string(recvbuf) + "\n" ).c_str());
 	std::string receiveMess(recvbuf);
 	// mess handling
 	
@@ -250,6 +249,11 @@ int Server::run()
 std::vector<std::shared_ptr<Player>> Server::getPlayersList() 
 {
 	return _playersVect;
+}
+
+std::unordered_map<std::string, std::shared_ptr<Player>> Server::getPlayers()
+{
+	return _playersNameMap;
 }
 
 void Server::sendMessageToPlayers(std::string message)

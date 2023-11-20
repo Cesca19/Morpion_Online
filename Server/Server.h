@@ -24,6 +24,7 @@ public:
 	static Server* getServer();
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	std::vector<std::shared_ptr<Player>> getPlayersList();
+	std::unordered_map<std::string, std::shared_ptr<Player>> getPlayers();
 	void sendMessageToPlayers(std::string message);
 	void sendMessageToPlayer(std::string name, std::string message);
 	void setCore(void* core);
