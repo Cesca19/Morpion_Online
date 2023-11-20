@@ -95,7 +95,6 @@ int WebServer::initWindow()
 			L"Windows Desktop Guided Tour", NULL);
 		return 1;
 	}
-	//ShowWindow(_hwnd, SW_SHOW);
 	UpdateWindow(_hwnd);
 	return 0;
 }
@@ -250,8 +249,6 @@ int WebServer::readData(WPARAM wParam, LPARAM lParam)
 		WSACleanup();
 		return 1;
 	}
-
-	// mess handling
 	sendGameMap(clientSocket);
 	return 0;
 }

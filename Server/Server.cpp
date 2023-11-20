@@ -192,7 +192,6 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 	iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
 	
 	std::string receiveMess(recvbuf);
-	// mess handling
 	
 	if (std::string("name:") == receiveMess.substr(0, 5)) {
 		_playersMap[clientSocket]->setName(receiveMess.substr(5, receiveMess.size()));
