@@ -1,20 +1,26 @@
-dfd won 
- -------------- 
+gg 0 2 
 
+gg 0 2 
 
-fdg 0 2 
+gg 1 1 
 
-fdg 0 2 
+gg 1 1 
 
-yet 1 0 
+gg 0 1 
 
-fdg 1 2 
+yy 0 0 
 
-yet 2 0 
+gg 1 0 
 
-fdg 2 2 
+yy 2 0 
 
-fdg won 
+gg 2 2 
+
+yy 1 2 
+
+gg 2 1 
+
+gg won 
  -------------- 
 
 

@@ -209,8 +209,6 @@ void ServerCore::SetHistoricMsg(std::string mess)
 	if (HistoricFile.is_open()) {
 		HistoricFile << HistoricMsg << std::endl;
 		HistoricFile.close();
-		OutputDebugString(L"aled");
-
 	}
 	else
 		OutputDebugString(L"error");
