@@ -256,7 +256,7 @@ Position* Morpion::printGameboard()
 	return 0;
 }
 
-void Morpion::sendMessage()
-{
-	core->sendMessage(Protocol::GameProtocol::createMoveMessage(_name, i / 3, i % 3) );
-}
+//void Morpion::sendMessage()
+//{
+//	core->sendMessage(Protocol::GameProtocol::createMoveMessage(_name, i / 3, i % 3) );
+//}

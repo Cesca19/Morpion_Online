@@ -7,6 +7,7 @@ DWORD WINAPI Client::ClientFunctionThread(LPVOID lpParam)
 	Client* client = static_cast<Client*>(lpParam);
 	client = new Client(GetModuleHandle(NULL), "127.0.0.1", "6666");
 	client->init();
+	client->setCore(client);
 	return 0;
 }
 
