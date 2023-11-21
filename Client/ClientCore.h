@@ -17,10 +17,13 @@ public :
 	int** getGameMap();
 	void setGameMap(int **);
 	void setCurrentPlayer(std::string name);
+	
 private:
-	std::shared_ptr<Client> _client;
+	Client* _client;
 	std::string _name;
 	Morpion* _game;
 	int** _map;
+
+	HANDLE _clientThread;
 };
 

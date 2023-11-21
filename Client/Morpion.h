@@ -24,7 +24,8 @@ public:
 	void setWinner(std::string name, bool isTie);
 	
 	void createGameBoard();
-	int printGameboard();
+	Position* printGameboard();
+	void sendMessage();
 	void printCurrentPlayer();
 
 	void printEndGame();
@@ -60,7 +61,5 @@ private:
 	std::string _name;
 	std::string _currentPlayer;
 
-	//Player* _firstPlayer;
-	//Player* _secondPlayer;
 };
 

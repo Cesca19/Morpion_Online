@@ -1,36 +1,8 @@
 #include "ClientCore.h"
-
-std::vector<std::string> split(std::string message, std::string delimiter)
-{
-	std::vector<std::string> mess;
-	std::string str = message;
-	size_t pos = 0;
-	std::string token;
-
-	while ((pos = str.find(delimiter)) != std::string::npos) {
-		token = str.substr(0, pos);
-		mess.push_back(token);
-		str.erase(0, pos + delimiter.length());
-	}
-	mess.push_back(str);
-	std::cout << str << std::endl;
-	return mess;
-}
-
-int** convertStringBoard(std::string mess)
-{
-	int **map = new int* [3];
-	for (int i = 0, j = 0; i < 3 && j < mess.size(); i++) {
-		map[i] = new int[3];
-		map[i][0] = mess[j] - 48; j++;
-		map[i][1] = mess[j] - 48; j++;
-		map[i][2] = mess[j] - 48; j++;
-	}
-	return map;
-}
+#include "Utils.h"
 
 ClientCore::ClientCore(HINSTANCE hInstance) : 
-	_client(new  Client(hInstance, "127.0.0.1", "6666")), _name(""),
+	_name(""),
 	_map(NULL)
 {
 	_game = new Morpion();
@@ -41,9 +13,10 @@ ClientCore::~ClientCore() {}
 int ClientCore::init(std::string windowName, int width, int height) {
 	_game->setCore(this);
 	_game->init(windowName, width, height);
-	_client->setCore(this);
-	if (_client->init())
-		return 1;
+
+	DWORD threadId;
+	_clientThread = CreateThread(NULL, 0, Client::ClientFunctionThread, _client, 0, &threadId);
+	
 	return 0;
 }
 
@@ -64,7 +37,6 @@ void ClientCore::setCurrentPlayer(std::string player)
 
 void ClientCore::analyseMessage(std::string data)
 {
-
 	std::vector<std::string> messages = split(data, "#");
 	OutputDebugStringA(("messaga at " + _name + ": " + std::to_string(messages.size()) + "\n").c_str());
 	nlohmann::json message;
@@ -161,8 +133,6 @@ void ClientCore::sendMessage(std::string mess)
 int ClientCore::run() {
 	MSG msg = { 0 };
 	sf::Event event;
-	int i = 0;
-
 
 	while (msg.message != WM_QUIT && _game->GetWindow()->isOpen()) {
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
@@ -178,14 +148,8 @@ int ClientCore::run() {
 			if (_name == "") {
 				_name = _game->getPlayerName(&event);
 				_client->sendData("name:" + _name);
-				//("her\n");
 			}
-			/*if (i == 0)
-			{
-				_game->initPlayers(event);
-				i++;
-			}*/
-
+			
 			_game->run(event);
 		}
 

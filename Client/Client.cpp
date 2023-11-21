@@ -2,13 +2,15 @@
 #include "Client.h"
 #include "ClientCore.h"
 
-Client* Client::_client = nullptr;
-
-void print(std::string mess)
+DWORD WINAPI Client::ClientFunctionThread(LPVOID lpParam)
 {
-	std::wstring res(mess.begin(), mess.end());
-	OutputDebugStringW(res.c_str());
+	Client* client = static_cast<Client*>(lpParam);
+	client = new Client(GetModuleHandle(NULL), "127.0.0.1", "6666");
+	client->init();
+	return 0;
 }
+
+Client* Client::_client = nullptr;
 
 Client* Client::getClient()
 {
@@ -82,7 +84,7 @@ int Client::initWindow()
 			L"Windows Desktop Guided Tour", NULL);
 		return 1;
 	}
-	//ShowWindow(_hwnd, SW_SHOW);
+	ShowWindow(_hwnd, SW_SHOW);
 	UpdateWindow(_hwnd);
 	return 0;
 }
@@ -156,6 +158,7 @@ int Client::init()
 		return 1;
 	if (initClient())
 		return 1;
+	
 	return 0;
 }
 

@@ -30,10 +30,10 @@ public:
 	void setCore(void* core);
 	static Client* getClient();
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	static DWORD WINAPI ClientFunctionThread(LPVOID lpParam);
 
 private:
 	int initWindow();
-
 	int initWinsock();
 	int initClient();
 	int createSocket();
@@ -51,5 +51,6 @@ private:
 	static Client* _client;
 
 	void* _clientCore;
+
 };
 

@@ -57,7 +57,6 @@ void Morpion::init(std::string windowName, int width, int height)
 void Morpion::run(sf::Event event)
 {
 	_window->clear(sf::Color::White);
-	
 	if (_hasStart) {
 		printCurrentPlayer();
 		printGameboard();
@@ -195,7 +194,7 @@ std::string convertBoard(int** board)
 	return mess;
 }
 
-int Morpion::printGameboard()
+Position* Morpion::printGameboard()
 {
 	float radius = 100.0f / 3.0f;
 	int player1 = (_id < 3) ? _id : 1;
@@ -238,8 +237,9 @@ int Morpion::printGameboard()
 				if (sf::Mouse::isButtonPressed(sf::Mouse::Right) ||
 					sf::Mouse::isButtonPressed(sf::Mouse::Left)  ) {
 					_gameBoard[i]->setOutlineColor(sf::Color::Magenta);
-					core->sendMessage(Protocol::GameProtocol::createMoveMessage(_name, i / 3, i % 3) );
-					return 1;
+
+					Position* position = new Position(i / 3, i % 3);
+					return position;
 				}
 				else
 					_gameBoard[i]->setOutlineColor(sf::Color::Yellow);
@@ -254,4 +254,9 @@ int Morpion::printGameboard()
 		_window->draw(*(_shapes[i].get()));
 
 	return 0;
+}
+
+void Morpion::sendMessage()
+{
+	core->sendMessage(Protocol::GameProtocol::createMoveMessage(_name, i / 3, i % 3) );
 }
