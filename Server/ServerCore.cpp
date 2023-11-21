@@ -202,11 +202,13 @@ void ServerCore::SetHistoricMsg(std::string mess)
 {
 	std::string HistoricMsg = "";
 	HistoricMsg += mess + "\n";
+	if (HistoricMsg == LastHistoricMsg) return;
 	std::ofstream HistoricFile;
 	HistoricFile.close();
 	HistoricFile.open("historic.txt", std::ofstream::app);
 	if (HistoricFile.is_open()) {
 		HistoricFile << HistoricMsg << std::endl;
+		LastHistoricMsg = HistoricMsg;
 		HistoricFile.close();
 	}
 	else

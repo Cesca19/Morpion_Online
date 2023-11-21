@@ -143,18 +143,18 @@ void Game::run()
 		}
 		if (mov != "" && msg["type"] == "MOVE") {
 			auto msgData = Protocol::GameProtocol::handleMoveMessage(mov);
-			std::string setmovemsg = "";
-			for (int i = 0; i < mess.size(); i++) {
-				setmovemsg += mess[i] + " ";
-			}
-			((ServerCore*)_core)->SetHistoricMsg(setmovemsg);
+			std::string histMsg = "";
+			histMsg += msgData.name + " ";
+			histMsg += std::to_string(msgData.posX) + " ";
+			histMsg += std::to_string(msgData.posY);
+			((ServerCore*)_core)->SetHistoricMsg(histMsg);
 			if (msgData.name == _currentPlayer) {
 				move(msgData.posX, msgData.posY);
 				int win = checkWinner();
 				if (win != 0) {
 					std::string winner = (win == 3) ? "T" : _players[win - 1];
 					sendMessageToPlayers(Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
-					((ServerCore*)_core)->SetHistoricMsg(((win == 3) ? "T" : _players[win - 1] + " won \n -------------- \n"));
+					((ServerCore*)_core)->SetHistoricMsg(winner + " won \n -------------- \n");
 					//sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
 					//sendMessageToPlayers("E;" + ((win == 3) ? "T" : "W:" + _players[win - 1]) + "#");
 				}

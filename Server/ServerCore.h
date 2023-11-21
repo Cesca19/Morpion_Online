@@ -38,7 +38,7 @@ public:
 	int** getGameMap();
 
 	void SetHistoricMsg(std::string mess);
-
+	std::string LastHistoricMsg = "";
 private:
 	HINSTANCE _hInstance = nullptr;
 	HWND _hwnd = nullptr;
