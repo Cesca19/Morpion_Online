@@ -43,9 +43,9 @@ void ServerCore::update()
 
 void ServerCore::addPlayer(std::string name)
 {
-	std::vector<std::shared_ptr<Player>> playersVect =  _server->getPlayersList();
+	std::vector<std::shared_ptr<Player>> playersVect = _server->getPlayersList();
 	std::unordered_map<std::string, std::shared_ptr<Player>> players = _server->getPlayers();
-	
+
 	if (players[name]->getType())
 		_gameLogic->addPlayer(name, players[name]->getType());
 	else

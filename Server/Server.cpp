@@ -198,6 +198,7 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 		_playersNameMap[receiveMess.substr(5, receiveMess.size())] = _playersMap[clientSocket];
 		core->addPlayer(receiveMess.substr(5, receiveMess.size()));
 	}
+	OutputDebugStringA(("message received from server : " + receiveMess).c_str());
 	_lastPlayerMessage = receiveMess;
 	core->setLastPlayerMessage(_lastPlayerMessage);
 	if (iResult < 0) {
@@ -227,7 +228,7 @@ int Server::acceptClient()
 	std::shared_ptr<Player> player(new Player(ClientSocket, type));
 	_playersVect.push_back(player);
 	_playersMap[ClientSocket] = player;
-	sendData("I;id:" + std::to_string(_id) + "#", ClientSocket);
+	sendData(Protocol::GameProtocol::createNewClientMessage(_id, "HUHU"), ClientSocket);
 	_id++;
 	return 0;
 }
