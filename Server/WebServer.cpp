@@ -6,8 +6,9 @@ WebServer* WebServer::_webServer = nullptr;
 
 DWORD WINAPI WebServer::MyThreadFunction(LPVOID lpParam)
 {
-	WebServer* server = (WebServer*)lpParam;
+	WebServer* server = new WebServer(GetModuleHandle(NULL), "8888");
 
+	server->setCore((HWND)(lpParam));
 	server->init();
 	server->run();
 	return 0;
@@ -39,7 +40,12 @@ WebServer::~WebServer()
 LRESULT WebServer::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) {
-	case WM_USER + 1:
+	case SEND_GAME_MAP: 
+	{
+		sendGameMap(wParam, lParam);
+		break;
+	}
+	case ACCEPT_CLIENT:
 	{
 		if (LOWORD(lParam) == FD_ACCEPT)
 			acceptClient();
@@ -48,7 +54,7 @@ LRESULT WebServer::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		}
 		break;
 	}
-	case WM_USER + 2:
+	case READ_MESSAGE:
 		if (LOWORD(lParam) == FD_READ)
 			readData(wParam, lParam);
 		else if (LOWORD(lParam) == FD_CLOSE)
@@ -175,6 +181,7 @@ int WebServer::init()
 		return 1;
 	if (initServer())
 		return 1;
+	PostMessage(_coreHwnd, WEB_SERVER_ID, (WPARAM)_hwnd, 0);
 	return 0;
 }
 
@@ -224,11 +231,13 @@ std::string WebServer::convertGameMap(int **board)
 	return mess;
 }
 
-int WebServer::sendGameMap(SOCKET clientSocket)
+int WebServer::sendGameMap(WPARAM wParam, LPARAM lParam)
 {
-	ServerCore* core = (ServerCore*)_core;
-	int** map = core->getGameMap();
-	sendData(buildResponse("Mirror, Mirror on the Wall, Who's the Fairest of Them All?<br>" + convertGameMap(map)), clientSocket);
+	SOCKET clientSocket = (SOCKET)lParam;
+	GameMap_t* map = (GameMap_t*)wParam;
+
+	sendData(buildResponse("Mirror, Mirror on the Wall, Who's the Fairest of Them All?<br>"  + convertGameMap(map->map)), clientSocket);
+	delete map;
 	return 0;
 }
 
@@ -249,7 +258,9 @@ int WebServer::readData(WPARAM wParam, LPARAM lParam)
 		WSACleanup();
 		return 1;
 	}
-	sendGameMap(clientSocket);
+	Data_t* data = new Data_t;
+	data->content = receivedMess;
+	PostMessage(_coreHwnd, NEW_WEB_MESSAGE, (WPARAM)data, clientSocket);
 	return 0;
 }
 
@@ -264,7 +275,8 @@ int WebServer::acceptClient()
 		WSACleanup();
 		return 1;
 	}
-	WSAAsyncSelect(ClientSocket, _hwnd, WM_USER + 2, FD_READ | FD_CLOSE);
+	WSAAsyncSelect(ClientSocket, _hwnd, READ_MESSAGE, FD_READ | FD_CLOSE);
+	PostMessage(_coreHwnd, NEW_WEB_CLIENT, ClientSocket, 0);
 	return 0;
 }
 
@@ -281,7 +293,7 @@ int WebServer::run()
 	return (int)msg.wParam;
 }
 
-void WebServer::setCore(void* core)
+void WebServer::setCore(HWND coreHwnd)
 {
-	_core = core;
+	_coreHwnd = coreHwnd;
 }
