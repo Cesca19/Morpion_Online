@@ -57,4 +57,3 @@ private:
 	std::unordered_map<int, std::shared_ptr<Player>> _playersMap;
 	std::unordered_map<std::string, std::shared_ptr<Player>> _playersNameMap;
 };
-
