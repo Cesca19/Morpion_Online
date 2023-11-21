@@ -74,15 +74,6 @@ void Game::addWatcher(std::string name)
 		int win = checkWinner();
 		std::string winner = (win == 3) ? "T" : _players[win - 1];
 		sendMessageToPlayers(Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
-
-
-		/*sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
-
-		if (win == 0)
-			sendMessageToPlayers("T;" + _currentPlayer + "#");
-		else
-			sendMessageToPlayers("E;" + ((win == 3) ? "T" : "W:" + _players[win - 1]) + "#");*/
-
 	}
 }
 
@@ -126,7 +117,6 @@ std::vector<std::string> split(std::string message, std::string delimiter)
 		str.erase(0, pos + delimiter.length());
 	}
 	mess.push_back(str);
-	std::cout << str << std::endl;
 	return mess;
 }
 
