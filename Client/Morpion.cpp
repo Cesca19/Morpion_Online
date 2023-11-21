@@ -238,7 +238,7 @@ int Morpion::printGameboard()
 				if (sf::Mouse::isButtonPressed(sf::Mouse::Right) ||
 					sf::Mouse::isButtonPressed(sf::Mouse::Left)  ) {
 					_gameBoard[i]->setOutlineColor(sf::Color::Magenta);
-					core->sendMessage("M:" + _name + ":" + std::to_string(i / 3) + ":" + std::to_string(i % 3));
+					core->sendMessage(Protocol::GameProtocol::createMoveMessage(_name, i / 3, i % 3) );
 					return 1;
 				}
 				else
