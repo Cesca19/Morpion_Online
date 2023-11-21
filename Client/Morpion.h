@@ -59,8 +59,5 @@ private:
 
 	std::string _name;
 	std::string _currentPlayer;
-
-	//Player* _firstPlayer;
-	//Player* _secondPlayer;
 };
 

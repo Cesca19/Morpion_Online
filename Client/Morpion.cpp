@@ -109,6 +109,7 @@ std::string Morpion::getPlayerName(sf::Event *event)
 std::string Morpion::getPlayerName(std::string displayText, sf::Event* event)
 {
 	std::string name;
+	ClientCore* core = ((ClientCore*)(_clientCore));
 	std::shared_ptr<sf::Text> text(new sf::Text(displayText + " enter your name ...", *(_font)));
 	std::shared_ptr<sf::Text> playerName(new sf::Text("", *(_font)));
 
@@ -122,8 +123,11 @@ std::string Morpion::getPlayerName(std::string displayText, sf::Event* event)
 	playerName->setFillColor({ 222, 184, 135 });
 	while (1) {
 		while (_window->pollEvent(*event)) {
-			if (event->type == sf::Event::Closed)
+			if (event->type == sf::Event::Closed) {
 				_window->close();
+				core->close();
+				return "";
+			}
 			if (event->type == sf::Event::TextEntered) {
 				if (event->text.unicode == 13 && name.size() != 0 ) {
 					_name = name;
