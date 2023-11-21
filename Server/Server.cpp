@@ -57,6 +57,7 @@ LRESULT Server::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			readData(wParam, lParam);
 		else if (LOWORD(lParam) == FD_CLOSE)
 		{
+			OutputDebugStringA("Server: client closing\n");
 		}
 		break;
 	} case WM_DESTROY:
@@ -213,6 +214,13 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 		WSACleanup();
 		return 1;
 	}
+	return 0;
+}
+
+int Server::closeClient(WPARAM wParam, LPARAM lParam)
+{
+	/*SOCKET clientSocket = (SOCKET)wParam;
+	closesocket(clientSocket);*/
 	return 0;
 }
 
