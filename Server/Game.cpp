@@ -63,20 +63,26 @@ void Game::addPlayer(std::string name, int rank)
 	if (_players[0] != "" && _players[1] != "") {
 		_isRunning = true;
 		_currentPlayer = _players[0];
-		sendMessageToPlayers("S#");
+		sendMessageToPlayers("start#");
 	}
 }
 
 void Game::addWatcher(std::string name)
 {
 	if (_players[0] != "" && _players[1] != "" && _isRunning) {
-		sendMessageToPlayer(name, "S#");
-		sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
+		sendMessageToPlayer(name, "start#");
 		int win = checkWinner();
+		std::string winner = (win == 3) ? "T" : _players[win - 1];
+		sendMessageToPlayers(Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
+
+
+		/*sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
+
 		if (win == 0)
 			sendMessageToPlayers("T;" + _currentPlayer + "#");
 		else
-			sendMessageToPlayers("E;" + ((win == 3) ? "T" : "W:" + _players[win - 1]) + "#");
+			sendMessageToPlayers("E;" + ((win == 3) ? "T" : "W:" + _players[win - 1]) + "#");*/
+
 	}
 }
 
@@ -120,7 +126,7 @@ std::vector<std::string> split(std::string message, std::string delimiter)
 		str.erase(0, pos + delimiter.length());
 	}
 	mess.push_back(str);
-	// std::cout << str << std::endl;
+	std::cout << str << std::endl;
 	return mess;
 }
 
@@ -130,37 +136,43 @@ void Game::run()
 	std::string mov;
 	std::vector<std::string> mess;
 	if (_isRunning && checkWinner() == 0) {
+
 		if (prevPlayer != _currentPlayer) {
-			sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
-			sendMessageToPlayers("T;" + _currentPlayer + "#");
+			std::string winner = "";
+
+			sendMessageToPlayers(Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
 			prevPlayer = _currentPlayer;
 		}
 		// attendre son movement
 		mov = ((ServerCore*)_core)->getPlayerLastMessage();
-		if (mov != "" && mov[0] == 'M') {
-			mess = split(mov.substr(2, mov.size()), ":");
+		nlohmann::json msg;
+		if (mov[0] == '{')
+		{
+			OutputDebugStringA("received correct message \n");
+			msg = nlohmann::json::parse(mov);
+		}
+		if (mov != "" && msg["type"] == "MOVE") {
+			auto msgData = Protocol::GameProtocol::handleMoveMessage(mov);
 			std::string setmovemsg = "";
 			for (int i = 0; i < mess.size(); i++) {
 				setmovemsg += mess[i] + " ";
 			}
 			((ServerCore*)_core)->SetHistoricMsg(setmovemsg);
-			if (mess[0] == _currentPlayer) {
-				move(stoi(mess[1]), stoi(mess[2]));
-
+			if (msgData.name == _currentPlayer) {
+				move(msgData.posX, msgData.posY);
 				int win = checkWinner();
 				if (win != 0) {
-					sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
-					sendMessageToPlayers("E;" + ((win == 3) ? "T" : "W:" + _players[win - 1]) + "#");
-
+					std::string winner = (win == 3) ? "T" : _players[win - 1];
+					sendMessageToPlayers(Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
 					((ServerCore*)_core)->SetHistoricMsg(((win == 3) ? "T" : _players[win - 1] + " won \n -------------- \n"));
+					//sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
+					//sendMessageToPlayers("E;" + ((win == 3) ? "T" : "W:" + _players[win - 1]) + "#");
 				}
-
-
+				changePlayer();
 			}
-
-			changePlayer();
 		}
 	}
+
 }
 
 void Game::move(int x, int y)
