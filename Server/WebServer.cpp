@@ -1,12 +1,12 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-#include "Server.h"
+#include "WebServer.h"
 #include "ServerCore.h"
 
-Server* Server::_server = nullptr;
+WebServer* WebServer::_webServer = nullptr;
 
-DWORD WINAPI Server::MyThreadFunction(LPVOID lpParam)
+DWORD WINAPI WebServer::MyThreadFunction(LPVOID lpParam)
 {
-	Server* server = new Server(GetModuleHandle(NULL), "6666");
+	WebServer* server = new WebServer(GetModuleHandle(NULL), "8888");
 
 	server->setCore((HWND)(lpParam));
 	server->init();
@@ -14,52 +14,54 @@ DWORD WINAPI Server::MyThreadFunction(LPVOID lpParam)
 	return 0;
 }
 
-Server* Server::getServer()
+WebServer* WebServer::getServer()
 {
-	return _server;
+	return _webServer;
 }
 
 LRESULT CALLBACK
-MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+WebWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	return (Server::getServer()->wndProc(hwnd, msg, wParam, lParam));
+	return (WebServer::getServer()->wndProc(hwnd, msg, wParam, lParam));
 }
 
-Server::Server(HINSTANCE hInstance, std::string port) : _hInstance(hInstance),
-_port(port), _lastPlayerMessage(""), _id(1)
+WebServer::WebServer(HINSTANCE hInstance, std::string port) : _hInstance(hInstance),
+_port(port)
 {
-	_server = this;
+	_webServer = this;
 }
 
-Server::~Server()
+WebServer::~WebServer()
 {
 	closesocket(_listenSocket);
 	WSACleanup();
 }
 
-LRESULT Server::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT WebServer::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) {
-	case SEND_MESSAGE_TO_PLAYERS: {
-		sendMessageToPlayers(wParam, lParam);
+	case SEND_GAME_MAP: 
+	{
+		sendGameMap(wParam, lParam);
 		break;
-	} case SEND_MESSAGE_TO_PLAYER: {
-		sendMessageToPlayer(wParam, lParam);
-		break;
-	} case ACCEPT_CLIENT: {
+	}
+	case ACCEPT_CLIENT:
+	{
 		if (LOWORD(lParam) == FD_ACCEPT)
 			acceptClient();
 		else if (LOWORD(lParam) == FD_CLOSE)
-		{}
+		{
+		}
 		break;
-	} case READ_MESSAGE: {
+	}
+	case READ_MESSAGE:
 		if (LOWORD(lParam) == FD_READ)
 			readData(wParam, lParam);
 		else if (LOWORD(lParam) == FD_CLOSE)
 		{
 		}
 		break;
-	} case WM_DESTROY:
+	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
 	default:
@@ -69,13 +71,13 @@ LRESULT Server::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-int Server::initWindow()
+int WebServer::initWindow()
 {
 	WNDCLASSEX wcex;
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = MainWndProc;
+	wcex.lpfnWndProc = WebWndProc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = _hInstance;
@@ -83,7 +85,7 @@ int Server::initWindow()
 	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName = NULL;
-	wcex.lpszClassName = L"Server";
+	wcex.lpszClassName = L"WebServer";
 	wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
 
 	if (!RegisterClassEx(&wcex)) {
@@ -91,8 +93,8 @@ int Server::initWindow()
 			L"Windows Desktop Guided Tour", NULL);
 		return 1;
 	}
-	_hwnd = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, L"Server",
-		L"Server app", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 
+	_hwnd = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, L"WebServer",
+		L"WebServer app", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT,
 		CW_USEDEFAULT, 100, 100, NULL, NULL, _hInstance, NULL);
 	if (!_hwnd) {
 		MessageBox(NULL, L"Call to CreateWindow failed!",
@@ -103,7 +105,7 @@ int Server::initWindow()
 	return 0;
 }
 
-int  Server::initWinsock()
+int  WebServer::initWinsock()
 {
 	WSADATA wsaData;
 	int iResult;
@@ -117,17 +119,17 @@ int  Server::initWinsock()
 	return 0;
 }
 
-int Server::createSocket()
+int WebServer::createSocket()
 {
 	int iResult;
 	struct addrinfo* result = NULL, * ptr = NULL, hints;
-	
+
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_flags = AI_PASSIVE;
-	iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
+	iResult = getaddrinfo(NULL, _port.c_str(), &hints, &result);
 	if (iResult != 0) {
 		std::string mess("getaddrinfo failed: " + std::to_string(iResult));
 		OutputDebugStringA(mess.c_str());
@@ -156,13 +158,13 @@ int Server::createSocket()
 	return 0;
 }
 
-int Server::initServer()
+int WebServer::initServer()
 {
 	if (initWinsock())
 		return 1;
 	if (createSocket())
 		return 1;
-	WSAAsyncSelect(_listenSocket, _hwnd, ACCEPT_CLIENT, FD_ACCEPT | FD_CLOSE | FD_READ);
+	WSAAsyncSelect(_listenSocket, _hwnd, WM_USER + 1, FD_ACCEPT | FD_CLOSE);
 	if (listen(_listenSocket, SOMAXCONN) == SOCKET_ERROR) {
 		std::string mess("Listen failed with error: " + std::to_string(WSAGetLastError()));
 		OutputDebugStringA(mess.c_str());
@@ -173,21 +175,21 @@ int Server::initServer()
 	return 0;
 }
 
-int Server::init()
+int WebServer::init()
 {
 	if (initWindow())
 		return 1;
-	PostMessage(_coreHwnd, GAME_SERVER_ID, (WPARAM)_hwnd, 0);
-	if(initServer())
+	if (initServer())
 		return 1;
+	PostMessage(_coreHwnd, WEB_SERVER_ID, (WPARAM)_hwnd, 0);
 	return 0;
 }
 
-int Server::sendData(std::string data, SOCKET clientSocket)
+int WebServer::sendData(std::string data, SOCKET clientSocket)
 {
 	int iSendResult = send(clientSocket, data.c_str(), (int)data.size(), 0);
 	if (iSendResult == SOCKET_ERROR) {
-		OutputDebugStringA( std::string ("send failed: " + std::to_string( WSAGetLastError())).c_str() );
+		OutputDebugStringA(std::string("send failed: " + std::to_string(WSAGetLastError())).c_str());
 		closesocket(clientSocket);
 		WSACleanup();
 		return 1;
@@ -195,17 +197,60 @@ int Server::sendData(std::string data, SOCKET clientSocket)
 	return 0;
 }
 
-int Server::readData(WPARAM wParam, LPARAM lParam)
+std::string WebServer::buildResponse(std::string mess)
+{
+	std::string file = "<!DOCTYPE html><html lang=\"en\"><body><h1> Morpion Game </h1> <p>" + mess + "</p></body></html>";
+	std::string header = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(file.size()) + "\n\n";
+
+	return header + file;
+}
+
+std::string WebServer::convertGameMap(int **board)
+{
+	std::string mess;
+
+	mess += "&emsp;&emsp;&emsp;----------<br>";
+	for (int i = 0; i < 3; i++) {
+		mess += "&emsp;&emsp;&emsp;|";
+		for (int j = 0; j < 3; j++) {
+			switch (board[i][j]) {
+			case 0:
+				mess += "&ensp;&nbsp;";
+				break;
+			case 1:
+				mess += "X";
+				break;
+			case 2:
+				mess += "O";
+				break;
+			}
+			mess += '|';
+		}
+		mess += "<br>&emsp;&emsp;&emsp;----------<br>";
+	}
+	return mess;
+}
+
+int WebServer::sendGameMap(WPARAM wParam, LPARAM lParam)
+{
+	SOCKET clientSocket = (SOCKET)lParam;
+	GameMap_t* map = (GameMap_t*)wParam;
+
+	sendData(buildResponse("Mirror, Mirror on the Wall, Who's the Fairest of Them All?<br>"  + convertGameMap(map->map)), clientSocket);
+	delete map;
+	return 0;
+}
+
+int WebServer::readData(WPARAM wParam, LPARAM lParam)
 {
 	int iResult;
 	char recvbuf[DEFAULT_BUFLEN];
 	SOCKET clientSocket = (SOCKET)wParam;
-	Data_t* data = new Data_t;
-	
+	std::string receivedMess;
+
 	ZeroMemory(recvbuf, DEFAULT_BUFLEN);
 	iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
-	data->content = recvbuf;
-	PostMessage(_coreHwnd, NEW_MESSAGE, (WPARAM)data, _clientsMap[clientSocket]->getId());
+	receivedMess += recvbuf;
 	if (iResult < 0) {
 		std::string mess("recv failed: " + std::to_string(WSAGetLastError()));
 		OutputDebugStringA(mess.c_str());
@@ -213,10 +258,13 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 		WSACleanup();
 		return 1;
 	}
+	Data_t* data = new Data_t;
+	data->content = receivedMess;
+	PostMessage(_coreHwnd, NEW_WEB_MESSAGE, (WPARAM)data, clientSocket);
 	return 0;
 }
 
-int Server::acceptClient()
+int WebServer::acceptClient()
 {
 	SOCKET ClientSocket;
 
@@ -228,16 +276,11 @@ int Server::acceptClient()
 		return 1;
 	}
 	WSAAsyncSelect(ClientSocket, _hwnd, READ_MESSAGE, FD_READ | FD_CLOSE);
-	PostMessage(_coreHwnd, NEW_GAME_CLIENT, ClientSocket, _id);
-	std::shared_ptr<GameClient> client(new GameClient(ClientSocket, _id));
-	_clientsVect.push_back(client);
-	_clientsMap[ClientSocket] = client;
-	sendData("I;id:" + std::to_string(_id) + "#", ClientSocket);
-	_id++;
+	PostMessage(_coreHwnd, NEW_WEB_CLIENT, ClientSocket, 0);
 	return 0;
 }
 
-int Server::run()
+int WebServer::run()
 {
 	MSG msg = { 0 };
 
@@ -250,26 +293,7 @@ int Server::run()
 	return (int)msg.wParam;
 }
 
-void Server::sendMessageToPlayers(WPARAM wParam, LPARAM lParam)
-{
-	Data_t* data = (Data_t*)wParam;
-	std::string message = data->content;
-	for (int i = 0; i < _clientsVect.size(); i++)
-		_clientsVect[i]->sendMessage(message);
-	delete data;
-}
-
-void Server::sendMessageToPlayer(WPARAM wParam, LPARAM lParam)
-{
-	Data_t* data = (Data_t*)wParam;
-	std::string message = data->content;
-	int id = (int)lParam;
-
-	_clientsMap[id]->sendMessage(message);
-	delete data;
-}
-
-void Server::setCore(HWND coreHwnd)
+void WebServer::setCore(HWND coreHwnd)
 {
 	_coreHwnd = coreHwnd;
 }

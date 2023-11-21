@@ -1,7 +1,6 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "Client.h"
 #include "ClientCore.h"
-#include <time.h>
 
 Client* Client::_client = nullptr;
 
@@ -153,13 +152,10 @@ int Client::initClient()
 
 int Client::init()
 {
-	srand(time(0));
 	if (initWindow())
 		return 1;
 	if (initClient())
 		return 1;
-	//_name = std::to_string(rand() % 100);
-	// sendData("name:" + _name);
 	return 0;
 }
 
@@ -167,10 +163,7 @@ int Client::sendData(std::string data)
 {
 	int iResult;
 
-
 	iResult = send(_connectSocket, data.c_str(), (int)data.size(), 0);
-	//OutputDebugStringA(("\n" + data + "ici \n").c_str());
-
 	if (iResult == SOCKET_ERROR) {
 		OutputDebugStringA(std::string("send failed: " + std::to_string(WSAGetLastError())).c_str());
 		closesocket(_connectSocket);

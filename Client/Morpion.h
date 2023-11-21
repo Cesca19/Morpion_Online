@@ -21,9 +21,13 @@ public:
 	void setStart();
 	void setCurrentPlayer(std::string player);
 	
+	void setWinner(std::string name, bool isTie);
+	
 	void createGameBoard();
 	int printGameboard();
 	void printCurrentPlayer();
+
+	void printEndGame();
 	int turn(std::shared_ptr<sf::Text> mess, int number, sf::Event* event);
 	void launchGame(sf::Event* event);
 	std::shared_ptr<sf::RenderWindow> GetWindow() { return _window; }
@@ -34,9 +38,11 @@ private:
 private:
 	int _id;
 	bool _hasStart;
-	//Core* m_core;
-	//Client* m_client;
 	void* _clientCore;
+
+	std::string _winner;
+	bool _isTie;
+	bool _isEnd;
 	
 	std::shared_ptr<sf::RenderWindow> _window;
 	std::vector<std::shared_ptr<sf::RectangleShape>> _gameBoard;

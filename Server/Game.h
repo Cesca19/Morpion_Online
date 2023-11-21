@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <string>
-//#include <Windows.h>
+#include <vector>
 
 class Game
 {
@@ -17,9 +17,11 @@ public:
     void setCurrentPlayer(std::string player);
     
     void setCore(void* core);
+    void sendMessageToPlayer(std::string name, std::string message);
     void sendMessageToPlayers(std::string message);
 
-    void initPlayer(std::string firstPlayer, std::string secondPlayer);
+    void addWatcher(std::string);
+    void addPlayer(std::string name, int rank);
     void changePlayer();
     void move(int x, int y);
     int checkWinner();
@@ -28,14 +30,10 @@ public:
 
 private:
     std::string _currentPlayer;
-    std::string _firstPlayer;
-    std::string _secondPlayer;
+    std::vector<std::string> _players;
 
     bool _isRunning;
     void* _core;
-
     int** _gameMap;
-   // bool CheckMap(int row, int col, int drow, int dcol);
-    //bool IsFull();
 };
 
