@@ -23,7 +23,12 @@
 #define NEW_MESSAGE_FROM_SERVER (WM_USER + 4)
 #define DISCONNECT_CLIENT (WM_USER + 5)
 
-#define DISCONNECT_SERVER (WM_USER + 5)
+#define DISCONNECT_SERVER (WM_USER + 6)
+
+struct Client_Conf_t {
+	HWND core;
+	std::string port;
+};
 
 struct Data_t {
 	std::string content;

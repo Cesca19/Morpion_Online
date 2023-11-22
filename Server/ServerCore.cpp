@@ -13,7 +13,7 @@ AppWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return (ServerCore::getServerCore()->wndProc(hwnd, msg, wParam, lParam));
 }
 
-ServerCore::ServerCore(HINSTANCE hInstance, std::string port) : _serverState(NOT_INIT),
+ServerCore::ServerCore(HINSTANCE hInstance) : _serverState(NOT_INIT),
 _gameLogic(new Game()), _numPlayers(0), _hasStart(false), _serverUI(new ServerUI("Server", 800, 600)),
 _gamePort("6666"), _webPort("8888")
 {

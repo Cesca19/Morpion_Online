@@ -32,6 +32,9 @@ private:
 
 	static ClientCore* _clientCore;
 
+	bool _isRunning;
+	std::string _gamePort;
+
 	std::string _name;
 	std::shared_ptr<Morpion> _game;
 	int** _map;

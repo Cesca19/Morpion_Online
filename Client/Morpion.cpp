@@ -108,6 +108,124 @@ std::string Morpion::getPlayerName(sf::Event *event)
 	return(getPlayerName("Please", event));
 }
 
+void Morpion::createTextButton()
+{
+	std::shared_ptr<sf::Text> lauch(new sf::Text("Connect", *(_font)));
+	std::shared_ptr<sf::Text> quit(new sf::Text("Quit", *(_font)));
+	//std::shared_ptr<sf::Text> stop(new sf::Text("Stop server", *(_font)));
+
+	lauch->setCharacterSize(70);
+	lauch->setStyle(sf::Text::Bold);
+	lauch->setPosition({ (float)(_width / 10) , (float)(_height / 3) });
+	lauch->setFillColor({ 210, 180, 140 });
+	lauch->setOutlineColor({ 210, 180, 140 });
+	_button.push_back(lauch);
+
+	quit->setCharacterSize(70);
+	quit->setStyle(sf::Text::Bold);
+	quit->setPosition({ (float)(_width / 2) , (float)(_height / 3) });
+	quit->setFillColor({ 210, 180, 140 });
+	quit->setOutlineColor({ 210, 180, 140 });
+	_button.push_back(quit);
+
+	/*stop->setCharacterSize(70);
+	stop->setStyle(sf::Text::Bold);
+	stop->setPosition({ (float)(_width / 3) , _height - (float)(_height / 4) });
+	stop->setFillColor({ 210, 180, 140 });
+	_button.push_back(stop);*/
+}
+
+int Morpion::connectionPage(sf::Event *event)
+{
+	ClientCore* core = ((ClientCore*)(_clientCore));
+	bool end = true;
+	std::shared_ptr<sf::Text> head(new sf::Text("Connect to the server", *(_font)));
+	
+	createTextButton();
+	head->setCharacterSize(70);
+	head->setStyle(sf::Text::Bold);
+	head->setPosition({ (float)(_width / 5) , (float)(_height / 15) });
+	head->setFillColor({ 192, 192, 192 });
+	while (end && _window->isOpen()) {
+		while (_window->pollEvent(*event)) {
+			if (event->type == sf::Event::Closed) {
+				_window->close();
+				core->close();
+				return 1;
+			}
+		}
+		for (int i = 0; i < 2; i++) {
+			sf::FloatRect rect = _button[i]->getGlobalBounds();
+			sf::Vector2i position = sf::Mouse::getPosition(*(_window.get()));
+
+			if (rect.contains({ (float)position.x, (float)position.y })) {
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Right) ||
+					sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+					_button[i]->setFillColor(sf::Color::Magenta);
+					if (i == 0)
+						return 0;
+					else {
+						_window->close();
+						core->close();
+						return 1;
+					}
+				}
+				else
+					_button[i]->setFillColor(sf::Color::Cyan);
+			}
+			else
+				_button[i]->setFillColor({ 210, 180, 140 });
+		}
+		_window->clear(sf::Color::White);
+		_window->draw(*_button[0]);
+		_window->draw(*_button[1]);
+		_window->draw(*head);
+		_window->display();
+	}
+	return 0;
+}
+
+std::string Morpion::getPlayerInput(std::string displayText, sf::Event* event)
+{
+	std::string input = "";
+	ClientCore* core = ((ClientCore*)(_clientCore));
+	std::shared_ptr<sf::Text> text(new sf::Text(displayText, *(_font)));
+	std::shared_ptr<sf::Text> playerInput(new sf::Text("", *(_font)));
+
+	text->setCharacterSize(50);
+	text->setStyle(sf::Text::Bold);
+	text->setPosition({ (float)(_width / 6) , (float)(_height / 4) });
+	text->setFillColor(sf::Color::Cyan);
+	playerInput->setCharacterSize(40);
+	playerInput->setStyle(sf::Text::Bold);
+	playerInput->setPosition({ (float)(_width / 2.5) , (float)(_height / 2.5) });
+	playerInput->setFillColor({ 210, 180, 140 });
+	while (_window->isOpen()) {
+		while (_window->pollEvent(*event)) {
+			if (event->type == sf::Event::Closed) {
+				_window->close();
+				core->close();
+				return "";
+			}
+			if (event->type == sf::Event::TextEntered) {
+				if (event->text.unicode == 13 && input.size() != 0) {
+					return input;
+				}
+				if (event->text.unicode == 8 && input.size() > 0)
+					input.pop_back();
+				if (event->text.unicode != 8 && event->text.unicode != 13 && event->text.unicode < 128)
+					input += event->text.unicode;
+				playerInput->setString(input);
+			}
+		}
+		_window->clear(sf::Color::White);
+		_window->draw(*(text.get()));
+		_window->draw(*(playerInput.get()));
+		_window->display();
+	}
+	return input;
+}
+
 std::string Morpion::getPlayerName(std::string displayText, sf::Event* event)
 {
 	std::string name;
@@ -123,7 +241,7 @@ std::string Morpion::getPlayerName(std::string displayText, sf::Event* event)
 	playerName->setStyle(sf::Text::Bold);
 	playerName->setPosition({ (float)(_width / 2.5) , (float)(_height / 3) });
 	playerName->setFillColor({ 222, 184, 135 });
-	while (1) {
+	while (_window->isOpen()) {
 		while (_window->pollEvent(*event)) {
 			if (event->type == sf::Event::Closed) {
 				_window->close();
