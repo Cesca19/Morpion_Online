@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "GameClient.h"
 
-#define DEFAULT_PORT "6666"
 #define DEFAULT_BUFLEN 512
 
 class Server
@@ -13,6 +12,7 @@ public:
 	~Server();
 	int init();
 	int run();
+	void close();
 	void setCore(HWND coreHwnd);
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	static Server* getServer();

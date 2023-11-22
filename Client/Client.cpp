@@ -6,7 +6,7 @@ Client* Client::_client = nullptr;
 
 DWORD WINAPI Client::MyThreadFunction(LPVOID lpParam)
 {
-	Client* client = new Client(GetModuleHandle(NULL), "127.0.0.1", "6666");
+	Client* client = new Client(GetModuleHandle(NULL), "127.0.0.1", "7777");
 
 	client->setCore((HWND)(lpParam));
 	client->init();
