@@ -1,7 +1,7 @@
 #include "Game.h"
 #include "ServerCore.h"
 #include <fstream>
-
+#include <string>
 
 std::string convertBoard(int** board)
 {
@@ -223,10 +223,10 @@ void Game::SetHistoricMsg(std::string mess)
 	HistoricMsg += mess + "\n";
 	//if last message is the same just ignore it
 	if (HistoricMsg == LastHistoricMsg) return;
-	std::ofstream HistoricFile;
+	std::fstream HistoricFile;
 	//close the file in case it was open, it's to avoid bug even if it's not supposed to be open at first.
 	HistoricFile.close();
-	HistoricFile.open("historic.txt", std::ofstream::app);
+	HistoricFile.open("historic.txt", std::fstream::app);
 	if (HistoricFile.is_open()) {
 		HistoricFile << HistoricMsg << std::endl;
 		LastHistoricMsg = HistoricMsg;
@@ -236,6 +236,18 @@ void Game::SetHistoricMsg(std::string mess)
 	}
 	else
 		OutputDebugString(L"Game:: ERROR : Couldn't open historic.txt");
+}
 
-
+void Game::GetHistoricFile()
+{
+	std::string historic;
+	std::fstream HistoricFile;
+	HistoricFile.close();
+	HistoricFile.open("historic.txt", std::fstream::in);
+	if (HistoricFile.is_open()) {
+		while (HistoricFile) {
+			historic += HistoricFile.get();
+		}
+	}
+	HistoricFile.close();
 }

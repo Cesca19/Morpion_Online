@@ -81,7 +81,7 @@ void ClientCore::analyseMessage(std::string data)
 				OutputDebugStringA("game started");
 			}
 			else if (messages[i] != "") {
-				OutputDebugStringA(("je recois un auret message" + messages[i]).c_str());
+				OutputDebugStringA(("je recois un autre message" + messages[i]).c_str());
 				
 				message = nlohmann::json::parse(messages[i]);
 				OutputDebugStringA(("message after parse at " + _name + ": " + message.dump() + "\n").c_str());

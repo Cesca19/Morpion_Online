@@ -164,7 +164,7 @@ int Client::sendData(std::string data)
 	int iResult;
 
 	iResult = send(_connectSocket, data.c_str(), (int)data.size(), 0);
-	OutputDebugStringA(("sendData :: Bytes Sent: " + std::to_string(iResult)).c_str());
+	//OutputDebugStringA(("sendData :: Bytes Sent: " + std::to_string(iResult)).c_str());
 	if (iResult == SOCKET_ERROR) {
 		OutputDebugStringA(std::string("send failed: " + std::to_string(WSAGetLastError())).c_str());
 		closesocket(_connectSocket);

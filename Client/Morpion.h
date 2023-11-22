@@ -32,6 +32,8 @@ public:
 	void launchGame(sf::Event* event);
 	std::shared_ptr<sf::RenderWindow> GetWindow() { return _window; }
 
+	void HistoricBox();
+
 private:
 	std::string getPlayerName(std::string displayText, sf::Event* event);
 	
@@ -59,6 +61,7 @@ private:
 
 	std::string _name;
 	std::string _currentPlayer;
+
 
 	//Player* _firstPlayer;
 	//Player* _secondPlayer;

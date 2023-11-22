@@ -10,3 +10,35 @@ Player : tt Column : 2 Line : 0
 
 Winner : tt
 
+Player : tty   Column : 0   Line : 2
+
+Player : kk   Column : 1   Line : 0
+
+Player : tty   Column : 1   Line : 2
+
+Player : kk   Column : 2   Line : 0
+
+Player : tty   Column : 2   Line : 2
+
+Winner : tty
+
+Player : ttt   Column : 0   Line : 2
+
+Player : ooopppp   Column : 1   Line : 2
+
+Player : ttt   Column : 2   Line : 2
+
+Player : ooopppp   Column : 2   Line : 1
+
+Player : ttytyy   Column : 0   Line : 2
+
+Player : hgjghj   Column : 1   Line : 2
+
+Player : eee   Column : 0   Line : 2
+
+Player : sdsds   Column : 1   Line : 2
+
+Player : eee   Column : 1   Line : 1
+
+Player : erty   Column : 0   Line : 2
+

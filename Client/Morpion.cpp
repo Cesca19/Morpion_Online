@@ -2,8 +2,8 @@
 #include "ClientCore.h"
 
 Morpion::Morpion() : _id(-1), _window(NULL), _width(0), _height(0), _currentPlayer(""),
-_font(new sf::Font()), _name(""), _hasStart(false), _winner(""), _isTie(false), 
-_isEnd(false),  _clientCore(NULL)
+_font(new sf::Font()), _name(""), _hasStart(false), _winner(""), _isTie(false),
+_isEnd(false), _clientCore(NULL)
 {
 }
 
@@ -57,13 +57,14 @@ void Morpion::init(std::string windowName, int width, int height)
 void Morpion::run(sf::Event event)
 {
 	_window->clear(sf::Color::White);
-	
+
 	if (_hasStart) {
 		printCurrentPlayer();
 		printGameboard();
 		if (_isEnd)
 			printEndGame();
-	} else {
+	}
+	else {
 		_window->draw(*_waitMessage);
 	}
 	_window->display();
@@ -75,7 +76,8 @@ void Morpion::printEndGame()
 		_winMessage->setString("It's a tie ;(");
 		_window->draw(*_winMessage);
 		return;
-	} else
+	}
+	else
 		(_name == _winner) ? _winMessage->setString("You win, not bad ...") : (_name != _winner && _id < 3)
 		? _winMessage->setString("You loose, try harder next time ...") : _winMessage->setString(_winner + " win !!");
 	_window->draw(*_winMessage);
@@ -101,7 +103,7 @@ void Morpion::setCurrentPlayer(std::string player)
 	_currentPlayer = player;
 }
 
-std::string Morpion::getPlayerName(sf::Event *event)
+std::string Morpion::getPlayerName(sf::Event* event)
 {
 	return(getPlayerName("Please", event));
 }
@@ -125,7 +127,7 @@ std::string Morpion::getPlayerName(std::string displayText, sf::Event* event)
 			if (event->type == sf::Event::Closed)
 				_window->close();
 			if (event->type == sf::Event::TextEntered) {
-				if (event->text.unicode == 13 && name.size() != 0 ) {
+				if (event->text.unicode == 13 && name.size() != 0) {
 					_name = name;
 					return name;
 				}
@@ -201,7 +203,7 @@ int Morpion::printGameboard()
 	int player1 = (_id < 3) ? _id : 1;
 	int player2 = (_id == 2) ? 1 : 2;
 	ClientCore* core = ((ClientCore*)(_clientCore));
-	sf::Color color1 = {255, 105, 180};
+	sf::Color color1 = { 255, 105, 180 };
 	sf::Color color2 = { 255, 215, 0 };
 	int** gameMap = core->getGameMap();
 
@@ -236,9 +238,9 @@ int Morpion::printGameboard()
 			if (rect.contains({ (float)position.x, (float)position.y })
 				&& gameMap[i / 3][i % 3] == 0 && _currentPlayer == _name && !_isEnd) {
 				if (sf::Mouse::isButtonPressed(sf::Mouse::Right) ||
-					sf::Mouse::isButtonPressed(sf::Mouse::Left)  ) {
+					sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 					_gameBoard[i]->setOutlineColor(sf::Color::Magenta);
-					core->sendMessage(Protocol::GameProtocol::createMoveMessage(_name, i / 3, i % 3) );
+					core->sendMessage(Protocol::GameProtocol::createMoveMessage(_name, i / 3, i % 3));
 					return 1;
 				}
 				else
@@ -249,9 +251,20 @@ int Morpion::printGameboard()
 		}
 		_window->draw(*(_gameBoard[i].get()));
 	}
-	
+
 	for (int i = 0; i < _shapes.size(); i++)
 		_window->draw(*(_shapes[i].get()));
 
 	return 0;
+}
+
+void Morpion::HistoricBox()
+{
+	sf::Text text;
+	
+	text.setString("wui");
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Right) || sf::Mouse::isButtonPressed(sf::Mouse::Left)) 
+	{
+		sf::Vector2i position = sf::Mouse::getPosition(*(_window.get()));
+	}
 }

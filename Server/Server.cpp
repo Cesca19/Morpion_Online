@@ -273,3 +273,4 @@ void Server::setCore(HWND coreHwnd)
 {
 	_coreHwnd = coreHwnd;
 }
+

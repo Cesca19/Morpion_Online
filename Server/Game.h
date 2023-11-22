@@ -29,6 +29,7 @@ public:
     int isOver();
     void run();
     void SetHistoricMsg(std::string msg);
+    void GetHistoricFile();
 
 private:
     std::string _currentPlayer;
