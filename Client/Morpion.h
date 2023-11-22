@@ -39,6 +39,7 @@ private:
 	int _id;
 	bool _hasStart;
 	void* _clientCore;
+	bool _isSent;
 
 	std::string _winner;
 	bool _isTie;

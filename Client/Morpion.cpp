@@ -2,7 +2,7 @@
 #include "ClientCore.h"
 
 Morpion::Morpion() : _id(-1), _window(NULL), _width(0), _height(0), _currentPlayer(""),
-_font(new sf::Font()), _name(""), _hasStart(false), _winner(""), _isTie(false), 
+_font(new sf::Font()), _name(""), _hasStart(false), _winner(""), _isTie(false), _isSent(false),
 _isEnd(false),  _clientCore(NULL)
 {
 }
@@ -59,6 +59,8 @@ void Morpion::run(sf::Event event)
 	_window->clear(sf::Color::White);
 	
 	if (_hasStart) {
+		if (_currentPlayer != _name)
+			_isSent = false;
 		printCurrentPlayer();
 		printGameboard();
 		if (_isEnd)
@@ -238,11 +240,12 @@ int Morpion::printGameboard()
 			}
 
 			if (rect.contains({ (float)position.x, (float)position.y })
-				&& gameMap[i / 3][i % 3] == 0 && _currentPlayer == _name && !_isEnd) {
+				&& gameMap[i / 3][i % 3] == 0 && _currentPlayer == _name && !_isEnd && !_isSent) {
 				if (sf::Mouse::isButtonPressed(sf::Mouse::Right) ||
 					sf::Mouse::isButtonPressed(sf::Mouse::Left)  ) {
 					_gameBoard[i]->setOutlineColor(sf::Color::Magenta);
 					core->sendMessage(Protocol::GameProtocol::createMoveMessage(_name, i / 3, i % 3) );
+					_isSent = true;
 					return 1;
 				}
 				else
