@@ -178,7 +178,7 @@ void Game::run()
 		if (split(mov, "#")[0] == "historic")
 		{
 			OutputDebugStringA("Game:: 3  Historic \n");
-			sendMessageToPlayers(Protocol::GameProtocol::createAllMoveMessage("uwu"));
+			sendMessageToPlayer(split(mov, "#")[1], Protocol::GameProtocol::createAllMoveMessage("")); //bug, maybe trouble with id cause it works sometime with senMessageToPlayers
 		}
 	}
 
