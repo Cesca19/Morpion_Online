@@ -31,7 +31,7 @@ public:
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	void dispatchGameMessage(WPARAM wParam, LPARAM lParam);
-	void addNewGameClient(LPARAM lParam);
+	void addNewGameClient(WPARAM wParam, LPARAM lParam);
 	void setGameServer(WPARAM wParam, LPARAM lParam);
 	void setWebServer(WPARAM wParam, LPARAM lParam);
 

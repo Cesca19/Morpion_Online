@@ -40,8 +40,10 @@ void ServerCore::dispatchGameMessage(WPARAM wParam, LPARAM lParam)
 	delete mess;
 }
 
-void ServerCore::addNewGameClient(LPARAM lParam)
+void ServerCore::addNewGameClient(WPARAM wParam, LPARAM lParam)
 {
+	SOCKET ClientSocket = (SOCKET)wParam;
+	
 	int id = (int)lParam;
 	PlayerType type = (_playersVect.size() == 0) ? PLAYER1 : (_playersVect.size() == 1) ? PLAYER2 : SPECTATOR;
 	std::shared_ptr<Player> player(new Player(id, type));
@@ -68,7 +70,7 @@ LRESULT ServerCore::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		setGameServer(wParam, lParam);
 		break;
 	} case NEW_GAME_CLIENT: {
-		addNewGameClient(lParam);
+		addNewGameClient(wParam, lParam);
 		break;
 	} case (NEW_MESSAGE): {
 		dispatchGameMessage(wParam, lParam);
@@ -86,7 +88,6 @@ LRESULT ServerCore::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
-		break;
 	}
 	return 0;
 }
