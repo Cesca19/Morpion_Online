@@ -4,6 +4,18 @@
 
 Client* Client::_client = nullptr;
 
+DWORD WINAPI Client::MyThreadFunction(LPVOID lpParam)
+{
+	Client* client = new Client(GetModuleHandle(NULL), "127.0.0.1", "7777");
+
+	client->setCore((HWND)(lpParam));
+	client->init();
+	client->run();
+	delete client;
+	OutputDebugStringA("Thread Client closing ...\n");
+	return 0;
+}
+
 void print(std::string mess)
 {
 	std::wstring res(mess.begin(), mess.end());
@@ -18,7 +30,7 @@ Client* Client::getClient()
 LRESULT CALLBACK
 MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	return (Client::getClient()->wndProc(hwnd, msg, wParam, lParam));
+	return (Client::getClient()->clientWndProc(hwnd, msg, wParam, lParam));
 }
 
 Client::Client(HINSTANCE hInstance, std::string address, std::string port) :
@@ -29,20 +41,29 @@ Client::Client(HINSTANCE hInstance, std::string address, std::string port) :
 
 Client::~Client()
 {
-	closesocket(_connectSocket);
-	WSACleanup();
 }
 
-LRESULT Client::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+void Client::serverClosing()
+{
+	PostMessage(_coreHwnd, DISCONNECT_SERVER, 0, 0);
+}
+
+LRESULT Client::clientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) {
-	case WM_USER + 2:
+	case SEND_MESSAGE_TO_SERVER: {
+		sendData(wParam, lParam);
+		break;
+	} case NEW_SERVER_MESSAGE: {
 		if (LOWORD(lParam) == FD_READ)
 			readData(wParam, lParam);
 		else if (LOWORD(lParam) == FD_CLOSE)
-		{ }
+			serverClosing();
 		break;
-	case WM_DESTROY:
+	} case DISCONNECT_CLIENT: {
+		close();
+		break;
+	} case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
 	default:
@@ -82,7 +103,6 @@ int Client::initWindow()
 			L"Windows Desktop Guided Tour", NULL);
 		return 1;
 	}
-	//ShowWindow(_hwnd, SW_SHOW);
 	UpdateWindow(_hwnd);
 	return 0;
 }
@@ -92,7 +112,6 @@ int  Client::initWinsock()
 	WSADATA wsaData;
 	int iResult;
 
-	//	The WSAStartup function is called to initiate use of WS2_32.dll.
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
 		std::string mess("WSAStartup failed: " + std::to_string(iResult));
@@ -146,7 +165,7 @@ int Client::initClient()
 		return 1;
 	if (createSocket())
 		return 1;
-	WSAAsyncSelect(_connectSocket, _hwnd, WM_USER + 2, FD_READ | FD_CLOSE);
+	WSAAsyncSelect(_connectSocket, _hwnd, NEW_SERVER_MESSAGE, FD_READ | FD_CLOSE);
 	return 0;
 }
 
@@ -154,13 +173,16 @@ int Client::init()
 {
 	if (initWindow())
 		return 1;
+	PostMessage(_coreHwnd, GAME_CLIENT_ID, (WPARAM)_hwnd, 0);
 	if (initClient())
 		return 1;
 	return 0;
 }
 
-int Client::sendData(std::string data)
+int Client::sendData(WPARAM wParam, LPARAM lParam)
 {
+	Data_t* mess = (Data_t*)wParam;
+	std::string data(mess->content);
 	int iResult;
 
 	iResult = send(_connectSocket, data.c_str(), (int)data.size(), 0);
@@ -174,9 +196,9 @@ int Client::sendData(std::string data)
 	return 0;
 }
 
-void Client::setCore(void* core)
+void Client::setCore(HWND coreHwnd)
 {
-	_clientCore = core;
+	_coreHwnd = coreHwnd;
 }
 
 std::string Client::readData(WPARAM wParam, LPARAM lParam)
@@ -190,14 +212,11 @@ std::string Client::readData(WPARAM wParam, LPARAM lParam)
 	iResult = recv(_connectSocket, readMessage, DEFAULT_BUFLEN, 0);
 	if (iResult > 0) {
 		receivedMessage += std::string(readMessage);
-		//OutputDebugStringA(std::string("Message received in client " + _name + ":" + receivedMessage + "***\n").c_str());
+		Data_t* data = new Data_t;
+		data->content = receivedMessage;
+		PostMessage(_coreHwnd, NEW_MESSAGE_FROM_SERVER, (WPARAM)data, 0);
 	} else if (iResult < 0)
 		OutputDebugStringA(std::string("client recv failed: " + std::to_string(WSAGetLastError()) + "\n").c_str());
-	((ClientCore*)(_clientCore))->analyseMessage(receivedMessage);
-	/*
-	if (receivedMessage.substr(0, 5) == std::string("Turn:") && receivedMessage.substr(5, receivedMessage.size()) == _name) {
-		sendData("move:" + std::to_string(rand() % 3) + ":" + std::to_string(rand() % 3));
-	}*/
 	return receivedMessage;
 }
 
@@ -211,5 +230,14 @@ int Client::run()
 			DispatchMessage(&msg);
 		}
 	}
-	return (int)msg.wParam;
+	return 0;
+}
+
+int Client::close()
+{
+	closesocket(_connectSocket);
+	WSACleanup();
+	PostMessage(_hwnd, WM_CLOSE, 0, 0);
+	OutputDebugStringA("Client closing ...\n");
+	return 0;
 }

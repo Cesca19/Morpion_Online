@@ -40,6 +40,6 @@ private:
     bool _isRunning;
     void* _core;
     int** _gameMap;
-    int _turn;
+    int _turn = 0;
 };
 

@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "GameClient.h"
 
-#define DEFAULT_PORT "6666"
 #define DEFAULT_BUFLEN 512
 
 class Server
@@ -13,6 +12,7 @@ public:
 	~Server();
 	int init();
 	int run();
+	void close();
 	void setCore(HWND coreHwnd);
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	static Server* getServer();
@@ -23,6 +23,7 @@ private:
 	int initWinsock();
 	int createSocket();
 	int acceptClient();
+	int closeClient(WPARAM wParam, LPARAM lParam);
 	int initServer();
 	int sendData(std::string data, SOCKET clientSocket);
 	int readData(WPARAM wParam, LPARAM lParam);

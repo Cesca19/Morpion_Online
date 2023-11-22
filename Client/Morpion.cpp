@@ -2,8 +2,8 @@
 #include "ClientCore.h"
 
 Morpion::Morpion() : _id(-1), _window(NULL), _width(0), _height(0), _currentPlayer(""),
-_font(new sf::Font()), _name(""), _hasStart(false), _winner(""), _isTie(false),
-_isEnd(false), _clientCore(NULL)
+_font(new sf::Font()), _name(""), _hasStart(false), _winner(""), _isTie(false), _isSent(false),
+_isEnd(false),  _clientCore(NULL)
 {
 }
 
@@ -59,6 +59,8 @@ void Morpion::run(sf::Event event)
 	_window->clear(sf::Color::White);
 
 	if (_hasStart) {
+		if (_currentPlayer != _name)
+			_isSent = false;
 		printCurrentPlayer();
 		printGameboard();
 		if (_isEnd)
@@ -111,6 +113,7 @@ std::string Morpion::getPlayerName(sf::Event* event)
 std::string Morpion::getPlayerName(std::string displayText, sf::Event* event)
 {
 	std::string name;
+	ClientCore* core = ((ClientCore*)(_clientCore));
 	std::shared_ptr<sf::Text> text(new sf::Text(displayText + " enter your name ...", *(_font)));
 	std::shared_ptr<sf::Text> playerName(new sf::Text("", *(_font)));
 
@@ -124,8 +127,11 @@ std::string Morpion::getPlayerName(std::string displayText, sf::Event* event)
 	playerName->setFillColor({ 222, 184, 135 });
 	while (1) {
 		while (_window->pollEvent(*event)) {
-			if (event->type == sf::Event::Closed)
+			if (event->type == sf::Event::Closed) {
 				_window->close();
+				core->close();
+				return "";
+			}
 			if (event->type == sf::Event::TextEntered) {
 				if (event->text.unicode == 13 && name.size() != 0) {
 					_name = name;
@@ -236,11 +242,12 @@ int Morpion::printGameboard()
 			}
 
 			if (rect.contains({ (float)position.x, (float)position.y })
-				&& gameMap[i / 3][i % 3] == 0 && _currentPlayer == _name && !_isEnd) {
+				&& gameMap[i / 3][i % 3] == 0 && _currentPlayer == _name && !_isEnd && !_isSent) {
 				if (sf::Mouse::isButtonPressed(sf::Mouse::Right) ||
 					sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 					_gameBoard[i]->setOutlineColor(sf::Color::Magenta);
-					core->sendMessage(Protocol::GameProtocol::createMoveMessage(_name, i / 3, i % 3));
+					core->sendMessage(Protocol::GameProtocol::createMoveMessage(_name, i / 3, i % 3) );
+					_isSent = true;
 					return 1;
 				}
 				else

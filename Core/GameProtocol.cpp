@@ -9,7 +9,6 @@ namespace Protocol
 	GameProtocol::GameStateMessage GameProtocol::handleGameStateMessage(std::string mess)
 	{
 		GameProtocol::GameStateMessage msg;
-		OutputDebugStringA((mess + "is handled \n").c_str());
 		nlohmann::json message = nlohmann::json::parse(mess);
 		msg = message["type"].get<std::string>() == "GAME" ? GameProtocol::processGameStateMessage(message) : msg;
 		return msg;
@@ -36,14 +35,21 @@ namespace Protocol
 		msg = message["type"].get<std::string>() == "CLIENT_ID" ? GameProtocol::processClientIdMessage(message) : msg;
 		return msg;
 	}
+	GameProtocol::AllMoveMessage GameProtocol::handleAllMoveMessage(std::string mess)
+	{
+		GameProtocol::AllMoveMessage msg;
+		nlohmann::json message = nlohmann::json::parse(mess);
+		msg = message["type"].get<std::string>() == "ALL_MOVE" ? GameProtocol::processAllMoveMessage(message) : msg;
+		return msg;
+	}
 
 	GameProtocol::GameStateMessage GameProtocol::processGameStateMessage(const nlohmann::json& message)
 	{
 		GameProtocol::GameStateMessage msg;
 
 		auto board = message["game"]["board"].get<std::vector<std::vector<int>>>();
-		int rows = board.size();
-		int col = board[0].size();
+		auto rows = board.size();
+		auto col = board[0].size();
 		msg.board = new int*[rows];
 
 
@@ -51,13 +57,7 @@ namespace Protocol
 			msg.board[i] = new int[col];
 			std::copy(board[i].begin(), board[i].end(), msg.board[i]);
 		}
-		for (int i = 0; i < board.size(); ++i) {
-			OutputDebugStringA("\n");
-			for (int j = 0; j < board[i].size(); ++j) {
-				OutputDebugStringA(std::to_string(board[i][j]).c_str());
-			}
-		}
-		
+
 		msg.currentPlayer = message["game"]["currentPlayer"].get<std::string>();
 		msg.turnNumber = message["game"]["turnNumber"].get<int>();
 		msg.winner = message["game"]["winner"].get<std::string>();
@@ -93,6 +93,16 @@ namespace Protocol
 
 		return msg;
 	}
+
+	GameProtocol::AllMoveMessage GameProtocol::processAllMoveMessage(const nlohmann::json& message)
+	{
+		GameProtocol::AllMoveMessage msg;
+
+		msg.moveList = message["data"]["moveList"].get<std::string>();
+
+		return msg;
+	}
+
 
 	std::string GameProtocol::createGameStateMessage(int** gameBoard, int turnNumber, std::string winner, std::string currentPlayer)
 	{
@@ -159,6 +169,18 @@ namespace Protocol
 		 {"data", {
 			 {"playerID", playerId},
 			 {"playerState", playerState}
+		 }}
+		};
+		return message.dump();
+	}
+
+	std::string GameProtocol::createAllMoveMessage(std::string moveList)
+	{
+		nlohmann::json message;
+		message = {
+		 {"type", "CLIENT_ID"},
+		 {"data", {
+			 {"moveList", moveList}
 		 }}
 		};
 		return message.dump();

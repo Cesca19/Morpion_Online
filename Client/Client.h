@@ -1,20 +1,8 @@
 #pragma once
 #define NOMINMAX
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <stdio.h>
-#include <string>
-#include <memory>
-#include <vector>
-
-#include "../Core/GameProtocol.h"
-#include "../nlohmann/json.hpp"
-
-#pragma comment(lib, "Ws2_32.lib")
-
+#include "pch.h"
 #define DEFAULT_PORT "6666"
 #define DEFAULT_BUFLEN 512
-
 
 class Client
 {
@@ -23,17 +11,19 @@ public:
 	~Client();
 	int init();
 	int run();
+	int close();
 
-	int sendData(std::string data);
+	int sendData(WPARAM wParam, LPARAM lParam);
+	void serverClosing();
 	std::string readData(WPARAM wParam, LPARAM lParam);
+	static DWORD WINAPI MyThreadFunction(LPVOID lpParam);
 
-	void setCore(void* core);
+	void setCore(HWND coreHwnd);
 	static Client* getClient();
-	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	LRESULT clientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
 	int initWindow();
-
 	int initWinsock();
 	int initClient();
 	int createSocket();
@@ -41,15 +31,13 @@ private:
 
 	HINSTANCE _hInstance = nullptr;
 	HWND _hwnd = nullptr;
+	HWND _coreHwnd = nullptr;
 
 	SOCKET _connectSocket;
 	std::string _ipAddress;
 	std::string _port;
 
 	std::string _name;
-
 	static Client* _client;
-
-	void* _clientCore;
 };
 

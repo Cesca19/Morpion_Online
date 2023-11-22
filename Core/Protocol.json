@@ -1,0 +1,43 @@
+[
+  {
+    "type": "GAME_STATE",
+    "game": {
+      "board": [
+        [ 1, 0, 0 ],
+        [ 0, 2, 0 ],
+        [ 0, 0, 0 ]
+      ],
+      "currentPlayer": "Sukuna",
+      "turn": 1,
+      "winner": null
+    }
+  },
+  {
+    "type": "MOVE",
+    "data": {
+      "name": "John",
+      "posX": 2,
+      "posY": 3
+    }
+  },
+  {
+    "type": "NEW_CLIENT",
+    "data": {
+      "clientID": 1,  
+      "name": "John"
+    }
+  },
+  {
+    "type": "SEND_CLIENT_ID",
+    "data": {
+      "playerID": 1,
+      "playerState": 2
+    }
+  }
+  {
+    "type": "ALL_MOVES",
+    "data": {
+      "moveList": 1 //to fill pleaes
+    }
+  }
+]

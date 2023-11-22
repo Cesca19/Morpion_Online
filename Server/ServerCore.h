@@ -8,6 +8,15 @@
 #include "Player.h"
 #include "Server.h"
 #include "WebServer.h"
+#include "ServerUI.h"
+
+enum SERVER_STATE {
+	NOT_INIT,
+	NOT_RUNNING,
+	RUN,
+	IS_RUNNING,
+	STOP
+};
 
 class ServerCore
 {
@@ -15,9 +24,14 @@ public:
 	ServerCore(HINSTANCE hInstance, std::string port);
 	~ServerCore();
 	int init();
-	void update();
+	void run();
 	void addPlayer(std::string name);
+	void setState(SERVER_STATE state);
 
+	void close();
+	void closeWebServer();
+	void closeGameServer();
+	void lauchServer();
 	int initWindow();
 
 	static ServerCore* getServerCore();
@@ -40,6 +54,7 @@ public:
 
 	void SetHistoricMsg(std::string mess);
 private:
+	SERVER_STATE _serverState;
 	HINSTANCE _hInstance = nullptr;
 	HWND _hwnd = nullptr;
 	static ServerCore* _serverCore;
@@ -56,4 +71,10 @@ private:
 	std::vector<std::shared_ptr<Player>> _playersVect;
 	std::unordered_map<int, std::shared_ptr<Player>> _playersMap;
 	std::unordered_map<std::string, std::shared_ptr<Player>> _playersNameMap;
+
+	std::shared_ptr<ServerUI> _serverUI;
+
+	std::string _gamePort;
+	std::string _webPort;
+
 };

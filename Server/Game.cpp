@@ -14,7 +14,8 @@ std::string convertBoard(int** board)
 	return mess;
 }
 
-Game::Game() : _gameMap(NULL), _currentPlayer(""), _isRunning(false)
+Game::Game() :_isRunning(false), _core(NULL), _gameMap(NULL),
+_currentPlayer("")
 {
 	_players.push_back("");
 	_players.push_back("");
@@ -145,7 +146,6 @@ void Game::run()
 		nlohmann::json msg;
 		if (mov[0] == '{')
 		{
-			OutputDebugStringA("received correct message \n");
 			msg = nlohmann::json::parse(mov);
 		}
 		if (mov != "" && msg["type"] == "MOVE") {
