@@ -141,11 +141,14 @@ int ServerCore::init()
 
 	initWindow();
 	_gamePort = _serverUI->getPlayerInput("Enter the game server port number ...", &event);
-	if (_gamePort == "")
-		return 0;
+	while (!checkPort(_gamePort))
+		_gamePort = _serverUI->getPlayerInput("Invalid game server port number ...", &event);
+	
 	_webPort = _serverUI->getPlayerInput("Enter the web server port number ...", &event);
-	if (_webPort == "")
-		return 0;
+	while (!checkPort(_webPort) || (_gamePort.compare(_webPort) == 0))
+		_gamePort = _serverUI->getPlayerInput("Invalid game server port number ...", &event);
+	
+	
 	_serverState = NOT_RUNNING;
 	return 0;
 }

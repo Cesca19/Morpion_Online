@@ -8,10 +8,12 @@
 #include <vector>
 #include <Windows.h>
 #include <unordered_map>
-#pragma comment(lib, "Core.lib")
-#include "../Core/GameProtocol.h"
 #include <string> 
 
+#include "Utils.h"
+#include "../Core/GameProtocol.h"
+
+#pragma comment(lib, "Core.lib")
 #pragma comment(lib, "Ws2_32.lib")
 
 #ifndef MY_HEADER_FILE_

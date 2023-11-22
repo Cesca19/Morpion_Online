@@ -16,12 +16,6 @@ DWORD WINAPI Client::MyThreadFunction(LPVOID lpParam)
 	return 0;
 }
 
-void print(std::string mess)
-{
-	std::wstring res(mess.begin(), mess.end());
-	OutputDebugStringW(res.c_str());
-}
-
 Client* Client::getClient()
 {
 	return _client;

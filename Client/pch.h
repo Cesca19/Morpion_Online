@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 
+#include "Utils.h"
 #include "../Core/GameProtocol.h"
 #include "../nlohmann/json.hpp"
 
