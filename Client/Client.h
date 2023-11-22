@@ -13,8 +13,9 @@ public:
 	int run();
 	int close();
 
-	int sendData(WPARAM wParam);
-	std::string readData();
+	int sendData(WPARAM wParam, LPARAM lParam);
+	void serverClosing();
+	std::string readData(WPARAM wParam, LPARAM lParam);
 	static DWORD WINAPI MyThreadFunction(LPVOID lpParam);
 
 	void setCore(HWND coreHwnd);

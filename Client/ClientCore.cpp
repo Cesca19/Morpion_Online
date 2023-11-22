@@ -17,13 +17,21 @@ AppWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 LRESULT ClientCore::coreWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) {
-	case GAME_CLIENT_ID: {
-		setGameClient(wParam);
+	case GAME_CLIENT_ID: 
+	{
+		setGameClient(wParam, lParam);
 		break;
-	} case NEW_MESSAGE_FROM_SERVER: {
-		analyseMessage(wParam);
+	} case NEW_MESSAGE_FROM_SERVER: 
+	{
+		analyseMessage(wParam, lParam);
 		break;
-	} case WM_DESTROY:
+	} 
+	case DISCONNECT_SERVER:
+	{
+		_game->GetWindow()->close();
+		break;
+	}
+	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
 	default:

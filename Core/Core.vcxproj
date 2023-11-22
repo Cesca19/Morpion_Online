@@ -144,6 +144,9 @@
   <ItemGroup>
     <ClInclude Include="GameProtocol.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Protocol.json" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

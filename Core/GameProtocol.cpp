@@ -48,8 +48,8 @@ namespace Protocol
 		GameStateMessage msg;
 
 		auto board = message["game"]["board"].get<std::vector<std::vector<int>>>();
-		int rows = board.size();
-		int col = board[0].size();
+		auto rows = board.size();
+		auto col = board[0].size();
 		msg.board = new int*[rows];
 		
 		for (int i = 0; i < rows; ++i) {
