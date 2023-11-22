@@ -13,6 +13,7 @@ public:
 //	void init();
 	void createTextButton();
 	void setCore(void *core);
+	void setServerPort(std::string gamePort, std::string webPort);
 	void display();
 private:
 	std::string _name;
@@ -21,9 +22,13 @@ private:
 	std::vector<std::shared_ptr<sf::Text>> _button;
 	std::shared_ptr<sf::RenderWindow> _window;
 	std::shared_ptr<sf::Text> _headText;
-	std::shared_ptr<sf::Text> _runningText;
-	std::shared_ptr<sf::Font> _buttonFont;
 	std::shared_ptr<sf::Font> _textFont;
+
+	std::shared_ptr<sf::Text> _gameText;
+	std::shared_ptr<sf::Text> _webText;
+
+	std::string _gamePort;
+	std::string _webPort;
 
 	void* _core;
 };
