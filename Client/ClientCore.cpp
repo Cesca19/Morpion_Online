@@ -19,11 +19,11 @@ LRESULT ClientCore::coreWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	switch (message) {
 	case GAME_CLIENT_ID: 
 	{
-		setGameClient(wParam, lParam);
+		setGameClient(wParam);
 		break;
 	} case NEW_MESSAGE_FROM_SERVER: 
 	{
-		analyseMessage(wParam, lParam);
+		analyseMessage(wParam);
 		break;
 	} 
 	case DISCONNECT_SERVER:
