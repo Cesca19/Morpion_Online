@@ -132,10 +132,10 @@ int ServerCore::init()
 
 	initWindow();
 	gamePort = _serverUI->getPlayerInput("Enter the game server port number ...", &event);
-	while (!isNumber(gamePort)) gamePort = _serverUI->getPlayerInput("Enter the game server port number ...", &event);
+	while (!checkPort(gamePort)) gamePort = _serverUI->getPlayerInput("Enter the game server port number ...", &event);
 	
 	webPort = _serverUI->getPlayerInput("Enter the web server port number ...", &event);
-	while (!isNumber(webPort)) webPort = _serverUI->getPlayerInput("Enter the web server port number ...", &event);
+	while (!checkPort(webPort)) webPort = _serverUI->getPlayerInput("Enter the web server port number ...", &event);
 
 	_serverState = NOT_RUNNING;
 	return 0;

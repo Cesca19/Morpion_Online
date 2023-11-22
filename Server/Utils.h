@@ -2,9 +2,10 @@
 #include <string>
 #include <vector>
 
-inline bool isNumber(std::string s) {
+inline bool checkPort(std::string s) {
+    if (s.length() < 4 || s.length() > 4) return false;
     for( int i = 0; i < s.length(); i++ ) {
-        if( !isdigit( s[i] )) {
+        if(!isdigit( s[i])) {
             return false;
         }
     }
