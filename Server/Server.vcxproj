@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)\Build$(Platform)$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)\Build$(Platform)$(Configuration)\</OutDir>
@@ -110,8 +110,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Build\x64\Debug;..\SFML-2.6.1\include</AdditionalIncludeDirectories>
-      <AdditionalModuleDependencies>Core.lib</AdditionalModuleDependencies>
+      <AdditionalIncludeDirectories>$(SolutionDir)\SFML-2.6.1\include</AdditionalIncludeDirectories>
+      <AdditionalModuleDependencies>
+      </AdditionalModuleDependencies>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -149,7 +150,9 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="ServerCore.cpp" />
-    <ClCompile Include="ServerUI.cpp" />
+    <ClCompile Include="ServerUI.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)\SFML-2.6.1\include</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="WebServer.cpp" />
   </ItemGroup>
   <ItemGroup>
