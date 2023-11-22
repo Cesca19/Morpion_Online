@@ -9,7 +9,7 @@ int WINAPI WinMain(
     _In_ int       nCmdShow
 )
 {
-	ServerCore serverApp(hInstance, "6666");
+	ServerCore serverApp(hInstance);
 	serverApp.run();
 	return 0;
 }

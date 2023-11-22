@@ -10,7 +10,6 @@ public:
 	std::shared_ptr<sf::RenderWindow> getWindow();
 	std::string getPlayerInput(std::string displayText, sf::Event *event);
 	void displayAllButtons(sf::Event* event);
-//	void init();
 	void createTextButton();
 	void setCore(void *core);
 	void setServerPort(std::string gamePort, std::string webPort);

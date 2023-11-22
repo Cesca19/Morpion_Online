@@ -6,12 +6,14 @@ Client* Client::_client = nullptr;
 
 DWORD WINAPI Client::MyThreadFunction(LPVOID lpParam)
 {
-	Client* client = new Client(GetModuleHandle(NULL), "127.0.0.1", "7777");
+	Client_Conf_t* clientConf = (Client_Conf_t *)lpParam;
+	Client* client = new Client(GetModuleHandle(NULL), "127.0.0.1", clientConf->port);
 
-	client->setCore((HWND)(lpParam));
+	client->setCore(clientConf->core);
 	client->init();
 	client->run();
 	delete client;
+	delete clientConf;
 	OutputDebugStringA("Thread Client closing ...\n");
 	return 0;
 }

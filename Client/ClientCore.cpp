@@ -85,7 +85,7 @@ int ClientCore::initWindow()
 }
 
 ClientCore::ClientCore(HINSTANCE hInstance) : _game(new Morpion()),
- _name(""), _map(NULL)
+ _name(""), _map(NULL), _isRunning(false), _gamePort("")
 {
 	_clientCore = this;
 }
@@ -95,17 +95,31 @@ ClientCore::~ClientCore() {}
 int ClientCore::init(std::string windowName, int width, int height) 
 {
 	DWORD clientThreadId;
+	sf::Event event;
 
 	initWindow();
 
 	_game->setCore(this);
 	_game->init(windowName, width, height);
+
+	_gamePort = _game->getPlayerInput("Please enter the server port ...", &event);
+	if (_gamePort == "")
+		return 0;
+	if (_game->connectionPage(&event))
+		return 0;
 	
-	_clientThread = CreateThread(NULL, 0, Client::MyThreadFunction, _hwnd, 0, &clientThreadId);
+	Client_Conf_t* clientConf = new Client_Conf_t;
+
+	clientConf->core = _hwnd;
+	clientConf->port = _gamePort;
+	
+	_clientThread = CreateThread(NULL, 0, Client::MyThreadFunction, clientConf, 0, &clientThreadId);
 	if (_clientThread == NULL) {
 		OutputDebugStringA(("Error at thread: " + std::to_string(WSAGetLastError())).c_str());
 		return(1);
 	}
+	_isRunning = true;
+	
 	return 0;
 }
 
@@ -165,8 +179,8 @@ int ClientCore::run()
 {
 	MSG msg = { 0 };
 	sf::Event event;
-
-	while (msg.message != WM_QUIT && _game->GetWindow()->isOpen()) {
+	
+	while (msg.message != WM_QUIT && _game->GetWindow()->isOpen() && _isRunning == true) {
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -181,7 +195,7 @@ int ClientCore::run()
 			PostMessage(_clientHwnd, SEND_MESSAGE_TO_SERVER, (WPARAM)data, 0);
 		}
 		_game->run(event);
-	}	
+	}
 	close();
 	return 0;
 }
@@ -199,8 +213,10 @@ int ClientCore::closeClient()
 
 int ClientCore::close()
 {
-	closeClient();
-	WaitForSingleObject(_clientThread, INFINITE);
+	if (_isRunning) {
+		closeClient();
+		WaitForSingleObject(_clientThread, INFINITE);
+	}
 	PostMessage(_hwnd, WM_CLOSE, 0, 0);
 	OutputDebugStringA("Client core closing ...\n");
 	return 0;
