@@ -137,7 +137,9 @@ void Game::run()
 		mov = ((ServerCore*)_core)->getPlayerLastMessage();
 		nlohmann::json msg;
 		if (mov[0] == '{')
+		{
 			msg = nlohmann::json::parse(mov);
+		}
 		if (mov != "" && msg["type"] == "MOVE") {
 			auto msgData = Protocol::GameProtocol::handleMoveMessage(mov);
 			if (msgData.name == _currentPlayer) {
