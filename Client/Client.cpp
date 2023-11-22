@@ -43,6 +43,11 @@ Client::~Client()
 {
 }
 
+void Client::serverClosing()
+{
+	PostMessage(_coreHwnd, DISCONNECT_SERVER, 0, 0);
+}
+
 LRESULT Client::clientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) {
@@ -53,7 +58,7 @@ LRESULT Client::clientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		if (LOWORD(lParam) == FD_READ)
 			readData(wParam, lParam);
 		else if (LOWORD(lParam) == FD_CLOSE)
-		{}
+			serverClosing();
 		break;
 	} case DISCONNECT_CLIENT: {
 		close();
