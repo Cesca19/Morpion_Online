@@ -103,8 +103,8 @@ int ClientCore::init(std::string windowName, int width, int height)
 	_game->init(windowName, width, height);
 
 	_gamePort = _game->getPlayerInput("Please enter the server port ...", &event);
-	if (_gamePort == "")
-		return 0;
+	while (!checkPort(_gamePort)) _gamePort = _game->getPlayerInput("Invalid server port ...", &event);
+	
 	if (_game->connectionPage(&event))
 		return 0;
 	
