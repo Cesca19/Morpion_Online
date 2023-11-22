@@ -17,3 +17,15 @@ inline std::vector<std::string> split(std::string message, std::string delimiter
     mess.push_back(str);
     return mess;
 }
+
+inline bool checkPort(std::string s)
+{
+    for (int i = 0; i < s.length(); i++)
+    {
+        if (!isdigit(s[i]))
+        {
+            return false;
+        }
+    }
+    return true;
+}
