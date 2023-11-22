@@ -223,6 +223,8 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 	ZeroMemory(recvbuf, DEFAULT_BUFLEN);
 	iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
 	data->content = recvbuf;
+	OutputDebugStringA(("Server:: 1  " + data->content +" \n").c_str());
+	OutputDebugStringA(("Server:: 1.1  " + std::to_string((WPARAM)_clientsMap[clientSocket]->getId()) + " \n").c_str());
 	PostMessage(_coreHwnd, NEW_MESSAGE, (WPARAM)data, _clientsMap[clientSocket]->getId());
 	if (iResult < 0) {
 		std::string mess("recv failed: " + std::to_string(WSAGetLastError()));
@@ -231,6 +233,7 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 		WSACleanup();
 		return 1;
 	}
+	OutputDebugStringA("read data succes \n");
 	return 0;
 }
 

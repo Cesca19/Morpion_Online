@@ -25,14 +25,14 @@ public:
 	
 	void createGameBoard();
 	int printGameboard();
+	void DisplayHistoric(std::string historic);
+	void AskHistoricToServer();
 	void printCurrentPlayer();
 
 	void printEndGame();
 	int turn(std::shared_ptr<sf::Text> mess, int number, sf::Event* event);
 	void launchGame(sf::Event* event);
 	std::shared_ptr<sf::RenderWindow> GetWindow() { return _window; }
-
-	void HistoricBox();
 
 private:
 	std::string getPlayerName(std::string displayText, sf::Event* event);

@@ -143,6 +143,8 @@ void Game::run()
 		}
 		// wait for move
 		mov = ((ServerCore*)_core)->getPlayerLastMessage();
+		//OutputDebugStringA(("Game:: 2  " + mov).c_str());
+
 		nlohmann::json msg;
 		if (mov[0] == '{')
 		{
@@ -154,9 +156,9 @@ void Game::run()
 
 			//create a string with the player move to be saved and send with SetHistoricMsg()
 			std::string histMsg = "";
-			histMsg += "Player : " + msgData.name + "   ";
-			histMsg += "Column : " + std::to_string(msgData.posX) + "   ";
-			histMsg += "Line : " + std::to_string(msgData.posY);
+			histMsg += "Player:" + msgData.name;
+			histMsg += "Column:" + std::to_string(msgData.posX);
+			histMsg += "Line:" + std::to_string(msgData.posY);
 			SetHistoricMsg(histMsg);
 
 			if (msgData.name == _currentPlayer) {
@@ -166,7 +168,7 @@ void Game::run()
 				if (win != 0) {
 					std::string winner = (win == 3) ? "T" : _players[win - 1];
 					sendMessageToPlayers(Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
-					SetHistoricMsg("Winner : " + winner);
+					SetHistoricMsg("Winner:" + winner);
 					//sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
 					//sendMessageToPlayers("E;" + ((win == 3) ? "T" : "W:" + _players[win - 1]) + "#");
 				}
@@ -175,7 +177,8 @@ void Game::run()
 		}
 		if (split(mov, "#")[0] == "historic")
 		{
-			sendMessageToPlayer(split(mov, "#")[1], Protocol::GameProtocol::createAllMoveMessage(_gameInfos));
+			OutputDebugStringA("Game:: 3  Historic \n");
+			sendMessageToPlayers(Protocol::GameProtocol::createAllMoveMessage("uwu"));
 		}
 	}
 
@@ -224,7 +227,7 @@ int Game::isOver()
 void Game::SetHistoricMsg(std::string mess)
 {
 	std::string HistoricMsg = "";
-	HistoricMsg += mess + "\n";
+	HistoricMsg += mess;
 	//if last message is the same just ignore it
 	if (HistoricMsg == LastHistoricMsg) return;
 	std::fstream HistoricFile;
@@ -235,7 +238,7 @@ void Game::SetHistoricMsg(std::string mess)
 		HistoricFile << HistoricMsg << std::endl;
 		LastHistoricMsg = HistoricMsg;
 		//_gameInfos will get the message and will be used to be sent to WebServer
-		_gameInfos += ("<br>" + LastHistoricMsg);
+		_gameInfos += (LastHistoricMsg);
 		HistoricFile.close();
 	}
 	else

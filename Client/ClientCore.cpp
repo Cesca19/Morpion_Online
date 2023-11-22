@@ -50,7 +50,10 @@ LRESULT ClientCore::coreWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		break;
 	} case NEW_MESSAGE_FROM_SERVER: 
 	{
+		OutputDebugStringA("ClientCore:: 12\n");
 		analyseMessage(wParam, lParam);
+		OutputDebugStringA("ClientCore:: 13\n");
+
 		break;
 	} 
 	case DISCONNECT_SERVER:
@@ -70,8 +73,11 @@ LRESULT ClientCore::coreWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 
 void ClientCore::analyseMessage(WPARAM wParam, LPARAM lParam)
 {
+	OutputDebugStringA("ClientCore::analyzeMessage 6.1  \n");
+
 	Data_t* mess = (Data_t*)wParam;
 	std::string receiveMess = mess->content;
+	OutputDebugStringA(("ClientCore::analyzeMessage 6.2  " + mess->content + "\n").c_str());
 
 	analyseMessage(receiveMess);
 	delete mess;
@@ -157,6 +163,8 @@ void ClientCore::analyseMessage(std::string data)
 	nlohmann::json message;
 
 	if (data != "") {
+		OutputDebugStringA("ClientCore::analyzeMessage 7  data non null \n" );
+
 		for (int i = 0; i < messages.size(); i++) {
 			if (messages[i] == "start")
 				_game->setStart();
@@ -175,12 +183,16 @@ void ClientCore::analyseMessage(std::string data)
 					_game->setId(msgData.id);
 				}
 				else if (message["type"].get<std::string>() == "ALL_MOVE") {
+					OutputDebugStringA("ClientCore::analyzeMessage 8  ALL_MOVE\n");
 					auto msgData = Protocol::GameProtocol::handleAllMoveMessage(message.dump());
-					//ta fonction por dipaly msgData.moveList;
+					OutputDebugStringA("ClientCore::analyzeMessage 9  Handlemessage\n");
+					_game->DisplayHistoric(msgData.moveList);
 				}
 			}
 		}
 	}
+		OutputDebugStringA("ClientCore::analyzeMessage 10  data non null \n" );
+
 }
 
 void ClientCore::sendMessage(std::string mess)

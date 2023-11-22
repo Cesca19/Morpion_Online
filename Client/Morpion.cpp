@@ -63,6 +63,7 @@ void Morpion::run(sf::Event event)
 			_isSent = false;
 		printCurrentPlayer();
 		printGameboard();
+		AskHistoricToServer();
 		if (_isEnd)
 			printEndGame();
 	}
@@ -265,13 +266,21 @@ int Morpion::printGameboard()
 	return 0;
 }
 
-void Morpion::HistoricBox()
+void Morpion::DisplayHistoric(std::string historic)
+{
+	sf::Text text;
+	text.setString(historic);
+	
+}
+
+void Morpion::AskHistoricToServer()
 {
 	ClientCore* core = ((ClientCore*)(_clientCore));
 
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) 
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 	{
-		core->sendMessage("historic#" + _name );
+		OutputDebugStringA("Morpion:: aie \n");
+		core->sendMessage("historic#" + _name + "#");
+		OutputDebugStringA("Morpion:: ouille  \n");
 	}
-	
 }

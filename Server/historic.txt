@@ -42,3 +42,21 @@ Player : eee   Column : 1   Line : 1
 
 Player : erty   Column : 0   Line : 2
 
+Player : yy   Column : 0   Line : 0
+
+Player : rr   Column : 0   Line : 1
+
+Player : yy   Column : 0   Line : 2
+
+Player : rr   Column : 1   Line : 2
+
+Player : yyy   Column : 0   Line : 0
+
+Player : uuuu   Column : 0   Line : 2
+
+Player:iiColumn:0Line:2
+Player:zzColumn:0Line:1
+Player:iiColumn:1Line:1
+Player:hhColumn:0Line:2
+Player:ttttColumn:0Line:2
+Player:yyColumn:0Line:2

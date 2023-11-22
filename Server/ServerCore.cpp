@@ -258,7 +258,13 @@ void ServerCore::sendMessageToPlayer(std::string name, std::string Message)
 {
 	Data_t* myData = new Data_t;
 	myData->content = Message;
+	OutputDebugStringA(("ServerCore:: 4.1  " + name + " \n").c_str());
+	OutputDebugStringA(("ServerCore:: 4.2  " + Message + " \n").c_str());
+	OutputDebugStringA(("ServerCore:: 4.3  " + myData->content +" \n").c_str());
+	OutputDebugStringA(("ServerCore:: 4.4  " + std::to_string((WPARAM)_playersNameMap[name]->getId()) + " \n").c_str());
 	PostMessage(_gameServerHwnd, SEND_MESSAGE_TO_PLAYER, (WPARAM)myData, (WPARAM)_playersNameMap[name]->getId());
+	OutputDebugStringA("ServerCore:: 5  \n");
+
 }
 
 std::string ServerCore::getPlayerLastMessage()
