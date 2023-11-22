@@ -9,7 +9,6 @@ namespace Protocol
 	GameProtocol::GameStateMessage GameProtocol::handleGameStateMessage(std::string mess)
 	{
 		GameProtocol::GameStateMessage msg;
-		OutputDebugStringA((mess + "is handled \n").c_str());
 		nlohmann::json message = nlohmann::json::parse(mess);
 		msg = message["type"].get<std::string>() == "GAME" ? GameProtocol::processGameStateMessage(message) : msg;
 		return msg;
@@ -51,13 +50,7 @@ namespace Protocol
 			msg.board[i] = new int[col];
 			std::copy(board[i].begin(), board[i].end(), msg.board[i]);
 		}
-		for (int i = 0; i < board.size(); ++i) {
-			OutputDebugStringA("\n");
-			for (int j = 0; j < board[i].size(); ++j) {
-				OutputDebugStringA(std::to_string(board[i][j]).c_str());
-			}
-		}
-		
+
 		msg.currentPlayer = message["game"]["currentPlayer"].get<std::string>();
 		msg.turnNumber = message["game"]["turnNumber"].get<int>();
 		msg.winner = message["game"]["winner"].get<std::string>();

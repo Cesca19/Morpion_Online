@@ -8,7 +8,7 @@
 
 namespace Protocol
 {
-	static class GameProtocol
+	class GameProtocol
 	{
 	public:
 

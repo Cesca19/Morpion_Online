@@ -138,7 +138,6 @@ void Game::run()
 		nlohmann::json msg;
 		if (mov[0] == '{')
 		{
-			OutputDebugStringA("received correct message \n");
 			msg = nlohmann::json::parse(mov);
 		}
 		if (mov != "" && msg["type"] == "MOVE") {
