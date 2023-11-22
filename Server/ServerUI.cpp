@@ -14,11 +14,11 @@ ServerUI::ServerUI(std::string name, int width, int height) :
 	_textFont->loadFromFile("wall\\Wall.ttf");
 	web->setCharacterSize(50);
 	web->setStyle(sf::Text::Bold);
-	web->setPosition({ (float)(_width / 6) , (float)(_height / 3) });
+	web->setPosition({ (float)(_width / 6) , (float)(_height / 2) });
 	web->setFillColor({ 143, 188, 143 });
 	game->setCharacterSize(50);
 	game->setStyle(sf::Text::Bold);
-	game->setPosition({ (float)(_width / 6) , (float)(_height / 2) });
+	game->setPosition({ (float)(_width / 6) , (float)(_height / 3) });
 	game->setFillColor({ 143, 188, 143 });
 	createTextButton();
 	head->setCharacterSize(70);

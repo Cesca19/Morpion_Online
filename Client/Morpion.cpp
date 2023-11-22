@@ -79,7 +79,7 @@ void Morpion::printEndGame()
 		return;
 	} else
 		(_name == _winner) ? _winMessage->setString("You win, not bad ...") : (_name != _winner && _id < 3)
-		? _winMessage->setString("You loose, try harder next time ...") : _winMessage->setString(_winner + " win !!");
+		? _winMessage->setString("You loose ...") : _winMessage->setString(_winner + " win !!");
 	_window->draw(*_winMessage);
 }
 
