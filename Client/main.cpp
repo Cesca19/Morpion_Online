@@ -10,5 +10,6 @@ int WINAPI WinMain(
 	ClientCore clientCore(hInstance);
 
 	clientCore.init("TikTakToe", 800, 600);
+	clientCore.run();
 	return 0;
 }

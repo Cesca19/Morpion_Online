@@ -1,10 +1,8 @@
 #pragma once
-#include "pch.h"
-
 #define NOMINMAX
+#include "pch.h"
 #define DEFAULT_PORT "6666"
 #define DEFAULT_BUFLEN 512
-
 
 class Client
 {

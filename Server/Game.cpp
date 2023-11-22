@@ -137,10 +137,7 @@ void Game::run()
 		mov = ((ServerCore*)_core)->getPlayerLastMessage();
 		nlohmann::json msg;
 		if (mov[0] == '{')
-		{
-			OutputDebugStringA("received correct message \n");
 			msg = nlohmann::json::parse(mov);
-		}
 		if (mov != "" && msg["type"] == "MOVE") {
 			auto msgData = Protocol::GameProtocol::handleMoveMessage(mov);
 			if (msgData.name == _currentPlayer) {
@@ -149,8 +146,6 @@ void Game::run()
 				if (win != 0) {
 					std::string winner = (win == 3) ? "T" : _players[win - 1];
 					sendMessageToPlayers(Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
-					//sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
-					//sendMessageToPlayers("E;" + ((win == 3) ? "T" : "W:" + _players[win - 1]) + "#");
 				}
 				changePlayer();
 			}
