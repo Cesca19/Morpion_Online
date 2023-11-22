@@ -12,6 +12,7 @@ public:
     void initGameMap();
     void setGameMap(int ** map);
     int** getGameMap();
+    std::string getGameInfos();
 
     std::string getCurrentPlayer();
     void setCurrentPlayer(std::string player);
@@ -27,9 +28,12 @@ public:
     int checkWinner();
     int isOver();
     void run();
+    void SetHistoricMsg(std::string msg);
 
 private:
     std::string _currentPlayer;
+    std::string _gameInfos = "";
+    std::string LastHistoricMsg = "";
     std::vector<std::string> _players;
 
     bool _isRunning;

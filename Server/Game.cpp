@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "ServerCore.h"
+#include <fstream>
 
 
 std::string convertBoard(int** board)
@@ -45,6 +46,11 @@ void Game::setGameMap(int** map)
 int** Game::getGameMap()
 {
 	return _gameMap;
+}
+
+std::string Game::getGameInfos()
+{
+	return _gameInfos;
 }
 
 std::string Game::getCurrentPlayer()
@@ -104,6 +110,7 @@ void Game::sendMessageToPlayer(std::string name, std::string message)
 	core->sendMessageToPlayer(name, message);
 }
 
+//split a string with a chozen delimiter
 std::vector<std::string> split(std::string message, std::string delimiter)
 {
 	std::vector<std::string> mess;
@@ -133,7 +140,7 @@ void Game::run()
 			sendMessageToPlayers(Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
 			prevPlayer = _currentPlayer;
 		}
-		// attendre son movement
+		// wait for move
 		mov = ((ServerCore*)_core)->getPlayerLastMessage();
 		nlohmann::json msg;
 		if (mov[0] == '{')
@@ -142,19 +149,24 @@ void Game::run()
 			msg = nlohmann::json::parse(mov);
 		}
 		if (mov != "" && msg["type"] == "MOVE") {
+			//parse mov 
 			auto msgData = Protocol::GameProtocol::handleMoveMessage(mov);
+
+			//create a string with the player move to be saved and send with SetHistoricMsg()
 			std::string histMsg = "";
-			histMsg += msgData.name + " ";
-			histMsg += std::to_string(msgData.posX) + " ";
-			histMsg += std::to_string(msgData.posY);
-			((ServerCore*)_core)->SetHistoricMsg(histMsg);
+			histMsg += "Player : " + msgData.name + "   ";
+			histMsg += "Column : " + std::to_string(msgData.posX) + "   ";
+			histMsg += "Line : " + std::to_string(msgData.posY);
+			SetHistoricMsg(histMsg);
+
 			if (msgData.name == _currentPlayer) {
 				move(msgData.posX, msgData.posY);
 				int win = checkWinner();
+				//if win/tie
 				if (win != 0) {
 					std::string winner = (win == 3) ? "T" : _players[win - 1];
 					sendMessageToPlayers(Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
-					((ServerCore*)_core)->SetHistoricMsg(winner + " won \n -------------- \n");
+					SetHistoricMsg("Winner : " + winner);
 					//sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
 					//sendMessageToPlayers("E;" + ((win == 3) ? "T" : "W:" + _players[win - 1]) + "#");
 				}
@@ -176,16 +188,19 @@ void Game::move(int x, int y)
 int Game::checkWinner()
 {
 	int zero = 0;
+	//check diagonals
 	if (_gameMap[0][0] == _gameMap[1][1] && _gameMap[1][1] == _gameMap[2][2] && _gameMap[1][1] != 0)
 		return _gameMap[0][0];
 	if (_gameMap[0][2] == _gameMap[1][1] && _gameMap[1][1] == _gameMap[2][0] && _gameMap[1][1] != 0)
 		return _gameMap[1][1];
+	//check lines and columns
 	for (int j = 0; j < 3; j++)
 		if (_gameMap[0][j] == _gameMap[1][j] && _gameMap[1][j] == _gameMap[2][j] && _gameMap[0][j] != 0)
 			return _gameMap[0][j];
 	for (int i = 0; i < 3; i++)
 		if (_gameMap[i][0] == _gameMap[i][1] && _gameMap[i][1] == _gameMap[i][2] && _gameMap[i][0] != 0)
 			return _gameMap[i][0];
+	//check for tie
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
 			if (_gameMap[i][j] == 0)
@@ -200,4 +215,27 @@ int Game::checkWinner()
 int Game::isOver()
 {
 	return 0;
+}
+
+void Game::SetHistoricMsg(std::string mess)
+{
+	std::string HistoricMsg = "";
+	HistoricMsg += mess + "\n";
+	//if last message is the same just ignore it
+	if (HistoricMsg == LastHistoricMsg) return;
+	std::ofstream HistoricFile;
+	//close the file in case it was open, it's to avoid bug even if it's not supposed to be open at first.
+	HistoricFile.close();
+	HistoricFile.open("historic.txt", std::ofstream::app);
+	if (HistoricFile.is_open()) {
+		HistoricFile << HistoricMsg << std::endl;
+		LastHistoricMsg = HistoricMsg;
+		//_gameInfos will get the message and will be used to be sent to WebServer
+		_gameInfos += ("<br>" + LastHistoricMsg);
+		HistoricFile.close();
+	}
+	else
+		OutputDebugString(L"Game:: ERROR : Couldn't open historic.txt");
+
+
 }

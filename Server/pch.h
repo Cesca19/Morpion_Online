@@ -37,6 +37,7 @@ struct Data_t {
 
 struct GameMap_t {
 	int** map;
+	std::string gameInfos;
 };
 
 #endif

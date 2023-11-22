@@ -42,7 +42,9 @@ LRESULT WebServer::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 	switch (message) {
 	case SEND_GAME_MAP: 
 	{
+
 		sendGameMap(wParam, lParam);
+
 		break;
 	}
 	case ACCEPT_CLIENT:
@@ -236,7 +238,8 @@ int WebServer::sendGameMap(WPARAM wParam, LPARAM lParam)
 	SOCKET clientSocket = (SOCKET)lParam;
 	GameMap_t* map = (GameMap_t*)wParam;
 
-	sendData(buildResponse("Mirror, Mirror on the Wall, Who's the Fairest of Them All?<br>"  + convertGameMap(map->map)), clientSocket);
+	sendData(buildResponse("Mirror, Mirror on the Wall, Who's the Fairest of Them All?<br>"  + convertGameMap(map->map) + "<br> Game Infos : " + map->gameInfos), clientSocket);
+
 	delete map;
 	return 0;
 }

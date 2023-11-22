@@ -1,5 +1,4 @@
 #include "ServerCore.h"
-#include <fstream>
 
 ServerCore* ServerCore::_serverCore = nullptr;
 
@@ -57,6 +56,7 @@ void ServerCore::dispatchWebMessage(WPARAM wParam, LPARAM lParam)
 	GameMap_t* map = new GameMap_t;
 
 	map->map = getGameMap();
+	map->gameInfos = getGameInfos();
 	PostMessage(_webServerHwnd, SEND_GAME_MAP, (WPARAM)map, lParam);
 	delete mess;
 }
@@ -198,24 +198,12 @@ int** ServerCore::getGameMap()
 {
 	return _gameLogic->getGameMap();
 }
-void ServerCore::SetHistoricMsg(std::string mess)
-{
-	std::string HistoricMsg = "";
-	HistoricMsg += mess + "\n";
-	if (HistoricMsg == LastHistoricMsg) return;
-	std::ofstream HistoricFile;
-	HistoricFile.close();
-	HistoricFile.open("historic.txt", std::ofstream::app);
-	if (HistoricFile.is_open()) {
-		HistoricFile << HistoricMsg << std::endl;
-		LastHistoricMsg = HistoricMsg;
-		HistoricFile.close();
-	}
-	else
-		OutputDebugString(L"error");
-	
 
+std::string ServerCore::getGameInfos()
+{
+	return _gameLogic->getGameInfos();
 }
+
 void ServerCore::setGameServer(WPARAM wParam, LPARAM lParam)
 {
 	_gameServerHwnd = (HWND)wParam;

@@ -36,9 +36,9 @@ public:
 
 	void setLastPlayerMessage(std::string mess);
 	int** getGameMap();
+	std::string getGameInfos();
 
 	void SetHistoricMsg(std::string mess);
-	std::string LastHistoricMsg = "";
 private:
 	HINSTANCE _hInstance = nullptr;
 	HWND _hwnd = nullptr;
