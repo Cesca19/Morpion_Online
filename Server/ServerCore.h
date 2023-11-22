@@ -24,6 +24,10 @@ public:
 	void run();
 	void addPlayer(std::string name);
 	void setState(SERVER_STATE state);
+
+	void close();
+	void closeWebServer();
+	void closeGameServer();
 	void lauchServer();
 	int initWindow();
 
@@ -63,5 +67,8 @@ private:
 	std::unordered_map<std::string, std::shared_ptr<Player>> _playersNameMap;
 
 	std::shared_ptr<ServerUI> _serverUI;
+
+	std::string _gamePort;
+	std::string _webPort;
 	
 };

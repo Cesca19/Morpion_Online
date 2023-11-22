@@ -13,7 +13,8 @@ std::string convertBoard(int** board)
 	return mess;
 }
 
-Game::Game() : _gameMap(NULL), _currentPlayer(""), _isRunning(false)
+Game::Game() :_isRunning(false), _core(NULL), _gameMap(NULL),
+_currentPlayer("")
 {
 	_players.push_back("");
 	_players.push_back("");

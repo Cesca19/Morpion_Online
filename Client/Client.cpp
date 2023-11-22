@@ -6,15 +6,20 @@ Client* Client::_client = nullptr;
 
 DWORD WINAPI Client::MyThreadFunction(LPVOID lpParam)
 {
-	OutputDebugStringA("Client Thread is running ...\n");
-	
-	Client* client = new Client(GetModuleHandle(NULL), "127.0.0.1", "6666");
+	Client* client = new Client(GetModuleHandle(NULL), "127.0.0.1", "7777");
+
 	client->setCore((HWND)(lpParam));
 	client->init();
 	client->run();
 	delete client;
 	OutputDebugStringA("Thread Client closing ...\n");
 	return 0;
+}
+
+void print(std::string mess)
+{
+	std::wstring res(mess.begin(), mess.end());
+	OutputDebugStringW(res.c_str());
 }
 
 Client* Client::getClient()
@@ -58,6 +63,7 @@ LRESULT Client::clientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
+		break;
 	}
 	return 0;
 }

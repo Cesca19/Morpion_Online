@@ -12,6 +12,7 @@ public:
 
 	int init();
 	int run();
+	void close();
 	static DWORD WINAPI MyThreadFunction(LPVOID lpParam);
 	static WebServer* getServer();
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

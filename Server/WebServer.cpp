@@ -6,11 +6,15 @@ WebServer* WebServer::_webServer = nullptr;
 
 DWORD WINAPI WebServer::MyThreadFunction(LPVOID lpParam)
 {
-	WebServer* server = new WebServer(GetModuleHandle(NULL), "8888");
+	Server_Conf_t* webServerConf = (Server_Conf_t*)lpParam;
+	WebServer* server = new WebServer(GetModuleHandle(NULL), webServerConf->port);
 
-	server->setCore((HWND)(lpParam));
+	server->setCore(webServerConf->core);
 	server->init();
 	server->run();
+	delete webServerConf;
+	delete server;
+	OutputDebugStringA("Web server thread closing ...\n");
 	return 0;
 }
 
@@ -33,8 +37,13 @@ _port(port)
 
 WebServer::~WebServer()
 {
+}
+
+void WebServer::close()
+{
 	closesocket(_listenSocket);
 	WSACleanup();
+	PostMessage(_hwnd, WM_CLOSE, 0, 0);
 }
 
 LRESULT WebServer::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -54,13 +63,20 @@ LRESULT WebServer::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		}
 		break;
 	}
-	case READ_MESSAGE:
+	case READ_MESSAGE: 
+	{
 		if (LOWORD(lParam) == FD_READ)
 			readData(wParam);
 		else if (LOWORD(lParam) == FD_CLOSE)
 		{
 		}
 		break;
+	}
+	case DISCONNECT_WEB_SERVER:
+	{
+		close();
+		break;
+	} 
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
