@@ -32,6 +32,13 @@
 #define NEW_WEB_MESSAGE (WM_USER + 10)
 #define SEND_GAME_MAP (WM_USER + 11)
 
+#define DISCONNECT_WEB_SERVER (WM_USER + 12)
+#define DISCONNECT_GAME_SERVER (WM_USER + 13)
+
+struct Server_Conf_t {
+	HWND core;
+	std::string port;
+};
 
 struct Data_t {
 	std::string content;

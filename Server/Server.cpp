@@ -6,11 +6,15 @@ Server* Server::_server = nullptr;
 
 DWORD WINAPI Server::MyThreadFunction(LPVOID lpParam)
 {
-	Server* server = new Server(GetModuleHandle(NULL), "6666");
+	Server_Conf_t* gameServerConf = (Server_Conf_t*)lpParam;
+	Server* server = new Server(GetModuleHandle(NULL), gameServerConf->port);
 
-	server->setCore((HWND)(lpParam));
+	server->setCore(gameServerConf->core);
 	server->init();
 	server->run();
+	delete gameServerConf;
+	delete server;
+	OutputDebugStringA("Game server thread closing ...\n");
 	return 0;
 }
 
@@ -26,39 +30,52 @@ MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 Server::Server(HINSTANCE hInstance, std::string port) : _hInstance(hInstance),
-_port(port), _lastPlayerMessage(""), _id(1)
+_port(port), _lastPlayerMessage(""), _id(1), _listenSocket(INVALID_SOCKET)
 {
 	_server = this;
 }
 
 Server::~Server()
 {
+}
+
+void Server::close()
+{
 	closesocket(_listenSocket);
 	WSACleanup();
+	PostMessage(_hwnd, WM_CLOSE, 0, 0);
 }
 
 LRESULT Server::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) {
-	case SEND_MESSAGE_TO_PLAYERS: {
+	case SEND_MESSAGE_TO_PLAYERS: 
+	{
 		sendMessageToPlayers(wParam, lParam);
 		break;
-	} case SEND_MESSAGE_TO_PLAYER: {
+	} case SEND_MESSAGE_TO_PLAYER: 
+	{
 		sendMessageToPlayer(wParam, lParam);
 		break;
-	} case ACCEPT_CLIENT: {
+	} case ACCEPT_CLIENT: 
+	{
 		if (LOWORD(lParam) == FD_ACCEPT)
 			acceptClient();
 		else if (LOWORD(lParam) == FD_CLOSE)
 		{}
 		break;
-	} case READ_MESSAGE: {
+	} case READ_MESSAGE: 
+	{
 		if (LOWORD(lParam) == FD_READ)
 			readData(wParam, lParam);
 		else if (LOWORD(lParam) == FD_CLOSE)
 		{
 			OutputDebugStringA("Server: client closing\n");
 		}
+		break;
+	} case DISCONNECT_GAME_SERVER : 
+	{
+		close();
 		break;
 	} case WM_DESTROY:
 		PostQuitMessage(0);
@@ -128,7 +145,7 @@ int Server::createSocket()
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_flags = AI_PASSIVE;
-	iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
+	iResult = getaddrinfo(NULL, _port.c_str(), &hints, &result);
 	if (iResult != 0) {
 		std::string mess("getaddrinfo failed: " + std::to_string(iResult));
 		OutputDebugStringA(mess.c_str());
@@ -255,7 +272,7 @@ int Server::run()
 			DispatchMessage(&msg);
 		}
 	}
-	return (int)msg.wParam;
+	return 0;
 }
 
 void Server::sendMessageToPlayers(WPARAM wParam, LPARAM lParam)

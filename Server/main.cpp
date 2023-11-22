@@ -10,9 +10,6 @@ int WINAPI WinMain(
 )
 {
 	ServerCore serverApp(hInstance, "6666");
-
-	//if (serverApp.init())
-	//	return 1;
 	serverApp.run();
 	return 0;
 }
