@@ -267,11 +267,11 @@ int Morpion::printGameboard()
 
 void Morpion::HistoricBox()
 {
-	sf::Text text;
-	
-	text.setString("wui");
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Right) || sf::Mouse::isButtonPressed(sf::Mouse::Left)) 
+	ClientCore* core = ((ClientCore*)(_clientCore));
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) 
 	{
-		sf::Vector2i position = sf::Mouse::getPosition(*(_window.get()));
+		core->sendMessage("historic#" + _name );
 	}
+	
 }

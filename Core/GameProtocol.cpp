@@ -178,7 +178,7 @@ namespace Protocol
 	{
 		nlohmann::json message;
 		message = {
-		 {"type", "CLIENT_ID"},
+		 {"type", "ALL_MOVE"},
 		 {"data", {
 			 {"moveList", moveList}
 		 }}

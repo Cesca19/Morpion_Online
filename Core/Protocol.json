@@ -37,7 +37,7 @@
   {
     "type": "ALL_MOVES",
     "data": {
-      "moveList": 1 //to fill pleaes
+      "moveList": "Player 1 : Column : X Line : y"//historic
     }
   }
 ]

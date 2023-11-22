@@ -75,7 +75,8 @@ LRESULT ServerCore::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 	{
 		addNewGameClient(wParam, lParam);
 		break;
-	} case (NEW_MESSAGE): 
+	}
+	case NEW_MESSAGE: 
 	{
 		dispatchGameMessage(wParam, lParam);
 		break;

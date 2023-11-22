@@ -173,6 +173,10 @@ void Game::run()
 				changePlayer();
 			}
 		}
+		if (split(mov, "#")[0] == "historic")
+		{
+			sendMessageToPlayer(split(mov, "#")[1], Protocol::GameProtocol::createAllMoveMessage(_gameInfos));
+		}
 	}
 
 }

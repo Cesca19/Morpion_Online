@@ -174,6 +174,10 @@ void ClientCore::analyseMessage(std::string data)
 					auto msgData = Protocol::GameProtocol::handleNewClientMessage(message.dump());
 					_game->setId(msgData.id);
 				}
+				else if (message["type"].get<std::string>() == "ALL_MOVE") {
+					auto msgData = Protocol::GameProtocol::handleAllMoveMessage(message.dump());
+					//ta fonction por dipaly msgData.moveList;
+				}
 			}
 		}
 	}
