@@ -39,6 +39,7 @@ private:
 	int _id;
 	bool _hasStart;
 	void* _clientCore;
+	bool _isSent;
 
 	std::string _winner;
 	bool _isTie;
@@ -59,8 +60,5 @@ private:
 
 	std::string _name;
 	std::string _currentPlayer;
-
-	//Player* _firstPlayer;
-	//Player* _secondPlayer;
 };
 

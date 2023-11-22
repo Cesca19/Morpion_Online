@@ -7,8 +7,9 @@ int WINAPI WinMain(
 	_In_ int       nCmdShow
 )
 {	
-	ClientCore clientCore(hInstance);	
-	//Client client(hInstance, "127.0.0.1", "6666");
+	ClientCore clientCore(hInstance);
+
 	clientCore.init("TikTakToe", 800, 600);
 	clientCore.run();
+	return 0;
 }

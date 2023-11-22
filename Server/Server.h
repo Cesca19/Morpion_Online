@@ -23,6 +23,7 @@ private:
 	int initWinsock();
 	int createSocket();
 	int acceptClient();
+	int closeClient(WPARAM wParam, LPARAM lParam);
 	int initServer();
 	int sendData(std::string data, SOCKET clientSocket);
 	int readData(WPARAM wParam, LPARAM lParam);

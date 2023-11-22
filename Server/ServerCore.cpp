@@ -13,10 +13,11 @@ AppWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return (ServerCore::getServerCore()->wndProc(hwnd, msg, wParam, lParam));
 }
 
-ServerCore::ServerCore(HINSTANCE hInstance, std::string port) :
-_gameLogic(new Game()), _numPlayers(0), _hasStart(false)
+ServerCore::ServerCore(HINSTANCE hInstance, std::string port) : _serverState(NOT_INIT),
+_gameLogic(new Game()), _numPlayers(0), _hasStart(false), _serverUI(new ServerUI("Server", 800, 600))
 {
 	_serverCore = this;
+	_serverUI->setCore(this);
 }
 
 ServerCore::~ServerCore()
@@ -51,6 +52,7 @@ void ServerCore::addNewGameClient(WPARAM wParam, LPARAM lParam)
 
 void ServerCore::dispatchWebMessage(WPARAM wParam, LPARAM lParam)
 {
+	OutputDebugStringA("Web message????????????????????????????????????????????????????????????????\n");
 	Data_t* mess = (Data_t*)wParam;
 	std::string receiveMess(mess->content);
 	GameMap_t* map = new GameMap_t;
@@ -121,14 +123,26 @@ int ServerCore::initWindow()
 		return 1;
 	}
 	UpdateWindow(_hwnd);
+	return 0;
 }
 
 int ServerCore::init()
 {
+	sf::Event event;
+	std::string gamePort, webPort;
+
+	initWindow();
+	gamePort = _serverUI->getPlayerInput("Enter the game server port number ...", &event);
+	webPort = _serverUI->getPlayerInput("Enter the web server port number ...", &event);
+	_serverState = NOT_RUNNING;
+	return 0;
+}
+
+void ServerCore::lauchServer()
+{
 	DWORD   webthreadId;
 	DWORD   gamethreadId;
 
-	initWindow();
 	_serversThreadArray[0] = CreateThread(NULL, 0, Server::MyThreadFunction, _hwnd, 0, &gamethreadId);
 	if (_serversThreadArray[0] == NULL) {
 		OutputDebugStringA(("Error at thread: " + std::to_string(WSAGetLastError())).c_str());
@@ -143,20 +157,51 @@ int ServerCore::init()
 		OutputDebugStringA(("Error at thread: " + std::to_string(WSAGetLastError())).c_str());
 		ExitProcess(3);
 	}
-	return 0;
+	_serverState = IS_RUNNING;
+	_hasStart = true;
 }
 
-void ServerCore::update()
+void ServerCore::run()
 {
 	MSG msg = { 0 };
-	while (msg.message != WM_QUIT) {
+	sf::Event event;
+
+	while (msg.message != WM_QUIT && _serverUI->getWindow()->isOpen()) {
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		_gameLogic->run();
+		if (!_serverUI->getWindow()->pollEvent(event))
+			if (event.type == sf::Event::Closed)
+				_serverUI->getWindow()->close();
+		switch (_serverState)
+		{
+		case NOT_INIT:
+			init();
+			break;
+		case NOT_RUNNING:
+			_serverUI->displayAllButtons(&event);
+			break;
+		case RUN:
+			//OutputDebugStringA("runnnnnnnnnnnnnnnnn\n");
+			lauchServer();
+			break;
+		case IS_RUNNING:
+			_serverUI->display();
+			_gameLogic->run();
+			break;
+		case STOP:
+			//OutputDebugStringA("stop ppppppppppppppppppppp\n");
+			break;
+		default:
+			break;
+		}
+		//if (!_isInit)
+			//init();
+		//_gameLogic->run();
 	}
-	WaitForMultipleObjects(2, _serversThreadArray, true, INFINITE);
+	if (_hasStart)
+		WaitForMultipleObjects(2, _serversThreadArray, true, INFINITE);
 }
 
 void ServerCore::addPlayer(std::string name)
@@ -206,4 +251,9 @@ void ServerCore::setGameServer(WPARAM wParam, LPARAM lParam)
 void ServerCore::setWebServer(WPARAM wParam, LPARAM lParam)
 {
 	_webServerHwnd = (HWND)wParam;
+}
+
+void ServerCore::setState(SERVER_STATE state)
+{
+	_serverState = state;
 }
