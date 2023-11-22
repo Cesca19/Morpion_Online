@@ -35,6 +35,13 @@ namespace Protocol
 		msg = message["type"].get<std::string>() == "CLIENT_ID" ? GameProtocol::processClientIdMessage(message) : msg;
 		return msg;
 	}
+	GameProtocol::AllMoveMessage GameProtocol::handleAllMoveMessage(std::string mess)
+	{
+		GameProtocol::AllMoveMessage msg;
+		nlohmann::json message = nlohmann::json::parse(mess);
+		msg = message["type"].get<std::string>() == "ALL_MOVE" ? GameProtocol::processAllMoveMessage(message) : msg;
+		return msg;
+	}
 
 	GameProtocol::GameStateMessage GameProtocol::processGameStateMessage(const nlohmann::json& message)
 	{
@@ -86,6 +93,16 @@ namespace Protocol
 
 		return msg;
 	}
+
+	GameProtocol::AllMoveMessage GameProtocol::processAllMoveMessage(const nlohmann::json& message)
+	{
+		GameProtocol::AllMoveMessage msg;
+
+		msg.moveList = message["data"]["moveList"].get<std::string>();
+
+		return msg;
+	}
+
 
 	std::string GameProtocol::createGameStateMessage(int** gameBoard, int turnNumber, std::string winner, std::string currentPlayer)
 	{
@@ -152,6 +169,18 @@ namespace Protocol
 		 {"data", {
 			 {"playerID", playerId},
 			 {"playerState", playerState}
+		 }}
+		};
+		return message.dump();
+	}
+
+	std::string GameProtocol::createAllMoveMessage(std::string moveList)
+	{
+		nlohmann::json message;
+		message = {
+		 {"type", "CLIENT_ID"},
+		 {"data", {
+			 {"moveList", moveList}
 		 }}
 		};
 		return message.dump();

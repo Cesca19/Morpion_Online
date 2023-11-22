@@ -34,4 +34,10 @@
       "playerState": 2
     }
   }
+  {
+    "type": "ALL_MOVES",
+    "data": {
+      "moveList": 1 //to fill pleaes
+    }
+  }
 ]
