@@ -29,8 +29,7 @@ private:
 	int readData(WPARAM wParam, LPARAM lParam);
 	void sendMessageToPlayers(WPARAM wParam, LPARAM lParam);
 	void sendMessageToPlayer(WPARAM wParam, LPARAM lParam);
-
-private:
+	
 	HINSTANCE _hInstance = nullptr;
 	HWND _hwnd = nullptr;
 	HWND _coreHwnd = nullptr;
@@ -43,4 +42,5 @@ private:
 	int _id;
 	std::vector<std::shared_ptr<GameClient>> _clientsVect;
 	std::unordered_map<SOCKET, std::shared_ptr<GameClient>> _clientsMap;
+	
 };

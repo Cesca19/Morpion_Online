@@ -6,20 +6,15 @@ Client* Client::_client = nullptr;
 
 DWORD WINAPI Client::MyThreadFunction(LPVOID lpParam)
 {
+	OutputDebugStringA("Client Thread is running ...\n");
+	
 	Client* client = new Client(GetModuleHandle(NULL), "127.0.0.1", "6666");
-
 	client->setCore((HWND)(lpParam));
 	client->init();
 	client->run();
 	delete client;
 	OutputDebugStringA("Thread Client closing ...\n");
 	return 0;
-}
-
-void print(std::string mess)
-{
-	std::wstring res(mess.begin(), mess.end());
-	OutputDebugStringW(res.c_str());
 }
 
 Client* Client::getClient()
@@ -47,11 +42,11 @@ LRESULT Client::clientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 {
 	switch (message) {
 	case SEND_MESSAGE_TO_SERVER: {
-		sendData(wParam, lParam);
+		sendData(wParam);
 		break;
 	} case NEW_SERVER_MESSAGE: {
 		if (LOWORD(lParam) == FD_READ)
-			readData(wParam, lParam);
+			readData();
 		else if (LOWORD(lParam) == FD_CLOSE)
 		{}
 		break;
@@ -63,7 +58,6 @@ LRESULT Client::clientWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
-		break;
 	}
 	return 0;
 }
@@ -174,7 +168,7 @@ int Client::init()
 	return 0;
 }
 
-int Client::sendData(WPARAM wParam, LPARAM lParam)
+int Client::sendData(WPARAM wParam)
 {
 	Data_t* mess = (Data_t*)wParam;
 	std::string data(mess->content);
@@ -195,12 +189,11 @@ void Client::setCore(HWND coreHwnd)
 	_coreHwnd = coreHwnd;
 }
 
-std::string Client::readData(WPARAM wParam, LPARAM lParam)
+std::string Client::readData()
 {
 	int iResult;
 	std::string receivedMessage;
 	char readMessage[DEFAULT_BUFLEN];
-
 
 	ZeroMemory(readMessage, DEFAULT_BUFLEN);
 	iResult = recv(_connectSocket, readMessage, DEFAULT_BUFLEN, 0);

@@ -11,7 +11,7 @@ public:
 	Morpion();
 	~Morpion();
 	void init(std::string windowName, int width, int height);
-	void run(sf::Event event);
+	void run();
 	std::string getPlayerName(sf::Event *event);
 	
 	void createGameWindow(std::string name, int width, int height);
@@ -28,8 +28,6 @@ public:
 	void printCurrentPlayer();
 
 	void printEndGame();
-	int turn(std::shared_ptr<sf::Text> mess, int number, sf::Event* event);
-	void launchGame(sf::Event* event);
 	std::shared_ptr<sf::RenderWindow> GetWindow() { return _window; }
 
 private:

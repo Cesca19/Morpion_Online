@@ -26,7 +26,6 @@ void Morpion::createGameWindow(std::string name, int width, int height)
 	win->setPosition({ (float)(_width / 3) , (float)(_height / 10) });
 	win->setFillColor({ 222, 184, 135 });
 	_winMessage = win;
-	_font->loadFromFile("wall\\Wall.ttf");
 	wait->setCharacterSize(70);
 	wait->setStyle(sf::Text::Bold);
 	wait->setPosition({ (float)(_width / 15) , (float)(_height / 3) });
@@ -54,7 +53,7 @@ void Morpion::init(std::string windowName, int width, int height)
 	createGameWindow(windowName, width, height);
 }
 
-void Morpion::run(sf::Event event)
+void Morpion::run()
 {
 	_window->clear(sf::Color::White);
 	
@@ -149,15 +148,6 @@ std::string Morpion::getPlayerName(std::string displayText, sf::Event* event)
 	}
 	_name = name;
 	return name;
-}
-
-int Morpion::turn(std::shared_ptr<sf::Text> mess, int number, sf::Event* event)
-{
-	return 0;
-}
-
-void Morpion::launchGame(sf::Event* event)
-{
 }
 
 void Morpion::createGameBoard()

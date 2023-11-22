@@ -13,8 +13,8 @@ public:
 	int run();
 	int close();
 
-	int sendData(WPARAM wParam, LPARAM lParam);
-	std::string readData(WPARAM wParam, LPARAM lParam);
+	int sendData(WPARAM wParam);
+	std::string readData();
 	static DWORD WINAPI MyThreadFunction(LPVOID lpParam);
 
 	void setCore(HWND coreHwnd);

@@ -8,7 +8,7 @@
 class ClientCore
 {
 public :
-	ClientCore(HINSTANCE hInstance);
+	ClientCore();
 	~ClientCore();
 	static ClientCore* getClientCore();
 	LRESULT coreWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -22,8 +22,9 @@ public :
 	int** getGameMap();
 	void setGameMap(int **);
 	void setCurrentPlayer(std::string name);
-	void setGameClient(WPARAM wParam, LPARAM lParam);
-	void analyseMessage(WPARAM wParam, LPARAM lParam);
+	void setGameClient(WPARAM wParam);
+	void analyseMessage(WPARAM wParam);
+	
 private:
 	HINSTANCE _hInstance = nullptr;
 	HWND _hwnd = nullptr;

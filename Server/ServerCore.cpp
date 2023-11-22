@@ -1,4 +1,5 @@
 #include "ServerCore.h"
+#include "Utils.h"
 
 ServerCore* ServerCore::_serverCore = nullptr;
 
@@ -39,11 +40,9 @@ void ServerCore::dispatchGameMessage(WPARAM wParam, LPARAM lParam)
 	delete mess;
 }
 
-void ServerCore::addNewGameClient(WPARAM wParam, LPARAM lParam)
+void ServerCore::addNewGameClient(LPARAM lParam)
 {
-	SOCKET ClientSocket = (SOCKET)wParam;
 	int id = (int)lParam;
-
 	PlayerType type = (_playersVect.size() == 0) ? PLAYER1 : (_playersVect.size() == 1) ? PLAYER2 : SPECTATOR;
 	std::shared_ptr<Player> player(new Player(id, type));
 	_playersVect.push_back(player);
@@ -69,7 +68,7 @@ LRESULT ServerCore::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		setGameServer(wParam, lParam);
 		break;
 	} case NEW_GAME_CLIENT: {
-		addNewGameClient(wParam, lParam);
+		addNewGameClient(lParam);
 		break;
 	} case (NEW_MESSAGE): {
 		dispatchGameMessage(wParam, lParam);
@@ -133,7 +132,11 @@ int ServerCore::init()
 
 	initWindow();
 	gamePort = _serverUI->getPlayerInput("Enter the game server port number ...", &event);
+	while (!isNumber(gamePort)) gamePort = _serverUI->getPlayerInput("Enter the game server port number ...", &event);
+	
 	webPort = _serverUI->getPlayerInput("Enter the web server port number ...", &event);
+	while (!isNumber(webPort)) webPort = _serverUI->getPlayerInput("Enter the web server port number ...", &event);
+
 	_serverState = NOT_RUNNING;
 	return 0;
 }

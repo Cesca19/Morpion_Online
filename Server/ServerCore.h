@@ -31,7 +31,7 @@ public:
 	LRESULT wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	void dispatchGameMessage(WPARAM wParam, LPARAM lParam);
-	void addNewGameClient(WPARAM wParam, LPARAM lParam);
+	void addNewGameClient(LPARAM lParam);
 	void setGameServer(WPARAM wParam, LPARAM lParam);
 	void setWebServer(WPARAM wParam, LPARAM lParam);
 
@@ -42,6 +42,7 @@ public:
 	std::string getPlayerLastMessage();
 	void setLastPlayerMessage(std::string mess);
 	int** getGameMap();
+	
 private:
 	SERVER_STATE _serverState;
 	HINSTANCE _hInstance = nullptr;
@@ -62,4 +63,5 @@ private:
 	std::unordered_map<std::string, std::shared_ptr<Player>> _playersNameMap;
 
 	std::shared_ptr<ServerUI> _serverUI;
+	
 };

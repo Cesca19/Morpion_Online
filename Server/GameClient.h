@@ -12,8 +12,10 @@ public:
 	int sendMessage(std::string mess);
 	SOCKET getSocket();
 	int getId();
+	
 private:
 	SOCKET _clientSocket;
 	int _id;
+	
 };
 

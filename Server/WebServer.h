@@ -29,8 +29,8 @@ private:
 	std::string convertGameMap(int** map);
 	int sendGameMap(WPARAM wParam, LPARAM lParam);
 	int sendData(std::string data, SOCKET clientSocket);
-	int readData(WPARAM wParam, LPARAM lParam);
-private:
+	int readData(WPARAM wParam);
+	
 	HINSTANCE _hInstance = nullptr;
 	HWND _hwnd = nullptr;
 	HWND _coreHwnd = nullptr;
@@ -38,5 +38,4 @@ private:
 	SOCKET _listenSocket;
 	std::string _port;
 	static WebServer* _webServer;
-	//void* _core;
 };

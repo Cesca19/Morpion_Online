@@ -146,6 +146,7 @@
     <ClInclude Include="ClientCore.h" />
     <ClInclude Include="Morpion.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

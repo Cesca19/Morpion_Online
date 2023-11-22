@@ -56,7 +56,7 @@ LRESULT WebServer::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 	}
 	case READ_MESSAGE:
 		if (LOWORD(lParam) == FD_READ)
-			readData(wParam, lParam);
+			readData(wParam);
 		else if (LOWORD(lParam) == FD_CLOSE)
 		{
 		}
@@ -66,7 +66,6 @@ LRESULT WebServer::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
-		break;
 	}
 	return 0;
 }
@@ -241,11 +240,11 @@ int WebServer::sendGameMap(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-int WebServer::readData(WPARAM wParam, LPARAM lParam)
+int WebServer::readData(WPARAM wParam)
 {
 	int iResult;
 	char recvbuf[DEFAULT_BUFLEN];
-	SOCKET clientSocket = (SOCKET)wParam;
+	SOCKET clientSocket = wParam;
 	std::string receivedMess;
 
 	ZeroMemory(recvbuf, DEFAULT_BUFLEN);

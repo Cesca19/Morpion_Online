@@ -14,6 +14,7 @@ public:
 	void createTextButton();
 	void setCore(void *core);
 	void display();
+	
 private:
 	std::string _name;
 	int _width;

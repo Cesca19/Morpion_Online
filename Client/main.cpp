@@ -7,9 +7,9 @@ int WINAPI WinMain(
 	_In_ int       nCmdShow
 )
 {	
-	ClientCore clientCore(hInstance);
+	ClientCore* clientCore = new ClientCore();
 
-	clientCore.init("TikTakToe", 800, 600);
-	clientCore.run();
+	clientCore->init("TikTakToe", 800, 600);
+	clientCore->run();
 	return 0;
 }

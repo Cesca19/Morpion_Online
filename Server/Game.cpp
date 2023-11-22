@@ -104,22 +104,6 @@ void Game::sendMessageToPlayer(std::string name, std::string message)
 	core->sendMessageToPlayer(name, message);
 }
 
-std::vector<std::string> split(std::string message, std::string delimiter)
-{
-	std::vector<std::string> mess;
-	std::string str = message;
-	size_t pos = 0;
-	std::string token;
-
-	while ((pos = str.find(delimiter)) != std::string::npos) {
-		token = str.substr(0, pos);
-		mess.push_back(token);
-		str.erase(0, pos + delimiter.length());
-	}
-	mess.push_back(str);
-	return mess;
-}
-
 void Game::run()
 {
 	static std::string prevPlayer = "";
@@ -133,6 +117,7 @@ void Game::run()
 			sendMessageToPlayers(Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
 			prevPlayer = _currentPlayer;
 		}
+		
 		// attendre son movement
 		mov = ((ServerCore*)_core)->getPlayerLastMessage();
 		nlohmann::json msg;
@@ -140,6 +125,7 @@ void Game::run()
 		{
 			msg = nlohmann::json::parse(mov);
 		}
+		
 		if (mov != "" && msg["type"] == "MOVE") {
 			auto msgData = Protocol::GameProtocol::handleMoveMessage(mov);
 			if (msgData.name == _currentPlayer) {
@@ -153,7 +139,6 @@ void Game::run()
 			}
 		}
 	}
-
 }
 
 void Game::move(int x, int y)

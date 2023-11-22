@@ -1,32 +1,5 @@
 #include "ClientCore.h"
-
-std::vector<std::string> split(std::string message, std::string delimiter)
-{
-	std::vector<std::string> mess;
-	std::string str = message;
-	size_t pos = 0;
-	std::string token;
-
-	while ((pos = str.find(delimiter)) != std::string::npos) {
-		token = str.substr(0, pos);
-		mess.push_back(token);
-		str.erase(0, pos + delimiter.length());
-	}
-	mess.push_back(str);
-	return mess;
-}
-
-int** convertStringBoard(std::string mess)
-{
-	int **map = new int* [3];
-	for (int i = 0, j = 0; i < 3 && j < mess.size(); i++) {
-		map[i] = new int[3];
-		map[i][0] = mess[j] - 48; j++;
-		map[i][1] = mess[j] - 48; j++;
-		map[i][2] = mess[j] - 48; j++;
-	}
-	return map;
-}
+#include "Utils.h"
 
 ClientCore* ClientCore::_clientCore = nullptr;
 
@@ -45,22 +18,21 @@ LRESULT ClientCore::coreWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 {
 	switch (message) {
 	case GAME_CLIENT_ID: {
-		setGameClient(wParam, lParam);
+		setGameClient(wParam);
 		break;
 	} case NEW_MESSAGE_FROM_SERVER: {
-		analyseMessage(wParam, lParam);
+		analyseMessage(wParam);
 		break;
 	} case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
-		break;
 	}
 	return 0;
 }
 
-void ClientCore::analyseMessage(WPARAM wParam, LPARAM lParam)
+void ClientCore::analyseMessage(WPARAM wParam)
 {
 	Data_t* mess = (Data_t*)wParam;
 	std::string receiveMess = mess->content;
@@ -103,7 +75,7 @@ int ClientCore::initWindow()
 	return 0;
 }
 
-ClientCore::ClientCore(HINSTANCE hInstance) : _game(new Morpion()),
+ClientCore::ClientCore() : _game(new Morpion()),
  _name(""), _map(NULL)
 {
 	_clientCore = this;
@@ -199,13 +171,13 @@ int ClientCore::run()
 			data->content = ("name:" + _name);
 			PostMessage(_clientHwnd, SEND_MESSAGE_TO_SERVER, (WPARAM)data, 0);
 		}
-		_game->run(event);
+		_game->run();
 	}	
 	close();
 	return 0;
 }
 
-void  ClientCore::setGameClient(WPARAM wParam, LPARAM lParam)
+void  ClientCore::setGameClient(WPARAM wParam)
 {
 	_clientHwnd = (HWND)wParam;
 }

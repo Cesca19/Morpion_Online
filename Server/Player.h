@@ -17,9 +17,11 @@ public:
 	std::string getName();
 	int getType();
 	int getId();
+	
 private:
 	int _id;
 	PlayerType _type;
 	std::string _name;
+	
 };
 
