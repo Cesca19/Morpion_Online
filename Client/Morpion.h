@@ -60,6 +60,8 @@ private:
 	std::shared_ptr<sf::Text> _currentPlayerText;
 	std::shared_ptr<sf::Text> _waitMessage;
 
+	std::shared_ptr<sf::Text> _historicText;
+
 	std::string _windowName;
 	int _width;
 	int _height;
@@ -68,5 +70,6 @@ private:
 	std::string _currentPlayer;
 
 	std::vector<std::shared_ptr<sf::Text>> _button;
+	bool _requestSent;
 };
 

@@ -3,7 +3,7 @@
 
 Morpion::Morpion() : _id(-1), _window(NULL), _width(0), _height(0), _currentPlayer(""),
 _font(new sf::Font()), _name(""), _hasStart(false), _winner(""), _isTie(false), _isSent(false),
-_isEnd(false),  _clientCore(NULL)
+_isEnd(false),  _clientCore(NULL), _requestSent(false)
 {
 }
 
@@ -17,16 +17,24 @@ void Morpion::createGameWindow(std::string name, int width, int height)
 	std::shared_ptr<sf::Text> win(new sf::Text("You win !!!", *(_font)));
 	std::shared_ptr<sf::Text> wait(new sf::Text("Waiting for more players ...", *(_font)));
 	std::shared_ptr<sf::Text> text(new sf::Text("", *(_font)));
+	std::shared_ptr<sf::Text> hist(new sf::Text("", *(_font)));
 
 	_width = width;
 	_height = height;
+
 	_font->loadFromFile("wall\\Wall.ttf");
+
+	hist->setCharacterSize(40);
+	//hist->setStyle(sf::Text::Bold);
+	hist->setPosition({ (float)(_width / 3) , (float)(_height / 10) });
+	hist->setFillColor({ 222, 184, 135 });
+	_historicText = hist;
+
 	win->setCharacterSize(70);
 	win->setStyle(sf::Text::Bold);
 	win->setPosition({ (float)(_width / 3) , (float)(_height / 10) });
 	win->setFillColor({ 222, 184, 135 });
 	_winMessage = win;
-	_font->loadFromFile("wall\\Wall.ttf");
 	wait->setCharacterSize(70);
 	wait->setStyle(sf::Text::Bold);
 	wait->setPosition({ (float)(_width / 15) , (float)(_height / 3) });
@@ -61,11 +69,19 @@ void Morpion::run(sf::Event event)
 	if (_hasStart) {
 		if (_currentPlayer != _name)
 			_isSent = false;
-		printCurrentPlayer();
-		printGameboard();
-		AskHistoricToServer();
-		if (_isEnd)
-			printEndGame();
+		if (_historicText->getString() != "") {
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::G))
+				_historicText->setString("");
+			_window->clear(sf::Color::White);
+			_window->draw(*_historicText);
+		}
+		else {
+			printCurrentPlayer();
+			printGameboard();
+			AskHistoricToServer();
+			if (_isEnd)
+				printEndGame();
+		}
 	}
 	else {
 		_window->draw(*_waitMessage);
@@ -386,19 +402,17 @@ int Morpion::printGameboard()
 
 void Morpion::DisplayHistoric(std::string historic)
 {
-	sf::Text text;
-	text.setString(historic);
-	
+	_historicText->setString(historic);
+	_requestSent = false;
 }
 
 void Morpion::AskHistoricToServer()
 {
 	ClientCore* core = ((ClientCore*)(_clientCore));
 
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
-	{
-		OutputDebugStringA("Morpion:: aie \n");
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::H) && !_requestSent) {
+		OutputDebugStringA((_name + " Asking histtttttttttttttttttttttttttttttttttttttttttttttttttttttt\n").c_str());
 		core->sendMessage("historic#" + _name + "#");
-		OutputDebugStringA("Morpion:: ouille  \n");
+		_requestSent = true;
 	}
 }

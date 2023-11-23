@@ -153,8 +153,6 @@ void ClientCore::analyseMessage(std::string data)
 	nlohmann::json message;
 
 	if (data != "") {
-		OutputDebugStringA("ClientCore::analyzeMessage 7  data non null \n" );
-
 		for (int i = 0; i < messages.size(); i++) {
 			if (messages[i] == "start")
 				_game->setStart();
@@ -173,15 +171,15 @@ void ClientCore::analyseMessage(std::string data)
 					_game->setId(msgData.id);
 				}
 				else if (message["type"].get<std::string>() == "ALL_MOVE") {
-					OutputDebugStringA("ClientCore::analyzeMessage 8  ALL_MOVE\n");
+					OutputDebugStringA("Hist receivedddddddddddddddddddddddddddddddddddddddddddddddddd\n");
 					auto msgData = Protocol::GameProtocol::handleAllMoveMessage(message.dump());
-					OutputDebugStringA("ClientCore::analyzeMessage 9  Handlemessage\n");
+					//OutputDebugStringA("ClientCore::analyzeMessage 9  Handlemessage\n");
 					_game->DisplayHistoric(msgData.moveList);
 				}
 			}
 		}
 	}
-		OutputDebugStringA("ClientCore::analyzeMessage 10  data non null \n" );
+//		OutputDebugStringA("ClientCore::analyzeMessage 10  data non null \n" );
 
 }
 

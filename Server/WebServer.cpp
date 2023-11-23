@@ -217,7 +217,7 @@ int WebServer::sendData(std::string data, SOCKET clientSocket)
 
 std::string WebServer::buildResponse(std::string mess)
 {
-	std::string file = "<!DOCTYPE html><html lang=\"en\"><body><h1> Morpion Game </h1> <p>" + mess + "</p></body></html>";
+	std::string file = "<!DOCTYPE html>  <script>function autoRefresh() {window.location = window.location.href;}setInterval('autoRefresh()', 1000);</script> <html lang=\"en\"><body><h1> Morpion Game </h1> <p>" + mess + "</p></body></html>";
 	std::string header = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " + std::to_string(file.size()) + "\n\n";
 
 	return header + file;

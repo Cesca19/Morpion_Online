@@ -122,7 +122,6 @@ void Game::run()
 
 		if (prevPlayer != _currentPlayer) {
 			std::string winner = "";
-
 			sendMessageToPlayers(Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
 			prevPlayer = _currentPlayer;
 		}
@@ -132,24 +131,20 @@ void Game::run()
 
 		nlohmann::json msg;
 		if (mov[0] == '{')
-		{
 			msg = nlohmann::json::parse(mov);
-		}
 		if (mov != "" && msg["type"] == "MOVE") {
 			//parse mov 
 			auto msgData = Protocol::GameProtocol::handleMoveMessage(mov);
-
 			//create a string with the player move to be saved and send with SetHistoricMsg()
 			std::string histMsg = "";
-			histMsg += "Player:" + msgData.name;
-			histMsg += "Column:" + std::to_string(msgData.posX);
-			histMsg += "Line:" + std::to_string(msgData.posY);
+			histMsg += "Player: " + msgData.name + " ";
+			histMsg += "Column: " + std::to_string(msgData.posX) + " ";
+			histMsg += "Line: " + std::to_string(msgData.posY) + " ";
 			SetHistoricMsg(histMsg);
 
 			if (msgData.name == _currentPlayer) {
 				move(msgData.posX, msgData.posY);
 				int win = checkWinner();
-				//if win/tie
 				if (win != 0) {
 					std::string winner = (win == 3) ? "T" : _players[win - 1];
 					sendMessageToPlayers(Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
@@ -160,10 +155,10 @@ void Game::run()
 				changePlayer();
 			}
 		}
-		if (split(mov, "#")[0] == "historic")
-		{
-			OutputDebugStringA("Game:: 3  Historic \n");
-			sendMessageToPlayer(split(mov, "#")[1], Protocol::GameProtocol::createAllMoveMessage("")); //bug, maybe trouble with id cause it works sometime with senMessageToPlayers
+		if (split(mov, "#")[0] == "historic") {
+			OutputDebugStringA(("-----------------------" + mov + "------------------------\n").c_str());
+			OutputDebugStringA(("--Historic sent to" + split(mov, "#")[1] + " --").c_str());
+			sendMessageToPlayer(split(mov, "#")[1], Protocol::GameProtocol::createAllMoveMessage(_gameInfos)); //bug, maybe trouble with id cause it works sometime with senMessageToPlayers
 		}
 	}
 
@@ -223,7 +218,7 @@ void Game::SetHistoricMsg(std::string mess)
 		HistoricFile << HistoricMsg << std::endl;
 		LastHistoricMsg = HistoricMsg;
 		//_gameInfos will get the message and will be used to be sent to WebServer
-		_gameInfos += ("<p><br>" + LastHistoricMsg + "</p>");
+		_gameInfos += ("<br>" + LastHistoricMsg + "");
 		HistoricFile.close();
 	}
 	else

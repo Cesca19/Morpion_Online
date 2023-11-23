@@ -1,63 +1,37 @@
-Player : tt Column : 0 Line : 0
-
-Player : gg Column : 0 Line : 2
-
-Player : tt Column : 1 Line : 0
-
-Player : gg Column : 1 Line : 2
-
-Player : tt Column : 2 Line : 0
-
-Winner : tt
-
-Player : tty   Column : 0   Line : 2
-
-Player : kk   Column : 1   Line : 0
-
-Player : tty   Column : 1   Line : 2
-
-Player : kk   Column : 2   Line : 0
-
-Player : tty   Column : 2   Line : 2
-
-Winner : tty
-
-Player : ttt   Column : 0   Line : 2
-
-Player : ooopppp   Column : 1   Line : 2
-
-Player : ttt   Column : 2   Line : 2
-
-Player : ooopppp   Column : 2   Line : 1
-
-Player : ttytyy   Column : 0   Line : 2
-
-Player : hgjghj   Column : 1   Line : 2
-
-Player : eee   Column : 0   Line : 2
-
-Player : sdsds   Column : 1   Line : 2
-
-Player : eee   Column : 1   Line : 1
-
-Player : erty   Column : 0   Line : 2
-
-Player : yy   Column : 0   Line : 0
-
-Player : rr   Column : 0   Line : 1
-
-Player : yy   Column : 0   Line : 2
-
-Player : rr   Column : 1   Line : 2
-
-Player : yyy   Column : 0   Line : 0
-
-Player : uuuu   Column : 0   Line : 2
-
-Player:iiColumn:0Line:2
-Player:zzColumn:0Line:1
-Player:iiColumn:1Line:1
-Player:hhColumn:0Line:2
-Player:ttttColumn:0Line:2
-Player:yyColumn:0Line:2
-Player:kkColumn:0Line:2
+Player: loa Column: 0 Line: 1 
+Player: jon Column: 1 Line: 0 
+Player: loa Column: 1 Line: 2 
+Player: jon Column: 2 Line: 1 
+Player: GIGI Column: 0 Line: 1 
+Player: bella Column: 0 Line: 2 
+Player: GIGI Column: 1 Line: 1 
+Player: bella Column: 2 Line: 2 
+Player: GIGI Column: 2 Line: 1 
+Winner:GIGI
+Player: fran Column: 0 Line: 1 
+Player: eve Column: 0 Line: 0 
+Player: gris Column: 0 Line: 1 
+Player: blue Column: 1 Line: 1 
+Player: fran Column: 0 Line: 0 
+Player: lola Column: 0 Line: 2 
+Player: fran Column: 0 Line: 2 
+Player: femi Column: 1 Line: 2 
+Player: jojo Column: 0 Line: 2 
+Player: Dio Column: 1 Line: 2 
+Player: jojo Column: 2 Line: 0 
+Player: diavollo Column: 0 Line: 2 
+Player: pucci Column: 1 Line: 0 
+Player: Pucci Column: 0 Line: 2 
+Player: Jolyne Column: 0 Line: 0 
+Player: gigi Column: 0 Line: 1 
+Player: lala Column: 0 Line: 2 
+Player: fran Column: 0 Line: 1 
+Player: eve Column: 1 Line: 0 
+Player: fran Column: 1 Line: 1 
+Player: femi Column: 0 Line: 1 
+Player: fran Column: 1 Line: 0 
+Player: kim Column: 0 Line: 1 
+Player: kloe Column: 1 Line: 2 
+Player: kim Column: 0 Line: 2 
+Player: kloe Column: 0 Line: 0 
+Player: kim Column: 1 Line: 1 
