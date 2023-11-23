@@ -29,6 +29,7 @@
 struct Client_Conf_t {
 	HWND core;
 	std::string port;
+	std::string ip;
 };
 
 struct Data_t {

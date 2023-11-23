@@ -141,14 +141,21 @@ int ServerCore::init()
 
 	initWindow();
 	_gamePort = _serverUI->getPlayerInput("Enter the game server port number ...", &event);
-	while (!checkPort(_gamePort))
+	if (_gamePort == "")
+		return 0;
+	while (!checkPort(_gamePort)) {
 		_gamePort = _serverUI->getPlayerInput("Invalid game server port number ...", &event);
-	
+		if (_gamePort == "")
+			return 0;
+	}
 	_webPort = _serverUI->getPlayerInput("Enter the web server port number ...", &event);
-	while (!checkPort(_webPort) || (_gamePort.compare(_webPort) == 0))
-		_gamePort = _serverUI->getPlayerInput("Invalid game server port number ...", &event);
-	
-	
+	if (_webPort == "")
+		return 0;
+	while (!checkPort(_webPort) || (_gamePort.compare(_webPort) == 0)) {
+		_webPort = _serverUI->getPlayerInput("Invalid web server port number ...", &event);
+		if (_webPort == "")
+			return 0;
+	}
 	_serverState = NOT_RUNNING;
 	return 0;
 }
@@ -208,6 +215,8 @@ void ServerCore::run()
 		case IS_RUNNING:
 			_serverUI->display();
 			_gameLogic->run();
+			break;
+		case STOP:
 			break;
 		default:
 			break;

@@ -34,6 +34,7 @@ private:
 
 	bool _isRunning;
 	std::string _gamePort;
+	std::string _ip;
 
 	std::string _name;
 	std::shared_ptr<Morpion> _game;
