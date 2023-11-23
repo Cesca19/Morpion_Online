@@ -221,7 +221,7 @@ void Game::SetHistoricMsg(std::string mess)
 		HistoricFile << HistoricMsg << std::endl;
 		LastHistoricMsg = HistoricMsg;
 		//_gameInfos will get the message and will be used to be sent to WebServer
-		_gameInfos += (LastHistoricMsg);
+		_gameInfos += ("<p><br>" + LastHistoricMsg + "</p>");
 		HistoricFile.close();
 	}
 	else
