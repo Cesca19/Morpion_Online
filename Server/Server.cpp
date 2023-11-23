@@ -223,7 +223,7 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 	ZeroMemory(recvbuf, DEFAULT_BUFLEN);
 	iResult = recv(clientSocket, recvbuf, DEFAULT_BUFLEN, 0);
 	data->content = recvbuf;
-	PostMessage(_coreHwnd, NEW_MESSAGE, (WPARAM)data, _clientsMap[clientSocket]->getId());
+	PostMessage(_coreHwnd, NEW_MESSAGE, (WPARAM)data, _clientsSocket[clientSocket]->getId());
 	if (iResult < 0) {
 		std::string mess("recv failed: " + std::to_string(WSAGetLastError()));
 		OutputDebugStringA(mess.c_str());
@@ -256,7 +256,8 @@ int Server::acceptClient()
 	PostMessage(_coreHwnd, NEW_GAME_CLIENT, ClientSocket, _id);
 	std::shared_ptr<GameClient> client(new GameClient(ClientSocket, _id));
 	_clientsVect.push_back(client);
-	_clientsMap[ClientSocket] = client;
+	_clientsMap[_id] = client;
+	_clientsSocket[ClientSocket] = client;
 	sendData(Protocol::GameProtocol::createNewClientMessage(_id, "HUHU"), ClientSocket);
 	_id++;
 	return 0;

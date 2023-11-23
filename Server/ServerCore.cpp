@@ -259,7 +259,7 @@ void ServerCore::sendMessageToPlayer(std::string name, std::string Message)
 {
 	Data_t* myData = new Data_t;
 	myData->content = Message;
-	PostMessage(_gameServerHwnd, SEND_MESSAGE_TO_PLAYER, (WPARAM)myData, (WPARAM)_playersNameMap[name]->getId());
+	PostMessage(_gameServerHwnd, SEND_MESSAGE_TO_PLAYER, (WPARAM)myData, _playersNameMap[name]->getId());
 }
 
 std::string ServerCore::getPlayerLastMessage()
