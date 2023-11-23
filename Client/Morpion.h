@@ -29,10 +29,14 @@ public:
 	void AskHistoricToServer();
 	void printCurrentPlayer();
 
+	void createTextButton();
+	int connectionPage(sf::Event* event);
 	void printEndGame();
 	int turn(std::shared_ptr<sf::Text> mess, int number, sf::Event* event);
 	void launchGame(sf::Event* event);
 	std::shared_ptr<sf::RenderWindow> GetWindow() { return _window; }
+
+	std::string getPlayerInput(std::string displayText, sf::Event* event);
 
 private:
 	std::string getPlayerName(std::string displayText, sf::Event* event);
@@ -62,5 +66,7 @@ private:
 
 	std::string _name;
 	std::string _currentPlayer;
+
+	std::vector<std::shared_ptr<sf::Text>> _button;
 };
 

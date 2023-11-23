@@ -140,11 +140,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameProtocol.cpp" />
-    <ClCompile Include="GameProtocolLib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameProtocol.h" />
-    <ClInclude Include="GameProtocolLib.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Protocol.json" />

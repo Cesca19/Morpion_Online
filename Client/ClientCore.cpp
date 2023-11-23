@@ -1,32 +1,5 @@
 #include "ClientCore.h"
 
-std::vector<std::string> split(std::string message, std::string delimiter)
-{
-	std::vector<std::string> mess;
-	std::string str = message;
-	size_t pos = 0;
-	std::string token;
-
-	while ((pos = str.find(delimiter)) != std::string::npos) {
-		token = str.substr(0, pos);
-		mess.push_back(token);
-		str.erase(0, pos + delimiter.length());
-	}
-	mess.push_back(str);
-	return mess;
-}
-
-int** convertStringBoard(std::string mess)
-{
-	int **map = new int* [3];
-	for (int i = 0, j = 0; i < 3 && j < mess.size(); i++) {
-		map[i] = new int[3];
-		map[i][0] = mess[j] - 48; j++;
-		map[i][1] = mess[j] - 48; j++;
-		map[i][2] = mess[j] - 48; j++;
-	}
-	return map;
-}
 
 ClientCore* ClientCore::_clientCore = nullptr;
 
@@ -118,7 +91,7 @@ int ClientCore::initWindow()
 }
 
 ClientCore::ClientCore(HINSTANCE hInstance) : _game(new Morpion()),
- _name(""), _map(NULL)
+ _name(""), _map(NULL), _isRunning(false), _gamePort("")
 {
 	_clientCore = this;
 }
@@ -128,17 +101,31 @@ ClientCore::~ClientCore() {}
 int ClientCore::init(std::string windowName, int width, int height) 
 {
 	DWORD clientThreadId;
+	sf::Event event;
 
 	initWindow();
 
 	_game->setCore(this);
 	_game->init(windowName, width, height);
+
+	_gamePort = _game->getPlayerInput("Please enter the server port ...", &event);
+	while (!checkPort(_gamePort)) _gamePort = _game->getPlayerInput("Invalid server port ...", &event);
 	
-	_clientThread = CreateThread(NULL, 0, Client::MyThreadFunction, _hwnd, 0, &clientThreadId);
+	if (_game->connectionPage(&event))
+		return 0;
+	
+	Client_Conf_t* clientConf = new Client_Conf_t;
+
+	clientConf->core = _hwnd;
+	clientConf->port = _gamePort;
+	
+	_clientThread = CreateThread(NULL, 0, Client::MyThreadFunction, clientConf, 0, &clientThreadId);
 	if (_clientThread == NULL) {
 		OutputDebugStringA(("Error at thread: " + std::to_string(WSAGetLastError())).c_str());
 		return(1);
 	}
+	_isRunning = true;
+	
 	return 0;
 }
 
@@ -208,8 +195,8 @@ int ClientCore::run()
 {
 	MSG msg = { 0 };
 	sf::Event event;
-
-	while (msg.message != WM_QUIT && _game->GetWindow()->isOpen()) {
+	
+	while (msg.message != WM_QUIT && _game->GetWindow()->isOpen() && _isRunning == true) {
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -224,7 +211,7 @@ int ClientCore::run()
 			PostMessage(_clientHwnd, SEND_MESSAGE_TO_SERVER, (WPARAM)data, 0);
 		}
 		_game->run(event);
-	}	
+	}
 	close();
 	return 0;
 }
@@ -242,8 +229,10 @@ int ClientCore::closeClient()
 
 int ClientCore::close()
 {
-	closeClient();
-	WaitForSingleObject(_clientThread, INFINITE);
+	if (_isRunning) {
+		closeClient();
+		WaitForSingleObject(_clientThread, INFINITE);
+	}
 	PostMessage(_hwnd, WM_CLOSE, 0, 0);
 	OutputDebugStringA("Client core closing ...\n");
 	return 0;

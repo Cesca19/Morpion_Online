@@ -21,7 +21,7 @@ enum SERVER_STATE {
 class ServerCore
 {
 public:
-	ServerCore(HINSTANCE hInstance, std::string port);
+	ServerCore(HINSTANCE hInstance);
 	~ServerCore();
 	int init();
 	void run();
