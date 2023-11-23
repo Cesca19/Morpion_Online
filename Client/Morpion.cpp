@@ -17,16 +17,16 @@ void Morpion::createGameWindow(std::string name, int width, int height)
 	std::shared_ptr<sf::Text> win(new sf::Text("You win !!!", *(_font)));
 	std::shared_ptr<sf::Text> wait(new sf::Text("Waiting for more players ...", *(_font)));
 	std::shared_ptr<sf::Text> text(new sf::Text("", *(_font)));
-	std::shared_ptr<sf::Text> hist(new sf::Text("", *(_font)));
+	std::shared_ptr<sf::Text> hist(new sf::Text("Hit History:\n", *(_font)));
 
 	_width = width;
 	_height = height;
 
 	_font->loadFromFile("wall\\Wall.ttf");
 
-	hist->setCharacterSize(40);
-	//hist->setStyle(sf::Text::Bold);
-	hist->setPosition({ (float)(_width / 3) , (float)(_height / 10) });
+	hist->setCharacterSize(33);
+	hist->setStyle(sf::Text::Bold);
+	hist->setPosition({ (float)(_width / 2 )  + 100.0f, (float)(_height / 2) - (100.0f * 1.5f) });
 	hist->setFillColor({ 222, 184, 135 });
 	_historicText = hist;
 
@@ -69,19 +69,10 @@ void Morpion::run(sf::Event event)
 	if (_hasStart) {
 		if (_currentPlayer != _name)
 			_isSent = false;
-		if (_historicText->getString() != "") {
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::G))
-				_historicText->setString("");
-			_window->clear(sf::Color::White);
-			_window->draw(*_historicText);
-		}
-		else {
 			printCurrentPlayer();
 			printGameboard();
-			AskHistoricToServer();
 			if (_isEnd)
 				printEndGame();
-		}
 	}
 	else {
 		_window->draw(*_waitMessage);
@@ -131,7 +122,6 @@ void Morpion::createTextButton()
 {
 	std::shared_ptr<sf::Text> lauch(new sf::Text("Connect", *(_font)));
 	std::shared_ptr<sf::Text> quit(new sf::Text("Quit", *(_font)));
-	//std::shared_ptr<sf::Text> stop(new sf::Text("Stop server", *(_font)));
 
 	lauch->setCharacterSize(70);
 	lauch->setStyle(sf::Text::Bold);
@@ -146,12 +136,6 @@ void Morpion::createTextButton()
 	quit->setFillColor({ 210, 180, 140 });
 	quit->setOutlineColor({ 210, 180, 140 });
 	_button.push_back(quit);
-
-	/*stop->setCharacterSize(70);
-	stop->setStyle(sf::Text::Bold);
-	stop->setPosition({ (float)(_width / 3) , _height - (float)(_height / 4) });
-	stop->setFillColor({ 210, 180, 140 });
-	_button.push_back(stop);*/
 }
 
 int Morpion::connectionPage(sf::Event *event)
@@ -300,7 +284,7 @@ void Morpion::launchGame(sf::Event* event)
 void Morpion::createGameBoard()
 {
 	float side = 100.0f;
-	float startX = (float)_width / 2 - (side * 1.5f);
+	float startX = (float)_width / 3 - (side * 1.5f);
 	float startY = (float)_height / 2 - (side * 1.5f);
 	float y = startY;
 
@@ -396,23 +380,17 @@ int Morpion::printGameboard()
 
 	for (int i = 0; i < _shapes.size(); i++)
 		_window->draw(*(_shapes[i].get()));
-
+	_window->draw(*_historicText);
 	return 0;
 }
 
 void Morpion::DisplayHistoric(std::string historic)
 {
-	_historicText->setString(historic);
-	_requestSent = false;
-}
+	std::string hist("Hit History:\n");
+	std::vector<std::string> hit = split(historic, "<br>");
 
-void Morpion::AskHistoricToServer()
-{
-	ClientCore* core = ((ClientCore*)(_clientCore));
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::H) && !_requestSent) {
-		OutputDebugStringA((_name + " Asking histtttttttttttttttttttttttttttttttttttttttttttttttttttttt\n").c_str());
-		core->sendMessage("historic#" + _name + "#");
-		_requestSent = true;
-	}
+	for (int i = 0; i < hit.size(); i++)
+		if (hit[i] != "")
+			hist += hit[i] + "\n";
+	_historicText->setString(hist);
 }

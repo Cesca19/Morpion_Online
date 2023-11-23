@@ -147,27 +147,21 @@ int Server::createSocket()
 	hints.ai_flags = AI_PASSIVE;
 	iResult = getaddrinfo(NULL, _port.c_str(), &hints, &result);
 	if (iResult != 0) {
-		std::string mess("getaddrinfo failed: " + std::to_string(iResult));
-		OutputDebugStringA(mess.c_str());
-		WSACleanup();
+		OutputDebugStringA(("getaddrinfo failed: " + std::to_string(iResult)).c_str());
 		return 1;
 	}
 	_listenSocket = INVALID_SOCKET;
 	_listenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 	if (_listenSocket == INVALID_SOCKET) {
-		std::string mess("Error at socket(): " + std::to_string(WSAGetLastError()));
-		OutputDebugStringA(mess.c_str());
+		OutputDebugStringA(("Error at socket(): " + std::to_string(WSAGetLastError())).c_str());
 		freeaddrinfo(result);
-		WSACleanup();
 		return 1;
 	}
 	iResult = bind(_listenSocket, result->ai_addr, (int)result->ai_addrlen);
 	if (iResult == SOCKET_ERROR) {
-		std::string mess("bind failed with error: " + std::to_string(WSAGetLastError()));
-		OutputDebugStringA(mess.c_str());
+		OutputDebugStringA(("bind failed with error: " + std::to_string(WSAGetLastError())).c_str());
 		freeaddrinfo(result);
 		closesocket(_listenSocket);
-		WSACleanup();
 		return 1;
 	}
 	freeaddrinfo(result);
@@ -182,8 +176,7 @@ int Server::initServer()
 		return 1;
 	WSAAsyncSelect(_listenSocket, _hwnd, ACCEPT_CLIENT, FD_ACCEPT | FD_CLOSE | FD_READ);
 	if (listen(_listenSocket, SOMAXCONN) == SOCKET_ERROR) {
-		std::string mess("Listen failed with error: " + std::to_string(WSAGetLastError()));
-		OutputDebugStringA(mess.c_str());
+		OutputDebugStringA(("Listen failed with error: " + std::to_string(WSAGetLastError())).c_str());
 		closesocket(_listenSocket);
 		WSACleanup();
 		return 1;
@@ -225,20 +218,15 @@ int Server::readData(WPARAM wParam, LPARAM lParam)
 	data->content = recvbuf;
 	PostMessage(_coreHwnd, NEW_MESSAGE, (WPARAM)data, _clientsSocket[clientSocket]->getId());
 	if (iResult < 0) {
-		std::string mess("recv failed: " + std::to_string(WSAGetLastError()));
-		OutputDebugStringA(mess.c_str());
+		OutputDebugStringA(("recv failed: " + std::to_string(WSAGetLastError())).c_str());
 		closesocket(clientSocket);
-		WSACleanup();
 		return 1;
 	}
-	OutputDebugStringA("read data succes \n");
 	return 0;
 }
 
 int Server::closeClient(WPARAM wParam, LPARAM lParam)
 {
-	/*SOCKET clientSocket = (SOCKET)wParam;
-	closesocket(clientSocket);*/
 	return 0;
 }
 
@@ -249,8 +237,6 @@ int Server::acceptClient()
 	ClientSocket = accept(_listenSocket, NULL, NULL);
 	if (ClientSocket == INVALID_SOCKET) {
 		OutputDebugStringA(("accept failed: " + std::to_string(WSAGetLastError()) + "\n").c_str());
-		closesocket(_listenSocket);
-		WSACleanup();
 		return 1;
 	}
 	WSAAsyncSelect(ClientSocket, _hwnd, READ_MESSAGE, FD_READ | FD_CLOSE);

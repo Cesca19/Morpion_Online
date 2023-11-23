@@ -23,10 +23,7 @@ LRESULT ClientCore::coreWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		break;
 	} case NEW_MESSAGE_FROM_SERVER: 
 	{
-		OutputDebugStringA("ClientCore:: 12\n");
 		analyseMessage(wParam, lParam);
-		OutputDebugStringA("ClientCore:: 13\n");
-
 		break;
 	} 
 	case DISCONNECT_SERVER:
@@ -46,11 +43,8 @@ LRESULT ClientCore::coreWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 
 void ClientCore::analyseMessage(WPARAM wParam, LPARAM lParam)
 {
-	OutputDebugStringA("ClientCore::analyzeMessage 6.1  \n");
-
 	Data_t* mess = (Data_t*)wParam;
 	std::string receiveMess = mess->content;
-	OutputDebugStringA(("ClientCore::analyzeMessage 6.2  " + mess->content + "\n").c_str());
 
 	analyseMessage(receiveMess);
 	delete mess;
@@ -171,16 +165,12 @@ void ClientCore::analyseMessage(std::string data)
 					_game->setId(msgData.id);
 				}
 				else if (message["type"].get<std::string>() == "ALL_MOVE") {
-					OutputDebugStringA("Hist receivedddddddddddddddddddddddddddddddddddddddddddddddddd\n");
 					auto msgData = Protocol::GameProtocol::handleAllMoveMessage(message.dump());
-					//OutputDebugStringA("ClientCore::analyzeMessage 9  Handlemessage\n");
 					_game->DisplayHistoric(msgData.moveList);
 				}
 			}
 		}
 	}
-//		OutputDebugStringA("ClientCore::analyzeMessage 10  data non null \n" );
-
 }
 
 void ClientCore::sendMessage(std::string mess)

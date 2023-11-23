@@ -39,5 +39,4 @@ private:
 	SOCKET _listenSocket;
 	std::string _port;
 	static WebServer* _webServer;
-	//void* _core;
 };

@@ -130,8 +130,7 @@ int  WebServer::initWinsock()
 
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
-		std::string mess("WSAStartup failed: " + std::to_string(iResult));
-		OutputDebugStringA(mess.c_str());
+		OutputDebugStringA(("WSAStartup failed: " + std::to_string(iResult)).c_str());
 		return 1;
 	}
 	return 0;
@@ -149,9 +148,7 @@ int WebServer::createSocket()
 	hints.ai_flags = AI_PASSIVE;
 	iResult = getaddrinfo(NULL, _port.c_str(), &hints, &result);
 	if (iResult != 0) {
-		std::string mess("getaddrinfo failed: " + std::to_string(iResult));
-		OutputDebugStringA(mess.c_str());
-		WSACleanup();
+		OutputDebugStringA(("getaddrinfo failed: " + std::to_string(iResult)).c_str());
 		return 1;
 	}
 	_listenSocket = INVALID_SOCKET;
@@ -187,7 +184,6 @@ int WebServer::initServer()
 		std::string mess("Listen failed with error: " + std::to_string(WSAGetLastError()));
 		OutputDebugStringA(mess.c_str());
 		closesocket(_listenSocket);
-		WSACleanup();
 		return 1;
 	}
 	return 0;
@@ -208,8 +204,6 @@ int WebServer::sendData(std::string data, SOCKET clientSocket)
 	int iSendResult = send(clientSocket, data.c_str(), (int)data.size(), 0);
 	if (iSendResult == SOCKET_ERROR) {
 		OutputDebugStringA(std::string("send failed: " + std::to_string(WSAGetLastError())).c_str());
-		closesocket(clientSocket);
-		WSACleanup();
 		return 1;
 	}
 	return 0;
@@ -254,8 +248,7 @@ int WebServer::sendGameMap(WPARAM wParam, LPARAM lParam)
 	SOCKET clientSocket = (SOCKET)lParam;
 	GameMap_t* map = (GameMap_t*)wParam;
 
-	sendData(buildResponse("Mirror, Mirror on the Wall, Who's the Fairest of Them All?<br>"  + convertGameMap(map->map) + "<br> Game Infos : " + map->gameInfos), clientSocket);
-
+	sendData(buildResponse(convertGameMap(map->map) + "<br> Game Infos : " + map->gameInfos), clientSocket);
 	delete map;
 	return 0;
 }
@@ -290,8 +283,6 @@ int WebServer::acceptClient()
 	ClientSocket = accept(_listenSocket, NULL, NULL);
 	if (ClientSocket == INVALID_SOCKET) {
 		OutputDebugStringA(("accept failed: " + std::to_string(WSAGetLastError()) + "\n").c_str());
-		closesocket(_listenSocket);
-		WSACleanup();
 		return 1;
 	}
 	WSAAsyncSelect(ClientSocket, _hwnd, READ_MESSAGE, FD_READ | FD_CLOSE);

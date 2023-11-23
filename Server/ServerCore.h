@@ -52,7 +52,6 @@ public:
 	int** getGameMap();
 	std::string getGameInfos();
 
-	void SetHistoricMsg(std::string mess);
 private:
 	SERVER_STATE _serverState;
 	HINSTANCE _hInstance = nullptr;

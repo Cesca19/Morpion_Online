@@ -35,3 +35,67 @@ Player: kloe Column: 1 Line: 2
 Player: kim Column: 0 Line: 2 
 Player: kloe Column: 0 Line: 0 
 Player: kim Column: 1 Line: 1 
+Player: ji Column: 1 Line: 0 
+Player: la Column: 0 Line: 2 
+Player: lola Column: 0 Line: 1 
+Player: lala Column: 0 Line: 0 
+Player: land Column: 1 Line: 0 
+Player: lola Column: 0 Line: 2 
+Player: gigi Column: 1 Line: 0 
+Player: lola Column: 0 Line: 0 
+Player: Lola Col : 0 Row : 2 
+Player: jiop Col : 1 Row : 0 
+Player: Lola Col : 2 Row : 2 
+Player: jiop Col : 0 Row : 1 
+Player: Lola Col : 2 Row : 0 
+Player: jiop Col : 1 Row : 2 
+Player: chris Col : 0 Row : 2 
+Player: ji Col : 1 Row : 0 
+Player: chris Col : 1 Row : 2 
+Player: lola Col : 0 Row : 2 
+Player: jim Col : 2 Row : 2 
+Player: lo Col : 0 Row : 0 
+Player: 15 Col : 2 Row : 2 
+Player: ji Col : 0 Row : 1 
+Player: ju Col : 1 Row : 2 
+Player: ji Col : 0 Row : 2 
+Player: ju Col : 2 Row : 0 
+Player: ji Col : 2 Row : 2 
+Player: ju Col : 1 Row : 1 
+Player: ji Col : 0 Row : 0 
+Winner:ji
+Player: fran Col : 0 Row : 2 
+Player: eve Col : 0 Row : 0 
+Player: fran Col : 2 Row : 2 
+Player: eve Col : 1 Row : 2 
+Player: fran Col : 1 Row : 1 
+Player: eve Col : 2 Row : 1 
+Player: fran Col : 2 Row : 0 
+Winner:fran
+Player: dio Col : 0 Row : 2 
+Player: jojo Col : 1 Row : 0 
+Player: dio Col : 2 Row : 2 
+Player: jojo Col : 0 Row : 1 
+fran hit :Col : 0 Row : 2 
+eve hit :Col : 1 Row : 2 
+fran hit :Col : 1 Row : 0 
+eve hit :Col : 2 Row : 2 
+fran hit :Col : 0 Row : 0 
+eve hit :Col : 1 Row : 1 
+fran hit :Col : 2 Row : 0 
+Winner:fran
+ki hit :Col : 0 Row : 2 
+5lo hit :Col : 1 Row : 2 
+ki hit :Col : 0 Row : 1 
+5lo hit :Col : 1 Row : 1 
+ki hit :Col : 0 Row : 0 
+Winner:ki
+lola hit :Col : 0 Row : 2 
+fran hit :Col : 1 Row : 1 
+lola hit :Col : 2 Row : 2 
+fran hit :Col : 0 Row : 0 
+lola hit :Col : 0 Row : 1 
+fran hit :Col : 1 Row : 0 
+lola hit :Col : 2 Row : 1 
+fran hit :Col : 1 Row : 2 
+Winner:fran

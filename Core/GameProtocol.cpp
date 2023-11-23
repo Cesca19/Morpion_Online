@@ -39,7 +39,6 @@ namespace Protocol
 	{
 		GameProtocol::AllMoveMessage msg;
 		nlohmann::json message = nlohmann::json::parse(mess);
-		OutputDebugStringA(("GameProtocol:: 99 handle ALL move message \n" + mess).c_str());
 		msg = message["type"].get<std::string>() == "ALL_MOVE" ? GameProtocol::processAllMoveMessage(message) : msg;
 		return msg;
 	}
@@ -100,7 +99,6 @@ namespace Protocol
 		GameProtocol::AllMoveMessage msg;
 		
 		msg.moveList = message["data"]["moveList"].get<std::string>();
-		OutputDebugStringA(("iccccccciiciciciciciicicic " + msg.moveList).c_str());
 		return msg;
 	}
 

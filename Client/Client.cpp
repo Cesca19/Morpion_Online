@@ -129,7 +129,6 @@ int Client::createSocket()
 	iResult = getaddrinfo(_ipAddress.c_str(), _port.c_str(), &hints, &result);
 	if (iResult != 0) {
 		OutputDebugStringA(("getaddrinfo failed: %d\n" + std::to_string(iResult) + " \n").c_str());
-		WSACleanup();
 		return 1;
 	}
 	_connectSocket = INVALID_SOCKET;
@@ -138,7 +137,6 @@ int Client::createSocket()
 	if (_connectSocket == INVALID_SOCKET) {
 		OutputDebugStringA(("Error at socket(): %ld\n" + std::to_string(WSAGetLastError()) + " \n").c_str());
 		freeaddrinfo(result);
-		WSACleanup();
 		return 1;
 	}
 	iResult = connect(_connectSocket, result->ai_addr, (int)result->ai_addrlen);
@@ -149,7 +147,6 @@ int Client::createSocket()
 	freeaddrinfo(result);
 	if (_connectSocket == INVALID_SOCKET) {
 		OutputDebugStringA("Unable to connect to server!\n");
-		WSACleanup();
 		return 1;
 	}
 	return 0;
@@ -182,11 +179,8 @@ int Client::sendData(WPARAM wParam, LPARAM lParam)
 	int iResult;
 
 	iResult = send(_connectSocket, data.c_str(), (int)data.size(), 0);
-	//OutputDebugStringA(("sendData :: Bytes Sent: " + std::to_string(iResult)).c_str());
 	if (iResult == SOCKET_ERROR) {
 		OutputDebugStringA(std::string("send failed: " + std::to_string(WSAGetLastError())).c_str());
-		closesocket(_connectSocket);
-		WSACleanup();
 		return 1;
 	}
 	return 0;

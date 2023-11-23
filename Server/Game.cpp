@@ -83,6 +83,7 @@ void Game::addWatcher(std::string name)
 		if (win)
 			winner = (win == 3) ? "T" : _players[win - 1];
 		sendMessageToPlayer(name, Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
+		sendMessageToPlayers(Protocol::GameProtocol::createAllMoveMessage(_gameInfos) + "#");
 	}
 }
 
@@ -127,21 +128,16 @@ void Game::run()
 		}
 		// wait for move
 		mov = ((ServerCore*)_core)->getPlayerLastMessage();
-		//OutputDebugStringA(("Game:: 2  " + mov).c_str());
-
 		nlohmann::json msg;
 		if (mov[0] == '{')
 			msg = nlohmann::json::parse(mov);
 		if (mov != "" && msg["type"] == "MOVE") {
-			//parse mov 
 			auto msgData = Protocol::GameProtocol::handleMoveMessage(mov);
-			//create a string with the player move to be saved and send with SetHistoricMsg()
 			std::string histMsg = "";
-			histMsg += "Player: " + msgData.name + " ";
-			histMsg += "Column: " + std::to_string(msgData.posX) + " ";
-			histMsg += "Line: " + std::to_string(msgData.posY) + " ";
+			histMsg += msgData.name + " hit :";
+			histMsg += "Col : " + std::to_string(msgData.posX) + " ";
+			histMsg += "Row : " + std::to_string(msgData.posY) + " ";
 			SetHistoricMsg(histMsg);
-
 			if (msgData.name == _currentPlayer) {
 				move(msgData.posX, msgData.posY);
 				int win = checkWinner();
@@ -149,16 +145,10 @@ void Game::run()
 					std::string winner = (win == 3) ? "T" : _players[win - 1];
 					sendMessageToPlayers(Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
 					SetHistoricMsg("Winner:" + winner);
-					//sendMessageToPlayers("B;" + convertBoard(_gameMap) + "#");
-					//sendMessageToPlayers("E;" + ((win == 3) ? "T" : "W:" + _players[win - 1]) + "#");
 				}
 				changePlayer();
+				sendMessageToPlayers(Protocol::GameProtocol::createAllMoveMessage(_gameInfos) + "#");
 			}
-		}
-		if (split(mov, "#")[0] == "historic") {
-			OutputDebugStringA(("-----------------------" + mov + "------------------------\n").c_str());
-			OutputDebugStringA(("--Historic sent to" + split(mov, "#")[1] + " --").c_str());
-			sendMessageToPlayer(split(mov, "#")[1], Protocol::GameProtocol::createAllMoveMessage(_gameInfos)); //bug, maybe trouble with id cause it works sometime with senMessageToPlayers
 		}
 	}
 

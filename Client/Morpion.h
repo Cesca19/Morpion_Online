@@ -26,7 +26,6 @@ public:
 	void createGameBoard();
 	int printGameboard();
 	void DisplayHistoric(std::string historic);
-	void AskHistoricToServer();
 	void printCurrentPlayer();
 
 	void createTextButton();

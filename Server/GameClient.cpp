@@ -15,7 +15,6 @@ int GameClient::sendMessage(std::string mess)
 	int iSendResult = send(_clientSocket, mess.c_str(), (int)mess.size(), 0);
 	if (iSendResult == SOCKET_ERROR) {
 		closesocket(_clientSocket);
-		WSACleanup();
 		return 1;
 	}
 	return 0;
