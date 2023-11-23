@@ -76,11 +76,13 @@ void Game::addPlayer(std::string name, int rank)
 
 void Game::addWatcher(std::string name)
 {
+	std::string winner = "";
 	if (_players[0] != "" && _players[1] != "" && _isRunning) {
 		sendMessageToPlayer(name, "start#");
 		int win = checkWinner();
-		std::string winner = (win == 3) ? "T" : _players[win - 1];
-		sendMessageToPlayers(Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
+		if (win)
+			winner = (win == 3) ? "T" : _players[win - 1];
+		sendMessageToPlayer(name, Protocol::GameProtocol::createGameStateMessage(_gameMap, _turn, winner, _currentPlayer) + "#");
 	}
 }
 

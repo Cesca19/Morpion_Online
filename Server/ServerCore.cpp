@@ -143,14 +143,21 @@ int ServerCore::init()
 
 	initWindow();
 	_gamePort = _serverUI->getPlayerInput("Enter the game server port number ...", &event);
-	while (!checkPort(_gamePort))
+	if (_gamePort == "")
+		return 0;
+	while (!checkPort(_gamePort)) {
 		_gamePort = _serverUI->getPlayerInput("Invalid game server port number ...", &event);
-	
+		if (_gamePort == "")
+			return 0;
+	}
 	_webPort = _serverUI->getPlayerInput("Enter the web server port number ...", &event);
-	while (!checkPort(_webPort) || (_gamePort.compare(_webPort) == 0))
-		_gamePort = _serverUI->getPlayerInput("Invalid game server port number ...", &event);
-	
-	
+	if (_webPort == "")
+		return 0;
+	while (!checkPort(_webPort) || (_gamePort.compare(_webPort) == 0)) {
+		_webPort = _serverUI->getPlayerInput("Invalid web server port number ...", &event);
+		if (_webPort == "")
+			return 0;
+	}
 	_serverState = NOT_RUNNING;
 	return 0;
 }
@@ -211,6 +218,8 @@ void ServerCore::run()
 			_serverUI->display();
 			_gameLogic->run();
 			break;
+		case STOP:
+			break;
 		default:
 			break;
 		}
@@ -261,13 +270,7 @@ void ServerCore::sendMessageToPlayer(std::string name, std::string Message)
 {
 	Data_t* myData = new Data_t;
 	myData->content = Message;
-	OutputDebugStringA(("ServerCore:: 4.1  " + name + " \n").c_str());
-	OutputDebugStringA(("ServerCore:: 4.2  " + Message + " \n").c_str());
-	OutputDebugStringA(("ServerCore:: 4.3  " + myData->content +" \n").c_str());
-	OutputDebugStringA(("ServerCore:: 4.4  " + std::to_string((WPARAM)_playersNameMap[name]->getId()) + " \n").c_str());
-	PostMessage(_gameServerHwnd, SEND_MESSAGE_TO_PLAYER, (WPARAM)myData, (WPARAM)_playersNameMap[name]->getId());
-	OutputDebugStringA("ServerCore:: 5  \n");
-
+	PostMessage(_gameServerHwnd, SEND_MESSAGE_TO_PLAYER, (WPARAM)myData, _playersNameMap[name]->getId());
 }
 
 std::string ServerCore::getPlayerLastMessage()

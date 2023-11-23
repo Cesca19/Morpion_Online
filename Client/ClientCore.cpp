@@ -91,7 +91,7 @@ int ClientCore::initWindow()
 }
 
 ClientCore::ClientCore(HINSTANCE hInstance) : _game(new Morpion()),
- _name(""), _map(NULL), _isRunning(false), _gamePort("")
+ _name(""), _map(NULL), _isRunning(false), _gamePort(""), _ip("")
 {
 	_clientCore = this;
 }
@@ -104,28 +104,31 @@ int ClientCore::init(std::string windowName, int width, int height)
 	sf::Event event;
 
 	initWindow();
-
 	_game->setCore(this);
 	_game->init(windowName, width, height);
-
+	_ip = _game->getPlayerInput("Please enter the server ip address ...", &event);
+	if (_ip == "")
+		return 0;
 	_gamePort = _game->getPlayerInput("Please enter the server port ...", &event);
-	while (!checkPort(_gamePort)) _gamePort = _game->getPlayerInput("Invalid server port ...", &event);
-	
+	if (_gamePort == "")
+		return 0;
+	while (!checkPort(_gamePort)) {
+		_gamePort = _game->getPlayerInput("Invalid server port ...", &event);
+		if (_gamePort == "")
+			return 0;
+	}
 	if (_game->connectionPage(&event))
 		return 0;
-	
 	Client_Conf_t* clientConf = new Client_Conf_t;
-
 	clientConf->core = _hwnd;
 	clientConf->port = _gamePort;
-	
+	clientConf->ip = _ip;
 	_clientThread = CreateThread(NULL, 0, Client::MyThreadFunction, clientConf, 0, &clientThreadId);
 	if (_clientThread == NULL) {
 		OutputDebugStringA(("Error at thread: " + std::to_string(WSAGetLastError())).c_str());
 		return(1);
 	}
 	_isRunning = true;
-	
 	return 0;
 }
 
@@ -196,7 +199,9 @@ int ClientCore::run()
 	MSG msg = { 0 };
 	sf::Event event;
 	
-	while (msg.message != WM_QUIT && _game->GetWindow()->isOpen() && _isRunning == true) {
+	if (!_isRunning)
+		return 0;
+	while (msg.message != WM_QUIT && _game->GetWindow()->isOpen()) {
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
